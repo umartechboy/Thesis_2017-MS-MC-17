@@ -30,13 +30,14 @@ namespace RotatingBezierSplineEditor
         private void InitializeComponent()
         {
             this.panel1 = new System.Windows.Forms.Panel();
+            this.centerP = new RotatingBezierSplineEditor.AnchorEditToolControl();
+            this.rotationHandleP = new RotatingBezierSplineEditor.AnchorEditToolControl();
+            this.curvatureHandlesP = new RotatingBezierSplineEditor.AnchorEditToolControl();
             this.panel2 = new System.Windows.Forms.Panel();
             this.bothSplinesP = new RotatingBezierSplineEditor.ToolControl();
             this.linearSplineOnly = new RotatingBezierSplineEditor.ToolControl();
             this.rotatingSplineOnlyP = new RotatingBezierSplineEditor.ToolControl();
-            this.centerP = new RotatingBezierSplineEditor.ToolControl();
-            this.rotationHandleP = new RotatingBezierSplineEditor.ToolControl();
-            this.lineHandleP = new RotatingBezierSplineEditor.ToolControl();
+            this.bezierBoard1 = new RotatingBezierSplineEditor.BezierBoard();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.SuspendLayout();
@@ -45,11 +46,51 @@ namespace RotatingBezierSplineEditor
             // 
             this.panel1.Controls.Add(this.centerP);
             this.panel1.Controls.Add(this.rotationHandleP);
-            this.panel1.Controls.Add(this.lineHandleP);
+            this.panel1.Controls.Add(this.curvatureHandlesP);
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(80, 241);
             this.panel1.TabIndex = 1;
+            // 
+            // centerP
+            // 
+            this.centerP.Active = true;
+            this.centerP.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.centerP.BackgroundImage = global::RotatingBezierSplineEditor.Properties.Resources.Center;
+            this.centerP.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.centerP.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.centerP.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.centerP.Location = new System.Drawing.Point(0, 0);
+            this.centerP.Name = "centerP";
+            this.centerP.Size = new System.Drawing.Size(80, 81);
+            this.centerP.TabIndex = 0;
+            // 
+            // rotationHandleP
+            // 
+            this.rotationHandleP.Active = false;
+            this.rotationHandleP.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.rotationHandleP.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.rotationHandleP.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.rotationHandleP.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.rotationHandleP.Location = new System.Drawing.Point(0, 160);
+            this.rotationHandleP.Name = "rotationHandleP";
+            this.rotationHandleP.Size = new System.Drawing.Size(80, 81);
+            this.rotationHandleP.TabIndex = 0;
+            // 
+            // curvatureHandlesP
+            // 
+            this.curvatureHandlesP.Active = false;
+            this.curvatureHandlesP.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.curvatureHandlesP.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.curvatureHandlesP.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.curvatureHandlesP.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.curvatureHandlesP.Location = new System.Drawing.Point(0, 80);
+            this.curvatureHandlesP.Name = "curvatureHandlesP";
+            this.curvatureHandlesP.Size = new System.Drawing.Size(80, 81);
+            this.curvatureHandlesP.TabIndex = 0;
             // 
             // panel2
             // 
@@ -100,51 +141,22 @@ namespace RotatingBezierSplineEditor
             this.rotatingSplineOnlyP.Size = new System.Drawing.Size(80, 81);
             this.rotatingSplineOnlyP.TabIndex = 0;
             // 
-            // centerP
+            // bezierBoard1
             // 
-            this.centerP.Active = true;
-            this.centerP.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.bezierBoard1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.centerP.BackgroundImage = global::RotatingBezierSplineEditor.Properties.Resources.Center;
-            this.centerP.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.centerP.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.centerP.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.centerP.Location = new System.Drawing.Point(0, 0);
-            this.centerP.Name = "centerP";
-            this.centerP.Size = new System.Drawing.Size(80, 81);
-            this.centerP.TabIndex = 0;
-            // 
-            // rotationHandleP
-            // 
-            this.rotationHandleP.Active = false;
-            this.rotationHandleP.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.rotationHandleP.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.rotationHandleP.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.rotationHandleP.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.rotationHandleP.Location = new System.Drawing.Point(0, 160);
-            this.rotationHandleP.Name = "rotationHandleP";
-            this.rotationHandleP.Size = new System.Drawing.Size(80, 81);
-            this.rotationHandleP.TabIndex = 0;
-            // 
-            // lineHandleP
-            // 
-            this.lineHandleP.Active = false;
-            this.lineHandleP.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.lineHandleP.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.lineHandleP.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.lineHandleP.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.lineHandleP.Location = new System.Drawing.Point(0, 80);
-            this.lineHandleP.Name = "lineHandleP";
-            this.lineHandleP.Size = new System.Drawing.Size(80, 81);
-            this.lineHandleP.TabIndex = 0;
+            this.bezierBoard1.Location = new System.Drawing.Point(86, 12);
+            this.bezierBoard1.Name = "bezierBoard1";
+            this.bezierBoard1.Size = new System.Drawing.Size(948, 674);
+            this.bezierBoard1.TabIndex = 2;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1046, 698);
+            this.Controls.Add(this.bezierBoard1);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
             this.Name = "Form1";
@@ -157,14 +169,15 @@ namespace RotatingBezierSplineEditor
 
         #endregion
 
-        private ToolControl centerP;
-        private ToolControl lineHandleP;
-        private ToolControl rotationHandleP;
+        private AnchorEditToolControl centerP;
+        private AnchorEditToolControl curvatureHandlesP;
+        private AnchorEditToolControl rotationHandleP;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Panel panel2;
         private ToolControl bothSplinesP;
         private ToolControl linearSplineOnly;
         private ToolControl rotatingSplineOnlyP;
+        private BezierBoard bezierBoard1;
     }
 }
 
