@@ -28,20 +28,25 @@ namespace RotatingBezierSplineEditor
             MouseEnter += (s, e) => { containsMouseCursor = true; Invalidate(); };
             MouseLeave += (s, e) => { containsMouseCursor = false; Invalidate(); };
             // to implement "Active" changing like radio buttons
-            Click += (s, e) => Active = true;
+            Click += (s, e) => { if (DistinctSelection) Active = true; else Active = !Active; };
         }
         Image icon;
         Image dull;
         bool _active = false;
+        bool _dist = true;
+        public bool DistinctSelection { get { return _dist; } set { _dist = value; Active = Active; } }
         public bool Active
         {
             get { return _active; }
             set
             {
-                if (value && Parent != null)
-                    foreach (Control c in Parent.Controls)
-                        if (c is ToolControl)
-                            ((ToolControl)c).Active = false;
+                if (DistinctSelection)
+                {
+                    if (value && Parent != null)
+                        foreach (Control c in Parent.Controls)
+                            if (c is ToolControl)
+                                ((ToolControl)c).Active = false;
+                }
                 if (value != _active)
                 {
                     // change the value first
@@ -95,6 +100,6 @@ namespace RotatingBezierSplineEditor
     }
     public class AnchorEditToolControl : ToolControl
     {
-        public AnchorParts TargetPart { get; set; }
+        public AnchorDrawMode TargetPart { get; set; }
     }
 }

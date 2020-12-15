@@ -4,145 +4,501 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace RotatingBezierSplineEditor
 {
+    public delegate void IncrementLocationHandler(float x, float y);
     public enum MouseState
     {
         None,
         Hover,
         Held,
         Selected,
-    } 
-    public enum AnchorParts:byte
-    {
-        Center = 1,
-        RotationHandle1 = 2,
-        RotationHandle2 = 4,
-        CurvatureHandle1 = 8,
-        CurvatureHandle2 = 16,
     }
-    public class PointD
+    public class BezierBoardItem
     {
-        internal void ProcessMouse(Point location, float v1, float v2)
+        public string Tag = "";
+        public event EventHandler OnSelected;
+        public event IncrementLocationHandler IncrementLocationRequest;
+        public event EventHandler LocationResetRequest;
+        public virtual float Left { get; set; } = 0;
+        public virtual float Top { get; set; } = 0;
+        public virtual float Width { get; set; } = 0;
+        public virtual float Height { get; set; } = 0;
+        public virtual RectangleF BoundsOnTopParent
         {
-            throw new NotImplementedException();
+            get
+            { return new RectangleF(Left, Top, Width, Height); }
         }
-
+        BezierBoardItem sisterItemUnderMouseMove;
+        PointF lastMouseMove;
+        PointF MouseDownAt;
+        public void NotifyLocationIncrementRequest(float dx, float dy)
+        { IncrementLocationRequest?.Invoke(dx, dy); }
+        public void NotifySelected()
+        {
+            OnSelected?.Invoke(this, new EventArgs());
+        }
+        public bool CanBeSelected { get; set; } = false;
+        public BezierBoardItem()
+        {
+            OnMouseEnter += (s, e) => { MouseState = MouseState.Hover; };
+            OnMouseLeave += (s, e) => { if (!CanBeSelected) MouseState = MouseState.None; };
+            OnMouseDown += (s, e) => { MouseState = MouseState.Held; MouseDownAt = e.Location; };
+            OnMouseUp += (s, e) =>
+            {
+                if (MouseState == MouseState.Held)
+                    LocationResetRequest?.Invoke(this, new EventArgs());
+                if (CanBeSelected)
+                {
+                    MouseState = MouseState.Selected;
+                    NotifySelected();
+                }
+                else
+                    MouseState = MouseState.Hover;
+            };
+            OnMouseMove += (s, e) =>
+            {
+                if (MouseState == MouseState.Held)
+                {
+                    NotifyLocationIncrementRequest(e.X - lastMouseMove.X, e.Y - lastMouseMove.Y);
+                }
+                lastMouseMove = e.Location;
+            };
+        }
+        public virtual List<BezierBoardItem> GetChildren()
+        { throw new NotImplementedException(); }
         public MouseState MouseState { get; set; } = MouseState.None;
-        internal bool ContainsMouse(Point location)
+        public virtual Cursor Cursor { get; set; } = Cursors.No;
+        public PointF MousePosition;
+        bool wentDownInBounds = false;
+        bool lastwasOutside = true;
+        Cursor cursorBkp;
+        public event MouseEventHandler OnMouseLeave;
+        public event MouseEventHandler OnMouseMove;
+        public event MouseEventHandler OnMouseEnter;
+        public event MouseEventHandler OnMouseDown;
+        public event MouseEventHandler OnMouseUp;
+        public void NotifyMouseLeave(object sender, MouseEventArgs e, BezierBoardItem Parent, Control ParentControl)
         {
-            return false;
-            //throw new NotImplementedException();
+            lastwasOutside = true;
+            OnMouseLeave?.Invoke(sender, e);
+            if (Parent.Cursor == Cursors.No)
+                ParentControl.Cursor = Cursors.Default;
+            else ParentControl.Cursor = Parent.Cursor;
         }
-        internal void NitifyMouseDown(Point location)
+        public void NotifyMouseDown(object sender, MouseEventArgs e)
         {
-            //throw new NotImplementedException();
+            lastMouseMove = e.Location;
+            wentDownInBounds = true;
+            lastwasOutside = false;
+            OnMouseDown?.Invoke(sender, e);
+        }
+        public void NotifyMouseUp(object sender, MouseEventArgs e) { OnMouseUp?.Invoke(sender, e); }
+        public void NotifyMouseMove(object sender, MouseEventArgs e) { OnMouseMove?.Invoke(sender, e); }
+        public void NotifyMouseEnter(object sender, MouseEventArgs e) { OnMouseEnter?.Invoke(sender, e); }
+        public virtual bool ProcessMouseMove(MouseEventArgs e, BezierBoardItem filter, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
+        {
+            // cache the position.
+            if (this.Tag == "C")
+                ;
+            else if (Tag == "obj")
+                ;
+            else if (Tag == "anchor")
+                ;
+            MousePosition = new PointF(e.X, e.Y);
+            // resolve any debts to previous relationships
+            if (!CanDraw(inkDrawMode, anchorDrawMode))
+                return false;
+            if (TopParentBoundsContains(e.Location))
+            {
+                // before returning, call mouse leave on sister controls that had mouse hover
+                if (Parent != null)
+                {
+                    if (Parent.sisterItemUnderMouseMove != null && Parent.sisterItemUnderMouseMove != this)
+                        Parent.sisterItemUnderMouseMove.NotifyMouseLeave(this, e, this, ParentControl);
+                    Parent.sisterItemUnderMouseMove = this;
+                }
+            }
+            // don't receive an event if not visible.
+
+            if (filter != this && !wentDownInBounds)
+            {
+                // ask the children in reverse order
+                var controls = GetChildren();
+                for (int i = controls.Count - 1; i >= 0; i--)
+                {
+                    if (controls[i].ProcessMouseMove(e, filter, inkDrawMode, anchorDrawMode, this, ParentControl))
+                    {
+                        return true;
+                    }
+                }
+            }
+            sisterItemUnderMouseMove = null;
+            if (filter == null || filter == this || wentDownInBounds)
+            {
+                if (this is CenterPoint)
+                    ;
+                var e2 = new MouseEventArgs(e.Button, e.Clicks, (int)(e.X - BoundsOnTopParent.X), (int)(e.Y - BoundsOnTopParent.Y), e.Delta);
+                if (TopParentBoundsContains(e.Location) || wentDownInBounds)
+                {
+                    if (lastwasOutside)
+                    {
+                        lastwasOutside = false;
+                        cursorBkp = ParentControl.Cursor;
+                        NotifyMouseEnter(this, e2);
+                        if (Cursor == Cursors.No)
+                            ParentControl.Cursor = Cursors.Default;
+                        else ParentControl.Cursor = Cursor;
+                    }
+                    NotifyMouseMove(this, e);
+                    return true;
+                }
+                else if (!lastwasOutside)
+                {
+                    lastwasOutside = true;
+                    NotifyMouseLeave(this, e2, this, ParentControl);
+                    NotifyMouseMove(this, e2);
+
+                    if (Parent == null)
+                        ParentControl.Cursor = Cursors.Default;
+                    else if (Parent.Cursor == Cursors.No)
+                        ParentControl.Cursor = Cursors.Default;
+                    else ParentControl.Cursor = Parent.Cursor;
+                    // don't return true.
+                }
+            }
+            return false;
+        }
+        public virtual BezierBoardItem ProcessMouseDown(MouseEventArgs e, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
+        {
+            // devide if we need to receive mouse down and up events.
+            if (!CanDraw(inkDrawMode, anchorDrawMode))
+                return null;
+
+            // first ask the children
+
+            var controls = GetChildren();
+            for (int i = controls.Count - 1; i >= 0; i--)
+            {
+                var cr = controls[i].ProcessMouseDown(e, inkDrawMode, anchorDrawMode, this, ParentControl);
+                if (cr != null)
+                    return cr;
+            }
+            if (TopParentBoundsContains(e.Location))
+            {
+                NotifyMouseDown(this, e);
+                return this;
+            }
+            return null;
         }
 
-        public static implicit operator PointF(PointD p)
+        public virtual void ProcessMouseUp(object sender, MouseEventArgs e, BezierBoardItem filter, BezierBoardItem Parent, Control ParentControl)
+        {
+            if (filter != this)
+            {
+                var controls = GetChildren();
+                for (int i = controls.Count - 1; i >= 0; i--)
+                {
+                    controls[i].ProcessMouseUp(this, e, filter, this, ParentControl);
+                }
+            }
+            if (filter == this || filter == null)
+            {
+                if (TopParentBoundsContains(e.Location) || wentDownInBounds)
+                {
+                    NotifyMouseUp(sender, e);
+                }
+            }
+            wentDownInBounds = false;
+        }
+        public virtual bool TopParentBoundsContains(PointF p)
+        {
+            return BoundsOnTopParent.Contains(p);
+        }
+        public virtual void Draw(Graphics g, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
+        { throw new NotImplementedException(); }
+        public virtual bool CanDraw(InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode)
+        {
+            return inkDrawMode.HasFlag(InkDrawMode.Spline);
+        }
+    }
+    public class CenterPoint : CPoint
+    {
+        public override Cursor Cursor => Cursors.No;
+        public CenterPoint(float x, float y) : base(x, y)
+        {
+            CanBeSelected = true;
+        }
+        public override bool CanDraw(InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode)
+        {
+            return anchorDrawMode.HasFlag(AnchorDrawMode.Centers) & inkDrawMode.HasFlag(InkDrawMode.Spline);
+        }
+        public override void Draw(Graphics g, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
+        {
+            float sz = 4F;
+            if (MouseState == MouseState.Hover)
+                sz = 6;
+            g.FillEllipse((MouseState == MouseState.Held || MouseState == MouseState.Selected) ? Brushes.Black : Brushes.Gray, (float)X - sz, (float)Y - sz, sz * 2, sz * 2);
+        }
+    }
+    public class RotationHandlePoint : CPoint
+    {
+        Cursor _c;
+        public override Cursor Cursor { get { if (_c == null) _c = new Cursor("resources\\rotation_icon.ico"); return _c; } }
+        public static float HandleLength = 50;
+        public RotationHandlePoint(double x, double y) : base((float)x, (float)y)
+        { }
+        public RotationHandlePoint(CenterPoint cp, double angle) : base(cp.X + HandleLength * Math.Cos(angle) , cp.Y + HandleLength * Math.Sin(angle))
+        { }
+        public override void Draw(Graphics g, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
+        {
+            float sz = 3F;
+            if (MouseState == MouseState.Hover)
+                sz = 6;
+
+            g.DrawEllipse((MouseState == MouseState.Held || MouseState == MouseState.Selected) ? Pens.Black : Pens.Gray, (float)X - sz, (float)Y - sz, sz * 2, sz * 2);
+        }
+        public override bool CanDraw(InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode)
+        {
+            return anchorDrawMode.HasFlag(AnchorDrawMode.RotaionHandles) & inkDrawMode.HasFlag(InkDrawMode.Spline);
+        }
+    }
+    public class CurvatureHandlePoint : CPoint
+    {
+        public override Cursor Cursor => Cursors.Hand;
+        public CurvatureHandlePoint(PointF p) : this(p.X, p.Y)
+        { }
+        public CurvatureHandlePoint(float x, float y) : base(x, y)
+        { }
+        public override void Draw(Graphics g, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
+        {
+            float sz = 3F;
+            if (MouseState == MouseState.Hover)
+                sz = 6;
+            if (MouseState == MouseState.Held || MouseState == MouseState.Selected)
+                g.FillRectangle(Brushes.Black, (float)X - sz, (float)Y - sz, sz * 2, sz * 2);
+            else
+                g.DrawRectangle(Pens.DarkGray, (float)X - sz, (float)Y - sz, sz * 2, sz * 2);
+        }
+        public override bool CanDraw(InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode)
+        {
+            return anchorDrawMode.HasFlag(AnchorDrawMode.CurvatureHandles) & inkDrawMode.HasFlag(InkDrawMode.Spline);
+        }
+    }
+    public class CPoint:BezierBoardItem
+    {
+        public float X { get; set; } = 0;
+        public float Y { get; set; } = 0;
+        public override float Left { get { return X - 4; } set { X = value + 4; }  }
+        public override float Top { get { return Y - 4; } set { Y = value + 4; } }
+        public override float Width { get; set; } = 8;
+        public override float Height { get; set; } = 8;
+        public override List<BezierBoardItem> GetChildren()
+        {
+            return new List<BezierBoardItem>();
+        }
+        public static implicit operator PointF(CPoint p)
         {
             return new PointF((float)p.X, (float)p.Y);
         }
-        public static implicit operator Point(PointD p)
+        public static implicit operator Point(CPoint p)
         {
             return new Point((int)p.X, (int)p.Y);
         }
-        public static implicit operator PointD(Point p)
-        {
-            return new PointD(p.X, p.Y);
-        }
-        public double X { get; set; } = 0;
-        public double Y { get; set; } = 0;
         public bool IsCloseBy(PointF P, int tol = 3)
         {
             return Math.Sqrt(Math.Pow(P.X - X, 2) + Math.Pow(P.Y - Y, 2)) < 3;
         }
-        public PointD(double x = 0, double y = 0)
+        public CPoint(double x = 0, double y = 0)
         {
-            X = x; Y = y;
+            X = (float)x; Y = (float)y;
         }
-        public static PointD Intermediate(PointD a, PointD b, double frac = 0.5)
+        public static CPoint Intermediate(CPoint a, CPoint b, double frac = 0.5)
         {
-            return new PointD(a.X * frac + b.X * (1 - frac), a.Y * frac + b.Y * (1 - frac));
+            return new CPoint(a.X * frac + b.X * (1 - frac), a.Y * frac + b.Y * (1 - frac));
         }
-        public override string ToString()
+        public double DistanceFrom(CPoint p)
         {
-            return ((PointF)this).ToString();
+            return DistanceBetween(this, p);
+        }
+        public static double DistanceBetween(float x1, float y1, float x2, float y2)
+        {
+            return Math.Sqrt((y2 - y1) * (y2 - y1) + (x2 - x1) * (x2 - x1));
+        }
+        public static double DistanceBetween(PointF p1, PointF p2)
+        {
+            return DistanceBetween(p1.X, p1.Y, p2.X, p2.Y);
+        }
+        public static double DistanceBetween(CPoint p1, CPoint p2)
+        {
+            return DistanceBetween(p1.X, p1.Y, p2.X, p2.Y);
+        }
+        public double AngleBetween(CPoint p, CPoint c)
+        {
+            return Math.Atan2(p.Y - c.Y, p.X - c.X);
+        }
+        public double AngleAbout(CPoint c)
+        {
+            return AngleBetween(this, c);
+        }
+        public void Increment(float dx, float dy)
+        {
+            X += dx;
+            Y += dy;
         }
 
-        internal void Draw(Graphics g)
+        public override void Draw(Graphics g, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
         {
             g.DrawEllipse(Pens.Black, (float)X - 3, (float)Y - 3, 6, 6);
         }
+
     }
-
-    public class RotatingBezierSplineAnchor
+    
+    public class RotatingBezierSplineAnchor : BezierBoardItem
     {
-        public PointD P { get; set; }
-        public PointD C1 { get; set; }
-        public PointD C2 { get;set; }
-        public PointD R1 { get;set; }
-
-        internal bool ContainsMouse(Point location)
+        public override bool CanDraw(InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode)
         {
-            foreach (var p in Points)
-                if (p.ContainsMouse(location))
-                    return true;
-            return false;
+            return inkDrawMode.HasFlag(InkDrawMode.Spline);
         }
-
-        public PointD R2 { get; private set; }
-
-        public PointD[] Points;
-        int completeRotation = 0;
-        public double R { get{ return completeRotation * 2 * Math.PI + Math.Atan2(R1.Y - P.Y, R1.X - P.X); } }
-
-        double lastSetR = 0;
-        public RotatingBezierSplineAnchor(float x, float y) : this(new PointD(x, y)) { }
-        public RotatingBezierSplineAnchor(PointD P) : this(P, new PointD(P.X, P.Y), new PointD(P.X, P.Y)) { }
-        public RotatingBezierSplineAnchor(PointD P, PointD a1, PointD a2)
+        public override List<BezierBoardItem> GetChildren()
         {
-            this.P = new PointD(P.X, P.Y);
-            this.C1 = new PointD(a1.X, a1.Y);
-            this.C2 = new PointD(a2.X, a2.Y);
-            R1 = new PointD(P.X + 20, P.Y);
-            R2 = new PointD(P.X - 20, P.Y);
-            Points = new PointD[] { P, C1, C2, R1, R2 };
+            return new BezierBoardItem[] { P, C1, C2, R1, /*R2*/ }.ToList();
         }
+        public CenterPoint P { get; private set; }
+        public CurvatureHandlePoint C1 { get; private set; }
+        public CurvatureHandlePoint C2 { get; private set; }
+        public RotationHandlePoint R1 { get; private set; }
+        //public RotationHandlePoint R2 { get; private set; }
 
-
-        public void Draw(Graphics g, AnchorParts partsToDraw, AnchorParts partsHighlighted)
+        public CPoint[] Points;
+        int rotationsOffset = 0;
+        public bool BindCurvatureHandlesLength { get; set; } = false;
+        public double R { get{ return rotationsOffset * 2 * Math.PI + Math.Atan2(R1.Y - P.Y, R1.X - P.X); } }
+        public RotatingBezierSplineAnchor(float x, float y) : this(new PointF(x, y)) { }
+        public RotatingBezierSplineAnchor(PointF P) : this(P, new PointF(P.X, P.Y), 0, 0) { }
+        public RotatingBezierSplineAnchor(PointF p, PointF a1, double a2Length, double rotation)
         {
-            var colors = new Dictionary<AnchorParts, Color>();
-            var cs = new KeyValuePair<AnchorParts, Color>[] {
-                new KeyValuePair<AnchorParts, Color>( AnchorParts.Center, Color.Black),
-                new KeyValuePair<AnchorParts, Color>( AnchorParts.CurvatureHandle1, Color.DarkBlue),
-                new KeyValuePair<AnchorParts, Color>( AnchorParts.CurvatureHandle2, Color.DarkBlue),
-                new KeyValuePair<AnchorParts, Color>( AnchorParts.Center, Color.DarkRed),
-                new KeyValuePair<AnchorParts, Color>( AnchorParts.Center, Color.DarkRed),
-            };
-            foreach (var c in cs)
-                colors.Add(c.Key, c.Value);
-            DrawPoint(g, P, AnchorParts.Center, colors, partsToDraw, partsHighlighted);
-            DrawPoint(g, C1, AnchorParts.CurvatureHandle1, colors, partsToDraw, partsHighlighted);
-            DrawPoint(g, C2, AnchorParts.CurvatureHandle2, colors, partsToDraw, partsHighlighted);
-            DrawPoint(g, R1, AnchorParts.RotationHandle1, colors, partsToDraw, partsHighlighted);
-            DrawPoint(g, R2, AnchorParts.RotationHandle2, colors, partsToDraw, partsHighlighted);
-        }
-        static void DrawPoint(Graphics g, PointF P, AnchorParts part, Dictionary<AnchorParts, Color> cs, AnchorParts partsToDraw, AnchorParts partsHighlighted)
-        {
-            if (partsToDraw.HasFlag(part))
+            this.P = new CenterPoint(p.X, p.Y);
+            this.C1 = new CurvatureHandlePoint(a1.X, a1.Y);
+            var ang = C1.AngleAbout(P) + Math.PI;
+            this.C2 = new CurvatureHandlePoint(new PointF((float)a2Length * (float)Math.Cos(ang) + P.X, (float)a2Length * (float)Math.Sin(ang) + P.Y));
+            // do we need to add rotation to R as well?
+            while (rotation > Math.PI)
             {
-                float size = 4;
-                Pen p = new Pen(new SolidBrush(Color.FromArgb(120, cs[part])), 1);
-                if (partsHighlighted.HasFlag(part))
-                {
-                    size = 6;
-                    p = new Pen(new SolidBrush(cs[part]), 2);
-                }
-                g.DrawEllipse(p, (float)P.X - size / 2, (float)P.Y - size / 2, size, size);
+                rotation -= 2 * Math.PI;
+                rotationsOffset--;
+            } 
+            while (rotation < -Math.PI)
+            {
+                rotation += 2 * Math.PI;
+                rotationsOffset++;
             }
+            R1 = new RotationHandlePoint(this.P, rotation);
+            //R2 = new RotationHandlePoint(this.P, rotation + Math.PI);
+            Points = new CPoint[] { this.P, C1, C2, R1, /*R2*/ };
+            P.IncrementLocationRequest += (dx, dy) =>
+              {
+                  P.Increment(dx, dy);
+                  C1.Increment(dx, dy);
+                  C2.Increment(dx, dy);
+                  R1.Increment(dx, dy);
+                  //R2.Increment(dx, dy);
+              };
+            R1.LocationResetRequest += (s, e) =>
+            {
+                double newAngle = R1.AngleAbout(P);
+                R1.X = (float)(P.X + RotationHandlePoint.HandleLength * Math.Cos(newAngle));
+                R1.Y = (float)(P.Y + RotationHandlePoint.HandleLength * Math.Sin(newAngle));
+            };
+            //R2.LocationResetRequest += (s, e) =>
+            //{
+            //    double newAngle = R2.AngleAbout(P);
+            //    R2.X = (float)(P.X + RotationHandlePoint.HandleLength * Math.Cos(newAngle));
+            //    R2.Y = (float)(P.Y + RotationHandlePoint.HandleLength * Math.Sin(newAngle));
+            //};
+            R1.IncrementLocationRequest += (dx, dy) =>
+            {
+                double oldAngle = R1.AngleAbout(P);
+                R1.Increment(dx, dy);
+                double newAngle = R1.AngleAbout(P);
+                double dTh = newAngle - oldAngle;
+                while (dTh > Math.PI)
+                {
+                    dTh -= 2 * Math.PI;
+                    rotationsOffset--;
+                }
+                while (dTh < -Math.PI)
+                {
+                    dTh += 2 * Math.PI;
+                    rotationsOffset++;
+                }
+                newAngle = oldAngle + dTh;
+                //// do the complete rotation compensation here
+                //R1.X = (float)(P.X + RotationHandlePoint.HandleLength * Math.Cos(newAngle));
+                //R1.Y = (float)(P.Y + RotationHandlePoint.HandleLength * Math.Sin(newAngle));
+                //R2.X = (float)(P.X + RotationHandlePoint.HandleLength * Math.Cos(newAngle + Math.PI));
+                //R2.Y = (float)(P.Y + RotationHandlePoint.HandleLength * Math.Sin(newAngle + Math.PI));
+            };
+            //R2.IncrementLocationRequest += (dx, dy) =>
+            //{
+            //    //double oldAngle = R2.AngleAbout(P);
+            //    //R2.Increment(dx, dy);
+            //    //double newAngle = R2.AngleAbout(P);
+            //    ////// do the complete rotation compensation here
+            //    ////R2.X = (float)(P.X + RotationHandlePoint.HandleLength * Math.Cos(newAngle));
+            //    ////R2.X = (float)(P.X + RotationHandlePoint.HandleLength * Math.Sin(newAngle));
+            //    //R1.X = (float)(P.X + RotationHandlePoint.HandleLength * Math.Cos(newAngle + Math.PI));
+            //    //R1.Y = (float)(P.Y + RotationHandlePoint.HandleLength * Math.Sin(newAngle + Math.PI));
+            //};
+            C1.IncrementLocationRequest += (dx, dy) =>
+              {
+                  double oldAngle = C1.AngleAbout(P);
+                  C1.Increment(dx, dy);
+                  double newAngle = C1.AngleAbout(P);
+                  // keep the radius fixed
+                  double r2 = C2.DistanceFrom(P);
+                  if (BindCurvatureHandlesLength)
+                      r2 = C1.DistanceFrom(P);
+                  // do the complete rotation compensation here
+                  C2.X = (float)(P.X + r2 * Math.Cos(newAngle + Math.PI));
+                  C2.Y = (float)(P.Y + r2 * Math.Sin(newAngle + Math.PI));
+              };
+            C2.IncrementLocationRequest += (dx, dy) =>
+            {
+                double oldAngle = C2.AngleAbout(P);
+                C2.Increment(dx, dy);
+                double newAngle = C2.AngleAbout(P);
+                double r2 = C1.DistanceFrom(P);
+                if (BindCurvatureHandlesLength)
+                    r2 = C2.DistanceFrom(P);
+                // do the complete rotation compensation here
+                C1.X = (float)(P.X + r2 * Math.Cos(newAngle + Math.PI));
+                C1.Y = (float)(P.Y + r2 * Math.Sin(newAngle + Math.PI));
+            };
+
+        }
+
+        public override void Draw(Graphics g, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
+        {
+            if (anchorDrawMode.HasFlag(AnchorDrawMode.Centers))
+                P.Draw(g, inkDrawMode, anchorDrawMode, this, ParentControl);
+            if (anchorDrawMode.HasFlag(AnchorDrawMode.CurvatureHandles))
+            {
+                // draw the lines
+                g.DrawLine(Pens.Black, C1, P);
+                g.DrawLine(Pens.Black, C2, P);
+                C1.Draw(g, inkDrawMode, anchorDrawMode, this, ParentControl); C2.Draw(g, inkDrawMode, anchorDrawMode, this, ParentControl);
+            }
+            if (anchorDrawMode.HasFlag(AnchorDrawMode.RotaionHandles))
+            {
+                g.DrawLine(Pens.Black, R1, P);
+                //g.DrawLine(Pens.Black, R2, P);
+                R1.Draw(g, inkDrawMode, anchorDrawMode, this, ParentControl);
+                //R2.Draw(g, inkDrawMode, anchorDrawMode, this, ParentControl);
+            }
+
         }
         //public RotatingBezierSplineAnchor YInvertedClone()
         //{
@@ -155,13 +511,6 @@ namespace RotatingBezierSplineEditor
 
         //    return a;
         //}
-        public RotatingBezierSplineAnchor Clone()
-        {
-            RotatingBezierSplineAnchor a = new RotatingBezierSplineAnchor(P, C1, C2);
-            a.R1 = new PointD(R1.X, R1.Y);
-            a.R2 = new PointD(R2.X, R2.Y);
-            return a;
-        }
     }
     public class BezierCurveCellWithRotation
     {
@@ -174,42 +523,72 @@ namespace RotatingBezierSplineEditor
             this.A1 = a1;
             this.A2 = a2;
         }
-        public void Draw(Graphics g, float thickness, MouseState mouseState, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode)
+        public bool InkContains(PointF p)
+        {
+            if (psInk == null) return false;
+            return IsPointInPolygon4(psInk, p);
+        }
+        /// <summary>
+        /// Determines if the given point is inside the polygon
+        /// </summary>
+        /// <param name="polygon">the vertices of polygon</param>
+        /// <param name="testPoint">the given point</param>
+        /// <returns>true if the point is inside the polygon; otherwise, false</returns>
+        public static bool IsPointInPolygon4(PointF[] polygon, PointF testPoint)
+        {
+            bool result = false;
+            int j = polygon.Count() - 1;
+            for (int i = 0; i < polygon.Count(); i++)
+            {
+                if (polygon[i].Y < testPoint.Y && polygon[j].Y >= testPoint.Y || polygon[j].Y < testPoint.Y && polygon[i].Y >= testPoint.Y)
+                {
+                    if (polygon[i].X + (testPoint.Y - polygon[i].Y) / (polygon[j].Y - polygon[i].Y) * (polygon[j].X - polygon[i].X) < testPoint.X)
+                    {
+                        result = !result;
+                    }
+                }
+                j = i;
+            }
+            return result;
+        }
+        PointF[] psInk;
+        PointF[] psSpline;
+        public void Draw(Graphics g, float thickness, MouseState mouseState, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
         {
             // draw the spline
             int divisions = 20;
-            PointF[] ps = new PointF[divisions + 1];
-            PointD pPrevious = null;
+            psSpline = new PointF[divisions + 1];
+            CPoint pPrevious = null;
             double r1 = this.A1.R;
             double r2 = this.A2.R;
-            PointF[] psInk = new PointF[divisions * 4];
+            psInk = new PointF[divisions * 4];
             for (int i = 0; i <= divisions; i++)
             {
                 double f = i / (double)divisions;
-                PointD pl1_1 = PointD.Intermediate(A1.P, A1.C2, f);
-                PointD pl1_2 = PointD.Intermediate(A1.C2, A2.C1, f);
-                PointD pl1_3 = PointD.Intermediate(A2.C1, A2.P, f);
+                CPoint pl1_1 = CPoint.Intermediate(A1.P, A1.C2, f);
+                CPoint pl1_2 = CPoint.Intermediate(A1.C2, A2.C1, f);
+                CPoint pl1_3 = CPoint.Intermediate(A2.C1, A2.P, f);
 
-                PointD pl2_1 = PointD.Intermediate(pl1_1, pl1_2, f);
-                PointD pl2_2 = PointD.Intermediate(pl1_2, pl1_3, f);
+                CPoint pl2_1 = CPoint.Intermediate(pl1_1, pl1_2, f);
+                CPoint pl2_2 = CPoint.Intermediate(pl1_2, pl1_3, f);
 
-                PointD P = PointD.Intermediate(pl2_1, pl2_2, f);
+                CPoint P = CPoint.Intermediate(pl2_1, pl2_2, f);
 
                 if (i > 0 && thickness > 0)
                 {
                     double fp = (i - 1) / (double)divisions;
-                    PointD pp1 = new PointD(
+                    CPoint pp1 = new CPoint(
                         pPrevious.X + thickness / 2 * Math.Cos(r1 * fp + r2 * (1 - fp)),
                         pPrevious.Y + thickness / 2 * Math.Sin(r1 * fp + r2 * (1 - fp)));
 
-                    PointD pp2 = new PointD(
+                    CPoint pp2 = new CPoint(
                         pPrevious.X - thickness / 2 * Math.Cos(r1 * fp + r2 * (1 - fp)),
                         pPrevious.Y - thickness / 2 * Math.Sin(r1 * fp + r2 * (1 - fp)));
-                    PointD pc1 = new PointD(
+                    CPoint pc1 = new CPoint(
                         P.X + thickness / 2 * Math.Cos(r1 * f + r2 * (1 - f)),
                         P.Y + thickness / 2 * Math.Sin(r1 * f + r2 * (1 - f)));
 
-                    PointD pc2 = new PointD(
+                    CPoint pc2 = new CPoint(
                         P.X - thickness / 2 * Math.Cos(r1 * f + r2 * (1 - f)),
                         P.Y - thickness / 2 * Math.Sin(r1 * f + r2 * (1 - f)));
                     psInk[(i - 1) * 2] = pp1;
@@ -217,7 +596,7 @@ namespace RotatingBezierSplineEditor
                     psInk[psInk.Length - ((i - 1) * 2) - 1] = pp2;
                     psInk[psInk.Length - ((i - 1) * 2 + 1) - 1] = pc2;
                 }
-                ps[i] = P;
+                psSpline[i] = P;
                 pPrevious = P;
             }
 
@@ -227,49 +606,58 @@ namespace RotatingBezierSplineEditor
                 if (thickness > 0 && inkDrawMode.HasFlag(InkDrawMode.Ink))
                     g.FillPolygon(Brushes.DarkGray, psInk);
                 if (inkDrawMode.HasFlag(InkDrawMode.Spline))
-                    g.DrawLines(inkDrawMode.HasFlag(InkDrawMode.Ink) ? Pens.White : Pens.Gray, ps);
+                    g.DrawLines(inkDrawMode.HasFlag(InkDrawMode.Ink) ? Pens.White : Pens.Gray, psSpline);
             }
             else if (mouseState == MouseState.Hover)
             {
-                g.DrawLines(Pens.Black, ps);
-                g.DrawLines(new Pen(Color.FromArgb(100, 0, 0, 0), 3), ps);
+                if (thickness > 0 && inkDrawMode.HasFlag(InkDrawMode.Ink))
+                {
+                    g.FillPolygon(Brushes.DarkGray, psInk);
+                    g.DrawPolygon(new Pen(Color.DarkBlue, 3), psInk);
+                }
+                if (inkDrawMode.HasFlag(InkDrawMode.Spline))
+                {
+                    g.DrawLines(Pens.Black, psSpline);
+                    g.DrawLines(new Pen(Color.FromArgb(100, 0, 0, 0), 3), psSpline);
+                }
             }
             else if (mouseState == MouseState.Held)
             {
-                g.DrawLines(new Pen(Color.Black, 3), ps);
-                g.DrawLines(Pens.White, ps);
+                if (thickness > 0 && inkDrawMode.HasFlag(InkDrawMode.Ink))
+                {
+                    g.FillPolygon(Brushes.DarkGray, psInk);
+                    g.DrawPolygon(new Pen(Color.DarkBlue, 1), psInk);
+                }
+                if (inkDrawMode.HasFlag(InkDrawMode.Spline))
+                {
+                    g.DrawLines(Pens.Black, psSpline);
+                    g.DrawLines(new Pen(Color.FromArgb(100, 0, 0, 0), 2), psSpline);
+                }
             }
 
             if (inkDrawMode.HasFlag(InkDrawMode.Spline)) // draw the handles as well
             {
-                if (anchorDrawMode.HasFlag(AnchorDrawMode.Centers))
-                    A1.P.Draw(g);
-                if (anchorDrawMode.HasFlag(AnchorDrawMode.CurvatureHandles))
-                { A1.C1.Draw(g); A1.C2.Draw(g); }
-                if (anchorDrawMode.HasFlag(AnchorDrawMode.RotaionHandles))
-                { A1.R1.Draw(g); A1.R2.Draw(g); }
-                // draw the handles
-
-                //Pen p2 = new Pen(p.Brush, 1);
-                //g.DrawLine(p2, P1, a1);
-                //g.DrawLine(p2, P2, a2);
-                //g.DrawRectangle(p2, (float)a1.X - 2, (float)a1.Y - 2, 4.0F, 4.0F);
-                //g.DrawRectangle(p2, (float)a2.X - 2, (float)a2.Y - 2, 4.0F, 4.0F);
-
-                //g.DrawLine(Pens.Green, P1, r1);
-                //g.DrawLine(Pens.Green, P2, r2);
-                //g.DrawRectangle(Pens.Green, (float)r1.X - 2, (float)r1.Y - 2, 4.0F, 4.0F);
-                //g.DrawRectangle(Pens.Green, (float)r2.X - 2, (float)r2.Y - 2, 4.0F, 4.0F);
-
-                //g.DrawRectangle(p2, (float)P1.X - 2, (float)P1.Y - 2, 4.0F, 4.0F);
-                //g.DrawRectangle(p2, (float)P2.X - 2, (float)P2.Y - 2, 4.0F, 4.0F);
+                A1.Draw(g, inkDrawMode, anchorDrawMode, Parent, ParentControl);
+                A2.Draw(g, inkDrawMode, anchorDrawMode, Parent, ParentControl);
             }
+        }
+
+        internal bool SplineIntersects(PointF p, int distance)
+        {
+            if (psSpline == null)
+                return false;
+            foreach (var ps in psSpline)
+            {
+                if (CPoint.DistanceBetween(p, ps) <= distance)
+                    return true;
+            }
+            return false;
         }
 
         //public RectangleF GetBounds(double thickness)
         //{
         //    int divisions = 15;
-        //    PointD pp = null;
+        //    CPoint pp = null;
         //    double A1 = Math.Atan2(P1.Y - r1.Y, P1.X - r1.X);
         //    double A2 = Math.Atan2(P2.Y - r2.Y, P2.X - r2.X) + Math.PI + 0.001;
         //    if (A2 > 2 * Math.PI)
@@ -282,30 +670,30 @@ namespace RotatingBezierSplineEditor
         //    for (int i = 0; i <= divisions; i++)
         //    {
         //        double f = i / (double)divisions;
-        //        PointD pl1_1 = PointD.Intermediate(P1, a1, f);
-        //        PointD pl1_2 = PointD.Intermediate(a1, a2, f);
-        //        PointD pl1_3 = PointD.Intermediate(a2, P2, f);
+        //        CPoint pl1_1 = CPoint.Intermediate(P1, a1, f);
+        //        CPoint pl1_2 = CPoint.Intermediate(a1, a2, f);
+        //        CPoint pl1_3 = CPoint.Intermediate(a2, P2, f);
 
-        //        PointD pl2_1 = PointD.Intermediate(pl1_1, pl1_2, f);
-        //        PointD pl2_2 = PointD.Intermediate(pl1_2, pl1_3, f);
+        //        CPoint pl2_1 = CPoint.Intermediate(pl1_1, pl1_2, f);
+        //        CPoint pl2_2 = CPoint.Intermediate(pl1_2, pl1_3, f);
 
-        //        PointD P = PointD.Intermediate(pl2_1, pl2_2, f);
+        //        CPoint P = CPoint.Intermediate(pl2_1, pl2_2, f);
 
         //        if (i > 0)
         //        {
         //            double fp = (i - 1) / (double)divisions;
-        //            PointD pp1 = new PointD(
+        //            CPoint pp1 = new CPoint(
         //                pp.X + thickness / 2 * Math.Cos(A1 * fp + A2 * (1 - fp)),
         //                pp.Y + thickness / 2 * Math.Sin(A1 * fp + A2 * (1 - fp)));
 
-        //            PointD pp2 = new PointD(
+        //            CPoint pp2 = new CPoint(
         //                pp.X - thickness / 2 * Math.Cos(A1 * fp + A2 * (1 - fp)),
         //                pp.Y - thickness / 2 * Math.Sin(A1 * fp + A2 * (1 - fp)));
-        //            PointD pc1 = new PointD(
+        //            CPoint pc1 = new CPoint(
         //                P.X + thickness / 2 * Math.Cos(A1 * f + A2 * (1 - f)),
         //                P.Y + thickness / 2 * Math.Sin(A1 * f + A2 * (1 - f)));
 
-        //            PointD pc2 = new PointD(
+        //            CPoint pc2 = new CPoint(
         //                P.X - thickness / 2 * Math.Cos(A1 * f + A2 * (1 - f)),
         //                P.Y - thickness / 2 * Math.Sin(A1 * f + A2 * (1 - f)));
         //            psInk[(i - 1) * 2] = pp1;
@@ -347,7 +735,7 @@ namespace RotatingBezierSplineEditor
         //internal void MakeTargets(double inc, List<EulerAngleOrientation> targets)
         //{
         //    // draw the spline                      
-        //    PointD pp = null;
+        //    CPoint pp = null;
         //    double A1 = Math.Atan2(P1.Y - r1.Y, P1.X - r1.X);
         //    double A2 = Math.Atan2(P2.Y - r2.Y, P2.X - r2.X) + Math.PI + 0.001;
         //    if (A2 > 2 * Math.PI)
@@ -359,14 +747,14 @@ namespace RotatingBezierSplineEditor
 
         //    for (double f = 1; f >= 0; f -= inc)
         //    {
-        //        PointD pl1_1 = PointD.Intermediate(P1, a1, f);
-        //        PointD pl1_2 = PointD.Intermediate(a1, a2, f);
-        //        PointD pl1_3 = PointD.Intermediate(a2, P2, f);
+        //        CPoint pl1_1 = CPoint.Intermediate(P1, a1, f);
+        //        CPoint pl1_2 = CPoint.Intermediate(a1, a2, f);
+        //        CPoint pl1_3 = CPoint.Intermediate(a2, P2, f);
 
-        //        PointD pl2_1 = PointD.Intermediate(pl1_1, pl1_2, f);
-        //        PointD pl2_2 = PointD.Intermediate(pl1_2, pl1_3, f);
+        //        CPoint pl2_1 = CPoint.Intermediate(pl1_1, pl1_2, f);
+        //        CPoint pl2_2 = CPoint.Intermediate(pl1_2, pl1_3, f);
 
-        //        PointD P = PointD.Intermediate(pl2_1, pl2_2, f);
+        //        CPoint P = CPoint.Intermediate(pl2_1, pl2_2, f);
 
         //        var twist = A1 * f + A2 * (1 - f);
 
@@ -393,24 +781,30 @@ namespace RotatingBezierSplineEditor
     }
   
     [Serializable]
-    public class RotatingBezierSpline
+    public class RotatingBezierSpline : BezierBoardItem
     {
-
-        public List<RotatingBezierSplineAnchor> Anchors { get; private set; } = new List<RotatingBezierSplineAnchor>();
+        public RotatingBezierSpline()
+        {
+            IncrementLocationRequest += (dx, dy) => {
+                foreach (var a in Anchors)
+                {
+                    a.P.NotifyLocationIncrementRequest(dx, dy);
+                }
+            };
+        }
+        public override Cursor Cursor { get => Cursors.SizeAll; }
+        public override bool CanDraw(InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode)
+        {
+            return true;
+        }
+        public override List<BezierBoardItem> GetChildren()
+        {
+            return Anchors.Select(a => (BezierBoardItem)a).ToList();
+        }
+        List<RotatingBezierSplineAnchor> Anchors { get; set; } = new List<RotatingBezierSplineAnchor>();
 
         public float FlatTipWidth { get; internal set; }
 
-        public void AddAnchor(PointF point)
-        {
-            Add(point, point);
-        }
-        public void Add(PointF point, PointF a12)
-        {
-            PointD P = new PointD(point.X, point.Y);
-            PointD a1 = new PointD(a12.X, a12.Y);
-            PointD a2 = PointD.Intermediate(a1, P, -1);
-            Anchors.Add(new RotatingBezierSplineAnchor(P, a1, a2));
-        }
         //public static List<RotatingBezierSpline> FromFile(string fileName)
         //{
         //    var lines = System.IO.File.ReadAllLines(fileName);
@@ -432,12 +826,12 @@ namespace RotatingBezierSplineEditor
         //            continue;
         //        }
         //        RotatingBezierSplineAnchor a = new RotatingBezierSplineAnchor(
-        //            new PointD(Convert.ToDouble(parts[0]), Convert.ToDouble(parts[1])),
-        //            new PointD(Convert.ToDouble(parts[2]), Convert.ToDouble(parts[3])),
-        //            new PointD(Convert.ToDouble(parts[4]), Convert.ToDouble(parts[5]))
+        //            new CPoint(Convert.ToDouble(parts[0]), Convert.ToDouble(parts[1])),
+        //            new CPoint(Convert.ToDouble(parts[2]), Convert.ToDouble(parts[3])),
+        //            new CPoint(Convert.ToDouble(parts[4]), Convert.ToDouble(parts[5]))
         //            );
-        //        a.rh1 = new PointD(Convert.ToDouble(parts[6]), Convert.ToDouble(parts[7]));
-        //        a.rh2 = new PointD(Convert.ToDouble(parts[8]), Convert.ToDouble(parts[9]));
+        //        a.rh1 = new CPoint(Convert.ToDouble(parts[6]), Convert.ToDouble(parts[7]));
+        //        a.rh2 = new CPoint(Convert.ToDouble(parts[8]), Convert.ToDouble(parts[9]));
         //        Spline.Anchors.Add(a);
         //    }
 
@@ -445,30 +839,89 @@ namespace RotatingBezierSplineEditor
         //        Splines.Add(Spline);
         //    return Splines;
         //}
-        public MouseState MouseState { get; set; }
         public float Thickness { get; set; } = 0;
-        public void Draw(Graphics g, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode)
+        List<BezierCurveCellWithRotation> lastCurveCellCache;
+        InkDrawMode inkDrawModeCache;
+        public override void Draw(Graphics g, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
         {
+            inkDrawModeCache = inkDrawMode;
+            lastCurveCellCache = new List<BezierCurveCellWithRotation>();
             for (int i = 0; i < Anchors.Count - 1; i++)
             {
-                new BezierCurveCellWithRotation(Anchors[i], Anchors[i + 1]).Draw(g, Thickness, MouseState, inkDrawMode, anchorDrawMode);
+                var cell = new BezierCurveCellWithRotation(Anchors[i], Anchors[i + 1]);
+                lastCurveCellCache.Add(cell);
+                cell.Draw(g, Thickness, MouseState, inkDrawMode, anchorDrawMode, this, ParentControl);
+            }
+        }
+        public override bool TopParentBoundsContains(PointF p)
+        {
+            if (lastCurveCellCache == null) return false;
+            else
+                foreach (var c in lastCurveCellCache)
+                {
+                    if (inkDrawModeCache.HasFlag(InkDrawMode.Ink))
+                    {
+                        if (c.InkContains(p))
+                            return true;
+                    }
+                    else if (inkDrawModeCache.HasFlag(InkDrawMode.Spline))
+                    {
+                        if (c.SplineIntersects(p, 10))
+                            return true;
+                    }
+                }
+            return false;
+        }
+        public bool CanReceiveAnchorAtStart
+        {
+            get
+            {
+                if (Anchors.Count == 0) return false;
+                if (Anchors.First().P.MouseState == MouseState.Selected)
+                    return true;
+                return false;
+            }
+        }
+        public bool CanReceiveAnchorAtEnd
+        {
+            get
+            {
+                if (Anchors.Count == 0) return false;
+                if (Anchors.Last().P.MouseState == MouseState.Selected)
+                    return true;
+                return false;
+            }
+        }
+        public CurvatureHandlePoint AddAnchor(RotatingBezierSplineAnchor a)
+        {
+            a.P.OnSelected += (s, e) =>
+            {
+                foreach (var _a in Anchors)
+                {
+                    if (_a == a)
+                        continue;
+                    _a.P.MouseState = MouseState.None;
+                }
+                this.NotifySelected();
+            };
+            if (CanReceiveAnchorAtStart)
+            {
+                Anchors.Insert(0, a);
+                return a.C1;
+            }
+            else // force add
+            {
+                Anchors.Add(a);
+                return a.C2;
             }
         }
 
-        internal void ProcessMouse(Point location, float v1, float v2)
+        public void UnselectAllAnchors()
         {
-            //throw new NotImplementedException();
-        }
-
-        internal void NitifyMouseDown(Point location)
-        {
-            //throw new NotImplementedException();
-        }
-
-        internal bool ContainsMouse(Point location)
-        {
-            return false;
-            //throw new NotImplementedException();
+            foreach (var a in Anchors)
+            {
+                a.P.MouseState = MouseState.None;
+            }
         }
         //public RectangleF GetBounds()
         //{
