@@ -33,7 +33,7 @@ namespace RotatingBezierSplineEditor
         public bool GridEnabled { get{ return _ge; }set { _ge = value; BezierBoard_SizeChanged(null, null);Invalidate(); } }
         public bool ScaleEnabled { get { return _se; } set { _se = value; BezierBoard_SizeChanged(null, null); Invalidate(); } }
         public bool XYLinesEnabled { get { return _xyl & GridEnabled; } set { _xyl = value; Invalidate(); } }
-        public int  XAxisHeight { get { return ScaleEnabled? 20:0; } }
+        public int  XAxisHeight { get { return ScaleEnabled? 30:0; } }
         public int YAxisWidth { get { return ScaleEnabled ? 50 : 0; } }
         private void BezierBoard_SizeChanged(object sender, EventArgs e)
         {
