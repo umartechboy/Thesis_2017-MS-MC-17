@@ -1,4 +1,4 @@
-![GregorAppIcon](https://raw.githubusercontent.com/umartechboy/Thesis_2017-MS-MC-17/main/Tools/RotatingBezierSplineEditor/Images/AppIcon.jpg =200x)
+![GregorAppIcon](https://raw.githubusercontent.com/umartechboy/Thesis_2017-MS-MC-17/main/Tools/RotatingBezierSplineEditor/Images/AppIcon.jpg)
 # Gregor -- A Minimalist Rotating Spline Editor
 
 Gregor is a simple Rotating Spline editor and machine data generation tool. These are the primary features of Gregor.
