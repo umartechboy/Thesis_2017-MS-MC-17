@@ -19,9 +19,9 @@ namespace RotatingBezierSplineEditor
         {
             InitializeComponent();
             // set images
-            centerP.SetImage(Image.FromFile("Center.png"), 65); 
-            curvatureHandlesP.SetImage(Image.FromFile("CurvatureHandles.png"), 65);
-            rotationHandleP.SetImage(Image.FromFile("RotationHandles.png"), 56);
+            centerP.SetImage(Image.FromFile("Resources\\Center.png"), 65); 
+            curvatureHandlesP.SetImage(Image.FromFile("Resources\\CurvatureHandles.png"), 65);
+            rotationHandleP.SetImage(Image.FromFile("Resources\\RotationHandles.png"), 56);
             centerP.DistinctSelection = false;
             curvatureHandlesP.DistinctSelection = false;
             rotationHandleP.DistinctSelection = false;
