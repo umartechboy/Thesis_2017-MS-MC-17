@@ -183,7 +183,7 @@ namespace RotatingBezierSplineEditor
             // 
             this.splinesToolStripMenuItem.Name = "splinesToolStripMenuItem";
             this.splinesToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.I)));
-            this.splinesToolStripMenuItem.Size = new System.Drawing.Size(185, 26);
+            this.splinesToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
             this.splinesToolStripMenuItem.Text = "Spline";
             this.splinesToolStripMenuItem.Click += new System.EventHandler(this.splinesToolStripMenuItem_Click);
             // 
@@ -379,7 +379,7 @@ namespace RotatingBezierSplineEditor
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
             this.aboutToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F1;
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(165, 26);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
             this.aboutToolStripMenuItem.Text = "How to";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
@@ -387,7 +387,7 @@ namespace RotatingBezierSplineEditor
             // 
             this.aboutToolStripMenuItem1.Name = "aboutToolStripMenuItem1";
             this.aboutToolStripMenuItem1.ShortcutKeys = System.Windows.Forms.Keys.F2;
-            this.aboutToolStripMenuItem1.Size = new System.Drawing.Size(165, 26);
+            this.aboutToolStripMenuItem1.Size = new System.Drawing.Size(224, 26);
             this.aboutToolStripMenuItem1.Text = "About";
             this.aboutToolStripMenuItem1.Click += new System.EventHandler(this.aboutToolStripMenuItem1_Click);
             // 

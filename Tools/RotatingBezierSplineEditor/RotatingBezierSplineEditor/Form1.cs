@@ -73,9 +73,9 @@ namespace RotatingBezierSplineEditor
             rotatingSplineOnlyP.OnActivated += (s, e) => setDisplayStyleMenuItems();
             linearSplineOnly.OnActivated += (s, e) => setDisplayStyleMenuItems();
 
-            bothSplinesP.SetImage(Image.FromFile("bothSplines.png"), 45);
-            rotatingSplineOnlyP.SetImage(Image.FromFile("rotatingSplineOnly.png"), 45);
-            linearSplineOnly.SetImage(Image.FromFile("splineOnly.png"), 45);
+            bothSplinesP.SetImage(Image.FromFile("Resources\\bothSplines.png"), 45);
+            rotatingSplineOnlyP.SetImage(Image.FromFile("Resources\\rotatingSplineOnly.png"), 45);
+            linearSplineOnly.SetImage(Image.FromFile("Resources\\splineOnly.png"), 45);
 
             bothSplinesP.OnActivated += (s, e) => bezierBoard1.InkDrawMode = InkDrawMode.Ink | InkDrawMode.Spline | (bezierBoard1.InkDrawMode & InkDrawMode.Images);
             rotatingSplineOnlyP.OnActivated += (s, e) => bezierBoard1.InkDrawMode = InkDrawMode.Ink | (bezierBoard1.InkDrawMode & InkDrawMode.Images);
