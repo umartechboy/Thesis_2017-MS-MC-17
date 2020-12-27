@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<objects>
+  <spline>
+    <FlatTipWidth>40</FlatTipWidth>
+    <anchor>
+      <rotationoffset>0</rotationoffset>
+      <P>34.5, -2.75</P>
+      <C1>34.5, -2.75</C1>
+      <C2>34.5, -2.75</C2>
+      <R1>84.5, -2.75</R1>
+    </anchor>
+    <anchor>
+      <rotationoffset>0</rotationoffset>
+      <P>3.6, -101</P>
+      <C1>3.6, -101</C1>
+      <C2>3.6, -101</C2>
+      <R1>53.6, -101</R1>
+    </anchor>
+    <anchor>
+      <rotationoffset>0</rotationoffset>
+      <P>110, -28</P>
+      <C1>110, -28</C1>
+      <C2>110, -28</C2>
+      <R1>160, -28</R1>
+    </anchor>
+    <anchor>
+      <rotationoffset>0</rotationoffset>
+      <P>24.5, -209</P>
+      <C1>24.5, -209</C1>
+      <C2>24.5, -209</C2>
+      <R1>74.5, -209</R1>
+    </anchor>
+    <anchor>
+      <rotationoffset>0</rotationoffset>
+      <P>203, -311</P>
+      <C1>203, -311</C1>
+      <C2>203, -311</C2>
+      <R1>253, -311</R1>
+    </anchor>
+    <anchor>
+      <rotationoffset>0</rotationoffset>
+      <P>242, -194</P>
+      <C1>242, -194</C1>
+      <C2>242, -194</C2>
+      <R1>292, -194</R1>
+    </anchor>
+  </spline>
+  <image>
+    <ImageAdress>tmpC582.jpg</ImageAdress>
+    <center>0, 0</center>
+    <size>-357, -407</size>
+  </image>
+</objects>

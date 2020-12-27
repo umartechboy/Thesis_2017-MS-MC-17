@@ -1,21 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml;
 
 namespace RotatingBezierSplineEditor
 {
     public class BezierBoard : Panel
     {
         AnchorDrawMode _AnchorDrawMode = AnchorDrawMode.Centers;
-        InkDrawMode _InkDrawMode = InkDrawMode.Ink | InkDrawMode.Spline;
+        InkDrawMode _InkDrawMode = InkDrawMode.All;
         public InkDrawMode InkDrawMode { get { return _InkDrawMode; } set { _InkDrawMode = value; Invalidate(); } }
         public AnchorDrawMode AnchorDrawMode { get { return _AnchorDrawMode; } set { _AnchorDrawMode = value; Invalidate(); } }
         List<BezierBoardItem> Objects = new List<BezierBoardItem>();
 
+        MouseButtons MouseButtonsThatWentDown = MouseButtons.None;
+        Point MouseLocationAtDown;
         public BezierBoard()
         {
             DoubleBuffered = true;
@@ -23,6 +27,7 @@ namespace RotatingBezierSplineEditor
             MouseDown += BezierBoard_MouseDown;
             MouseUp += BezierBoard_MouseUp;
             SizeChanged += BezierBoard_SizeChanged;
+            Click += BezierBoard_Click;
         }
         bool _ge = true, _se = true, _xyl = true;
         public bool GridEnabled { get{ return _ge; }set { _ge = value; BezierBoard_SizeChanged(null, null);Invalidate(); } }
@@ -37,9 +42,11 @@ namespace RotatingBezierSplineEditor
             XAxisBounds = new RectangleF(0, Height - XAxisHeight, Width - YAxisWidth, XAxisHeight);
         }
 
-        public void AddItem(BezierBoardItem item)
+        public BezierBoardItem AddItem(BezierBoardItem item)
         {
+            if (item == null) return null;
             Objects.Add(item);
+            item.OnSelfRemoveRequest += (s, e) => { Objects.Remove(item); Invalidate(); };
             if (item is RotatingBezierSpline)
             {
                 var sitem = (RotatingBezierSpline)item;
@@ -52,7 +59,9 @@ namespace RotatingBezierSplineEditor
                         }
                 };
             }
+            return item;
         }
+        
         private void BezierBoard_MouseUp(object sender, MouseEventArgs e)
         {
             if (MouseAtDownForScale != null)
@@ -66,14 +75,18 @@ namespace RotatingBezierSplineEditor
             currentControlUnderMouse = null;
             Invalidate();
         }
+        public new Cursor DefaultCursor = Cursors.Default;
         PointF OffsetGAtMouseDown; // for panning
         object BoardMoveStartedAt = null;
         object MouseAtDownForScale = null; // for scaling
         PointF VatMouseDown; // for scaling
         Point lastMouseG;
         float ppuAtMouseDown = 1;
+        public bool clickIsForAdding = true;
         private void BezierBoard_MouseDown(object sender, MouseEventArgs e)
         {
+            MouseButtonsThatWentDown = e.Button;
+            MouseLocationAtDown = e.Location;
             var pT = GtoV(e.Location);
             var eBkp = new Point(e.X, e.Y);
             e = new MouseEventArgs(e.Button, e.Clicks, pT.X, pT.Y, e.Delta);
@@ -95,47 +108,81 @@ namespace RotatingBezierSplineEditor
                     var so = (RotatingBezierSpline)o;
                     if (so.CanReceiveAnchorAtEnd || so.CanReceiveAnchorAtStart)
                     {
-                        var a1 = e.Location;
-                        a1.Offset(1, 1);
-                        anchorToAdd = new RotatingBezierSplineAnchor(e.Location, a1, 1, 0);
-                        anchorToAdd.BindCurvatureHandlesLength = true;
-                        pointToMoveWhenAdding = so.AddAnchor(anchorToAdd);
-                        so.UnselectAllAnchors();
-                        currentControlUnderMouse = pointToMoveWhenAdding;
-                        pointToMoveWhenAdding.NotifyMouseDown(this, e);
-                        pointToMoveWhenAdding.MouseState = MouseState.Held;
-                        pointToMoveWhenAdding.Tag = "C";
-                        so.Tag = "obj";
-                        anchorToAdd.Tag = "anchor";
-                        void unbindEv(object ss, EventArgs ee)
+                        if (e.Button == MouseButtons.Left && clickIsForAdding) // this is not an append operation, but a cancel op.
                         {
-                            anchorToAdd.BindCurvatureHandlesLength = false;
-                            pointToMoveWhenAdding.OnMouseUp -= unbindEv;
-                            anchorToAdd.P.MouseState = MouseState.Selected;
+                            continuousAnchorAddition(e, so);
+                            return;
                         }
-                        pointToMoveWhenAdding.OnMouseUp += unbindEv;
-                        return;
+                        else
+                        {
+                            foreach (var o_ in Objects)
+                            {
+                                if (o_ is RotatingBezierSpline)
+                                { ((RotatingBezierSpline)o_).UnselectAllAnchors(); }
+                            }
+                            return;
+                        }
                     }
                 }
             }
-            if (e.Button == MouseButtons.Right)
+            // we move here only when no spline is being appended to
+            if (e.Button == MouseButtons.Right) // initiate scale
             {
                 //GAtMouseDown = eG.X;
                 VatMouseDown = GtoV(eBkp);
                 MouseAtDownForScale = eBkp;
                 ppuAtMouseDown = PPU;
             }
-            else
+            else // move or add new curve
             {
-                BoardMoveStartedAt = eBkp;
-                OffsetGAtMouseDown = OffsetG;
+                if (clickIsForAdding)
+                {
+                    var so = new RotatingBezierSpline(this);
+                    AddItem(so);
+                    continuousAnchorAddition(e, so);
+                    Invalidate();
+                    //RotatingBezierSpline newSpline = ;
+                    //var newSpline.AddAnchor(new RotatingBezierSplineAnchor(e.Location))
+                }
+                else
+                {
+                    BoardMoveStartedAt = eBkp;
+                    OffsetGAtMouseDown = OffsetG;
+                }
             }
             lastMouseG = eBkp;
         }
-
+        public void ForceBeginDragItem(BezierBoardItem item)
+        {
+            Cursor.Position = new Point(0, 0);
+            ForceBeginDragItem(item, new MouseEventArgs(MouseButtons.Left, 1, 0, 0, 0));
+        }
+        public void ForceBeginDragItem(BezierBoardItem item, MouseEventArgs e)
+        {
+            if (item == null) return;
+            currentControlUnderMouse = item;
+            item.NotifyMouseDown(this, e);
+            item.MouseState = MouseState.Held;
+        }
+        void continuousAnchorAddition(MouseEventArgs e, RotatingBezierSpline so)
+        {
+            var a1 = e.Location;
+            a1.Offset(1, 1);
+            anchorToAdd = new RotatingBezierSplineAnchor(e.Location, a1, 0, 0);
+            anchorToAdd.BindCurvatureHandlesLength = true;
+            CurvatureHandlePoint pointToMoveWhenAdding = so.AddAnchor(anchorToAdd);
+            so.UnselectAllAnchors();
+            ForceBeginDragItem(pointToMoveWhenAdding, e);
+            void unbindEv(object ss, EventArgs ee)
+            {
+                anchorToAdd.BindCurvatureHandlesLength = false;
+                pointToMoveWhenAdding.OnMouseUp -= unbindEv;
+                anchorToAdd.P.MouseState = MouseState.Selected;
+            }
+            pointToMoveWhenAdding.OnMouseUp += unbindEv;
+        }
         BezierBoardItem currentControlUnderMouse = null;
         RotatingBezierSplineAnchor anchorToAdd;
-        CurvatureHandlePoint pointToMoveWhenAdding;
 
         public float VxtoG(float v, float offsetG, float ppu)
         {
@@ -172,14 +219,21 @@ namespace RotatingBezierSplineEditor
                 ((Point)MouseAtDownForScale).X - VatMouseDown.X * PPU,
                 (Height - XAxisHeight - ((Point)MouseAtDownForScale).Y) - VatMouseDown.Y * PPU);
         }
+
+        private void BezierBoard_Click(object sender, EventArgs e)
+        {
+            if (currentControlUnderMouse != null)
+                currentControlUnderMouse.NotifyMouseClick(MouseLocationAtDown, MouseButtonsThatWentDown);
+        }
+
         private void BezierBoard_MouseMove(object sender, MouseEventArgs e)
         {
             if (MouseAtDownForScale != null)
             {
                 var ec = ((Point)MouseAtDownForScale);
                 var er = new Point((Width - (int)YAxisWidth) / 2, (Height - XAxisHeight) / 2);
-                var refD = CPoint.DistanceBetween(ec.X, ec.Y, er.X, er.Y);
-                PPU = ppuAtMouseDown * (float)(CPoint.DistanceBetween(e.X, e.Y, er.X, er.Y) / refD);
+                var refD = RBSPoint.DistanceBetween(ec.X, ec.Y, er.X, er.Y);
+                PPU = ppuAtMouseDown * (float)(RBSPoint.DistanceBetween(e.X, e.Y, er.X, er.Y) / refD);
                 if (PPU < .01F)
                     PPU = 0.01F;
                 else if (PPU > 100)
@@ -203,11 +257,55 @@ namespace RotatingBezierSplineEditor
             e = new MouseEventArgs(e.Button, e.Clicks, pT.X, pT.Y, e.Delta);
             var controls = Objects;
             for (int i = controls.Count - 1; i >= 0; i--)
+            {
+                if (controls[i] == null)
+                    continue;
                 if (controls[i].ProcessMouseMove(e, currentControlUnderMouse, InkDrawMode, AnchorDrawMode, null, this))
                 {
                     break;
                 }
+            }
             Invalidate();
+        }
+
+        internal void ImportObjects(string fileName)
+        {
+            XmlDocument doc = new XmlDocument();
+            doc.Load(fileName);
+            foreach (XmlElement obj in doc.GetElementsByTagName("image"))
+                AddItem(ImageItem.Parse(obj));
+            foreach (XmlElement obj in doc.GetElementsByTagName("spline"))
+                AddItem(RotatingBezierSpline.Parse(obj, this));
+        }
+
+        internal void ClearObjects()
+        {
+            Objects.Clear();
+        }
+
+        internal void SaveObjects(string fileName, params int [] indices)
+        {
+            if (indices == null) indices = new int[0];
+            if (indices.Length == 0)
+            {
+                indices = new int[Objects.Count];
+                for (int i = 0; i < indices.Length; i++)
+                    indices[i] = i;
+            }
+            indices = indices.Distinct().ToArray();
+
+            XmlDocument doc = new XmlDocument();
+
+            //(1) the xml declaration is recommended, but not mandatory
+            XmlDeclaration xmlDeclaration = doc.CreateXmlDeclaration("1.0", "UTF-8", null);
+            XmlElement root = doc.DocumentElement;
+            doc.InsertBefore(xmlDeclaration, root);
+
+            var main = doc.CreateElement("objects");
+            foreach (var ind in indices)
+                Objects[ind].Save(main);
+            doc.AppendChild(main);
+            doc.Save(fileName);
         }
 
         protected override void OnPaint(PaintEventArgs e)
@@ -223,8 +321,10 @@ namespace RotatingBezierSplineEditor
             g.ScaleTransform(1, -1);
             g.TranslateTransform(0 + OffsetG.X, -Height + OffsetG.Y + XAxisHeight);
             g.ScaleTransform(PPU, PPU);
-            foreach (var curve in Objects)
-                curve.Draw(e.Graphics, InkDrawMode, AnchorDrawMode, null, this);
+            foreach (var obj in Objects.FindAll(o => o is ImageItem))
+                obj?.Draw(e.Graphics, InkDrawMode, AnchorDrawMode, null, this);
+            foreach (var obj in Objects.FindAll(o => !(o is ImageItem)))
+                obj?.Draw(e.Graphics, InkDrawMode, AnchorDrawMode, null, this);
 
             g.ResetTransform();
             g.ResetClip();
@@ -241,7 +341,7 @@ namespace RotatingBezierSplineEditor
                 g.DrawLine(Pens.Red, p3.X, p3.Y - 20, p3.X, p3.Y + 20);
                 g.DrawLine(Pens.Red, p3.X - 20, p3.Y, p3.X + 20, p3.Y);
                 g.DrawRectangle(Pens.Red, p3.X - 40, p3.Y - 40, 80, 80);
-                var r = (float)CPoint.DistanceBetween(p1.X, p1.Y, p3.X, p3.Y);
+                var r = (float)RBSPoint.DistanceBetween(p1.X, p1.Y, p3.X, p3.Y);
                 g.DrawEllipse(Pens.Black, p1.X - r, p1.Y - r, 2 * r, 2 * r);
             }
             if (BoardMoveStartedAt != null)
@@ -480,7 +580,9 @@ namespace RotatingBezierSplineEditor
         None = 0,
         Spline = 1,
         Ink = 2,
-        Both = Spline | Ink
+        Images = 4,
+        CompleteSpline = Spline | Ink,
+        All = CompleteSpline | Images
     }
     public enum AnchorDrawMode
     {

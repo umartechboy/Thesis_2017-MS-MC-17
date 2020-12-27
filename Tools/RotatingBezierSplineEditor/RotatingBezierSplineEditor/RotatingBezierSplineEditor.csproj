@@ -32,6 +32,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>گ %282%29.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -66,6 +69,12 @@
     <Compile Include="RotatingBezierSplinePanel.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="SplineAppearanceEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SplineAppearanceEditor.Designer.cs">
+      <DependentUpon>SplineAppearanceEditor.cs</DependentUpon>
+    </Compile>
     <Compile Include="ToolControl.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -77,6 +86,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SplineAppearanceEditor.resx">
+      <DependentUpon>SplineAppearanceEditor.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -119,6 +131,12 @@
     <None Include="Resources\rotation_icon.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ع for sample trace.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="گ %282%29.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
