@@ -1,4 +1,5 @@
-#  ![enter image Grgor AppIcon](https://raw.githubusercontent.com/umartechboy/Thesis_2017-MS-MC-17/main/Tools/RotatingBezierSplineEditor/Images/%DA%AF.JPG =100x) Gregor -- A Minimalist Rotating Spline Editor
+![enter image Grgor AppIcon](https://raw.githubusercontent.com/umartechboy/Thesis_2017-MS-MC-17/main/Tools/RotatingBezierSplineEditor/Images/%DA%AF.JPG =100x) 
+# Gregor -- A Minimalist Rotating Spline Editor
 
 Gregor is a simple Rotating Spline editor and machine data generation tool. These are the primary features of Gregor.
  - Create and Edit Rotating Bezier Splines
