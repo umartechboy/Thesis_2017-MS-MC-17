@@ -10,6 +10,12 @@ using System.Xml;
 
 namespace RotatingBezierSplineEditor
 {
+    public class RasterizedRotatingBezierSpline
+    {
+        public double[] X;
+        public double[] Y;
+        public double[] T;
+    }
     public delegate void IncrementLocationHandler(float x, float y);
     public enum MouseState
     {
@@ -56,37 +62,41 @@ namespace RotatingBezierSplineEditor
             OnSelected?.Invoke(this, new EventArgs());
         }
         public bool CanBeSelected { get; set; } = false;
-        public BezierBoardItem()
+        public BezierBoardItem(bool mouseEvents)
         {
-            OnMouseEnter += (s, e) => {
-                MouseState = MouseState.Hover; 
-            };
-            OnMouseLeave += (s, e) =>
+            if (mouseEvents)
             {
-                if (!CanBeSelected)
-                    MouseState = MouseState.None;
-            };
-            OnMouseDown += (s, e) => { MouseState = MouseState.Held; MouseDownAt = e.Location; };
-            OnMouseUp += (s, e) =>
-            {
-                if (MouseState == MouseState.Held)
-                    LocationResetRequest?.Invoke(this, new EventArgs());
-                if (CanBeSelected)
+                OnMouseEnter += (s, e) =>
                 {
-                    MouseState = MouseState.Selected;
-                    NotifySelected();
-                }
-                else
                     MouseState = MouseState.Hover;
-            };
-            OnMouseMove += (s, e) =>
-            {
-                if (MouseState == MouseState.Held)
+                };
+                OnMouseLeave += (s, e) =>
                 {
-                    NotifyLocationIncrementRequest(e.X - lastMouseMove.X, e.Y - lastMouseMove.Y);
-                }
-                lastMouseMove = e.Location;
-            };
+                    if (!CanBeSelected)
+                        MouseState = MouseState.None;
+                };
+                OnMouseDown += (s, e) => { MouseState = MouseState.Held; MouseDownAt = e.Location; };
+                OnMouseUp += (s, e) =>
+                {
+                    if (MouseState == MouseState.Held)
+                        LocationResetRequest?.Invoke(this, new EventArgs());
+                    if (CanBeSelected)
+                    {
+                        MouseState = MouseState.Selected;
+                        NotifySelected();
+                    }
+                    else
+                        MouseState = MouseState.Hover;
+                };
+                OnMouseMove += (s, e) =>
+                {
+                    if (MouseState == MouseState.Held)
+                    {
+                        NotifyLocationIncrementRequest(e.X - lastMouseMove.X, e.Y - lastMouseMove.Y);
+                    }
+                    lastMouseMove = e.Location;
+                };
+            }
         }
         public virtual List<BezierBoardItem> GetChildren()
         { throw new NotImplementedException(); }
@@ -255,7 +265,7 @@ namespace RotatingBezierSplineEditor
     public class CenterPoint : RBSPoint
     {
         public override Cursor Cursor => Cursors.No;
-        public CenterPoint(float x, float y) : base(x, y)
+        public CenterPoint(float x, float y, bool mouseEvents) : base(x, y, mouseEvents)
         {
             CanBeSelected = true;
         }
@@ -278,9 +288,9 @@ namespace RotatingBezierSplineEditor
         Cursor _c;
         public override Cursor Cursor { get { if (_c == null) _c = new Cursor("resources\\rotation_icon.ico"); return _c; } }
         public static float HandleLength = 50;
-        public RotationHandlePoint(double x, double y) : base((float)x, (float)y)
+        public RotationHandlePoint(double x, double y, bool mouseEvents) : base((float)x, (float)y, mouseEvents)
         { }
-        public RotationHandlePoint(CenterPoint cp, double angle) : base(cp.X + HandleLength * Math.Cos(angle) , cp.Y + HandleLength * Math.Sin(angle))
+        public RotationHandlePoint(CenterPoint cp, double angle, bool mouseEvents) : base(cp.X + HandleLength * Math.Cos(angle), cp.Y + HandleLength * Math.Sin(angle), mouseEvents)
         { }
         public override void Draw(Graphics g, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
         {
@@ -299,9 +309,9 @@ namespace RotatingBezierSplineEditor
     public class CurvatureHandlePoint : RBSPoint
     {
         public override Cursor Cursor => Cursors.Hand;
-        public CurvatureHandlePoint(PointF p) : this(p.X, p.Y)
+        public CurvatureHandlePoint(PointF p, bool mouseEvents) : this(p.X, p.Y, mouseEvents)
         { }
-        public CurvatureHandlePoint(float x, float y) : base(x, y)
+        public CurvatureHandlePoint(float x, float y, bool mouseEvents) : base(x, y, mouseEvents)
         { }
         public override void Draw(Graphics g, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
         {
@@ -344,13 +354,13 @@ namespace RotatingBezierSplineEditor
         {
             return Math.Sqrt(Math.Pow(P.X - X, 2) + Math.Pow(P.Y - Y, 2)) < 3;
         }
-        public RBSPoint(double x = 0, double y = 0)
+        public RBSPoint(double x , double y, bool mouseEvents):base(mouseEvents)
         {
             X = (float)x; Y = (float)y;
         }
-        public static RBSPoint Intermediate(RBSPoint a, RBSPoint b, double frac = 0.5)
+        public static RBSPoint Intermediate(RBSPoint a, RBSPoint b, double frac, bool mouseEvents)
         {
-            return new RBSPoint(a.X * frac + b.X * (1 - frac), a.Y * frac + b.Y * (1 - frac));
+            return new RBSPoint(a.X * frac + b.X * (1 - frac), a.Y * frac + b.Y * (1 - frac), mouseEvents);
         }
         public double DistanceFrom(RBSPoint p)
         {
@@ -431,26 +441,26 @@ namespace RotatingBezierSplineEditor
         int rotationsOffset = 0;
         public bool BindCurvatureHandlesLength { get; set; } = false;
         public double R { get{ return rotationsOffset * 2 * Math.PI + Math.Atan2(R1.Y - P.Y, R1.X - P.X); } }
-        public RotatingBezierSplineAnchor(float x, float y) : this(new PointF(x, y)) { }
-        public RotatingBezierSplineAnchor(PointF P) : this(P, new PointF(P.X, P.Y), 0, 0) { }
-        public RotatingBezierSplineAnchor(PointF p, PointF a1, double a2Length, double rotation)
+        public RotatingBezierSplineAnchor(float x, float y, bool mouseEvents) : this(new PointF(x, y), mouseEvents) { }
+        public RotatingBezierSplineAnchor(PointF P, bool mouseEvents) : this(P, new PointF(P.X, P.Y), 0, 0, mouseEvents) { }
+        public RotatingBezierSplineAnchor(PointF p, PointF a1, double a2Length, double rotation, bool mouseEvents) : base(mouseEvents)
         {
-            this.P = new CenterPoint(p.X, p.Y);
-            this.C1 = new CurvatureHandlePoint(a1.X, a1.Y);
+            this.P = new CenterPoint(p.X, p.Y, mouseEvents);
+            this.C1 = new CurvatureHandlePoint(a1.X, a1.Y, mouseEvents);
             var ang = C1.AngleAbout(P) + Math.PI;
-            this.C2 = new CurvatureHandlePoint(new PointF((float)a2Length * (float)Math.Cos(ang) + P.X, (float)a2Length * (float)Math.Sin(ang) + P.Y));
+            this.C2 = new CurvatureHandlePoint(new PointF((float)a2Length * (float)Math.Cos(ang) + P.X, (float)a2Length * (float)Math.Sin(ang) + P.Y), mouseEvents);
             // do we need to add rotation to R as well?
             while (rotation > Math.PI)
             {
                 rotation -= 2 * Math.PI;
                 rotationsOffset--;
-            } 
+            }
             while (rotation < -Math.PI)
             {
                 rotation += 2 * Math.PI;
                 rotationsOffset++;
             }
-            R1 = new RotationHandlePoint(this.P, rotation);
+            R1 = new RotationHandlePoint(this.P, rotation, mouseEvents);
             //R2 = new RotationHandlePoint(this.P, rotation + Math.PI);
             Points = new RBSPoint[] { this.P, C1, C2, R1, /*R2*/ };
             P.IncrementLocationRequest += (dx, dy) =>
@@ -572,7 +582,7 @@ namespace RotatingBezierSplineEditor
         }
         public static RotatingBezierSplineAnchor Parse(XmlElement node)
         {
-            var ret = new RotatingBezierSplineAnchor(0, 0);
+            var ret = new RotatingBezierSplineAnchor(0, 0, false);
             ret.rotationsOffset = int.Parse(((XmlText)(node.GetElementsByTagName("rotationoffset")[0].FirstChild)).Data);
 
             for (int i = 0; i < ret.Points.Length; i++)
@@ -630,6 +640,127 @@ namespace RotatingBezierSplineEditor
             }
             return result;
         }
+        static RBSPoint BezierInterpolate(double f, RotatingBezierSplineAnchor A1, RotatingBezierSplineAnchor A2)
+        {
+            RBSPoint pl1_1 = RBSPoint.Intermediate(A1.P, A1.C2, f, false);
+            RBSPoint pl1_2 = RBSPoint.Intermediate(A1.C2, A2.C1, f, false);
+            RBSPoint pl1_3 = RBSPoint.Intermediate(A2.C1, A2.P, f, false);
+
+            RBSPoint pl2_1 = RBSPoint.Intermediate(pl1_1, pl1_2, f, false);
+            RBSPoint pl2_2 = RBSPoint.Intermediate(pl1_2, pl1_3, f, false);
+
+            RBSPoint P = RBSPoint.Intermediate(pl2_1, pl2_2, f, false);
+            return P;
+        }
+        static RBSPoint moveOn(ref double f, double distance, double scale, double tol, RotatingBezierSplineAnchor A1, RotatingBezierSplineAnchor A2)
+        {
+            var p = BezierInterpolate(f, A1, A2);
+
+            double f0 = f;
+            double f1 = f + .01;
+            var p0 = BezierInterpolate(f0, A1, A2);
+            var p1 = BezierInterpolate(f1, A1, A2);
+            double d0 = p0.DistanceFrom(p0);
+            double d1 = p1.DistanceFrom(p0);
+            double m = (f1 - f0) / (d1 - d0);
+            double c = f0;
+            double testF = distance * m + c;
+            var pTest = BezierInterpolate(testF, A1, A2); ;
+            var dTest = pTest.DistanceFrom(p0);
+            f = testF;
+            return pTest;
+
+
+            //while (f < 1)
+            //{
+            //    double testF = f + inc;
+            //    while (testF > 1)
+            //    {
+            //        inc /= 2;
+            //        testF = f + inc;
+            //    } 
+            //    p2 = BezierInterpolate(f, A1, A2);
+            //    d = (float)(p1.DistanceFrom(p2) * scale);
+            //    if (d < distance - tol) // f is still too small. lets finalize this f
+            //    {
+            //        if (testF > 1)
+            //            return p2;
+            //    }
+            //    {
+            //        if (dir > 0)
+            //            inc /= 2;
+            //        dir = -1;
+            //        f += inc;
+            //        if (f > 1)
+            //        {
+            //            f = 1;
+            //            inc /= 2;
+            //        }
+            //    }
+            //    else if (d > distance + tol) // f is too big
+            //    {
+            //        if (dir < 0)
+            //            inc /= 2;
+            //        dir = 1;
+            //        f -= inc;
+            //        if (f < startF)
+            //        {
+            //            f = startF;
+            //            inc /= 2;
+            //        }
+            //    }
+            //    else
+            //        break; // never gonna hapen
+            //}
+            //lastInc = Math.Min(inc * 4, 0.5);
+            //return p2;
+        }
+        public RectangleF BoundingRectangle(int resterPointCount, float width, Func<float, bool> progressUpdate)
+        {
+            var rSpline = Rasterize(resterPointCount, width, progressUpdate);
+            var maxX = (float)rSpline.X.Max();
+            var minX = (float)rSpline.X.Min();
+            var maxY = (float)rSpline.Y.Max();
+            var minY = (float)rSpline.Y.Min();
+            return new RectangleF(minX, minY, maxX - minX, maxY - minY);
+        }
+        public RasterizedRotatingBezierSpline Rasterize(int count, float thickness, Func<float, bool> progressUpdate)
+        {
+            List<double> x = new List<double>();
+            List<double> y = new List<double>();
+            List<double> t = new List<double>();
+            double r1 = this.A1.R;
+            double r2 = this.A2.R;
+            double f = 0;
+
+            for (int i =0; i <= count -1;i++)
+            {
+                var XY = BezierInterpolate((i / (double)(count - 1)), A1, A2);
+                x.Add(XY.X);
+                y.Add(XY.Y);
+                t.Add(r1 * f + r2 * (1 - f));
+            }
+            return new RasterizedRotatingBezierSpline() { X = x.ToArray(), Y = y.ToArray(), T = t.ToArray() };
+        }
+        public RasterizedRotatingBezierSpline Rasterize(double resolution, double scale, List<double> x, List<double> y, List<double> t, float thickness, Func<float, bool> progressUpdate)
+        {
+            double r1 = this.A1.R;
+            double r2 = this.A2.R;
+            double f = 0;
+            while (f <= 1 - resolution)
+            {
+                double bkpf = f;
+                var XY = moveOn(ref f, resolution, scale, resolution * 0.05, A1, A2);
+                if (f <= bkpf)
+                    ;
+                var T = r1 * f + r2 * (1 - f);
+                x.Add(XY.X * scale);
+                y.Add(XY.Y * scale);
+                t.Add(T);
+                progressUpdate((float)f);
+            }
+            return new RasterizedRotatingBezierSpline() { X = x.ToArray(), Y = y.ToArray(), T = t.ToArray() };
+        }
         PointF[] psInk;
         PointF[] psSpline;
         public void Draw(Graphics g, float thickness, Color normalColor, MouseState mouseState, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
@@ -644,32 +775,32 @@ namespace RotatingBezierSplineEditor
             for (int i = 0; i <= divisions; i++)
             {
                 double f = i / (double)divisions;
-                RBSPoint pl1_1 = RBSPoint.Intermediate(A1.P, A1.C2, f);
-                RBSPoint pl1_2 = RBSPoint.Intermediate(A1.C2, A2.C1, f);
-                RBSPoint pl1_3 = RBSPoint.Intermediate(A2.C1, A2.P, f);
+                RBSPoint pl1_1 = RBSPoint.Intermediate(A1.P, A1.C2, f, false);
+                RBSPoint pl1_2 = RBSPoint.Intermediate(A1.C2, A2.C1, f, false);
+                RBSPoint pl1_3 = RBSPoint.Intermediate(A2.C1, A2.P, f, false);
 
-                RBSPoint pl2_1 = RBSPoint.Intermediate(pl1_1, pl1_2, f);
-                RBSPoint pl2_2 = RBSPoint.Intermediate(pl1_2, pl1_3, f);
+                RBSPoint pl2_1 = RBSPoint.Intermediate(pl1_1, pl1_2, f, false);
+                RBSPoint pl2_2 = RBSPoint.Intermediate(pl1_2, pl1_3, f, false);
 
-                RBSPoint P = RBSPoint.Intermediate(pl2_1, pl2_2, f);
+                RBSPoint P = RBSPoint.Intermediate(pl2_1, pl2_2, f, false);
 
                 if (i > 0 && thickness > 0)
                 {
                     double fp = (i - 1) / (double)divisions;
                     RBSPoint pp1 = new RBSPoint(
                         pPrevious.X + thickness / 2 * Math.Cos(r1 * fp + r2 * (1 - fp)),
-                        pPrevious.Y + thickness / 2 * Math.Sin(r1 * fp + r2 * (1 - fp)));
+                        pPrevious.Y + thickness / 2 * Math.Sin(r1 * fp + r2 * (1 - fp)), true);
 
                     RBSPoint pp2 = new RBSPoint(
                         pPrevious.X - thickness / 2 * Math.Cos(r1 * fp + r2 * (1 - fp)),
-                        pPrevious.Y - thickness / 2 * Math.Sin(r1 * fp + r2 * (1 - fp)));
+                        pPrevious.Y - thickness / 2 * Math.Sin(r1 * fp + r2 * (1 - fp)), true);
                     RBSPoint pc1 = new RBSPoint(
                         P.X + thickness / 2 * Math.Cos(r1 * f + r2 * (1 - f)),
-                        P.Y + thickness / 2 * Math.Sin(r1 * f + r2 * (1 - f)));
+                        P.Y + thickness / 2 * Math.Sin(r1 * f + r2 * (1 - f)), true);
 
                     RBSPoint pc2 = new RBSPoint(
                         P.X - thickness / 2 * Math.Cos(r1 * f + r2 * (1 - f)),
-                        P.Y - thickness / 2 * Math.Sin(r1 * f + r2 * (1 - f)));
+                        P.Y - thickness / 2 * Math.Sin(r1 * f + r2 * (1 - f)), true);
                     psInk[(i - 1) * 2] = pp1;
                     psInk[(i - 1) * 2 + 1] = pc1;
                     psInk[psInk.Length - ((i - 1) * 2) - 1] = pp2;
@@ -732,12 +863,13 @@ namespace RotatingBezierSplineEditor
             }
             return false;
         }
+
     }
   
     [Serializable]
     public class RotatingBezierSpline : BezierBoardItem
     {
-        public RotatingBezierSpline(BezierBoard board)
+        public RotatingBezierSpline(BezierBoard board, bool mouseEvents) :base(mouseEvents)
         {
             IncrementLocationRequest += (dx, dy) => {
                 foreach (var a in Anchors)
@@ -785,7 +917,7 @@ namespace RotatingBezierSplineEditor
         {
             return Anchors.Select(a => (BezierBoardItem)a).ToList();
         }
-        List<RotatingBezierSplineAnchor> Anchors { get; set; } = new List<RotatingBezierSplineAnchor>();
+        public List<RotatingBezierSplineAnchor> Anchors { get; private set; } = new List<RotatingBezierSplineAnchor>();
         Color NormalColor = Color.DarkGray;
         public float FlatTipWidth { get; set; } = 0;
         List<BezierCurveCellWithRotation> lastCurveCellCache;
@@ -804,6 +936,33 @@ namespace RotatingBezierSplineEditor
                 lastCurveCellCache.Add(cell);
                 cell.Draw(g, FlatTipWidth, NormalColor, MouseState, inkDrawMode, anchorDrawMode, this, ParentControl);
             }
+        }
+        public RasterizedRotatingBezierSpline Rasterize(double resolution, double scale, Func<float, bool> progressUpdate)
+        {
+            List<double> X = new List<double>();
+            List<double> Y = new List<double>();
+            List<double> T = new List<double>();
+
+            int ind = 0;
+            bool Progress(float f)
+            {
+                f /= (Anchors.Count - 1);
+                f += ind / (float)(Anchors.Count - 1);
+                progressUpdate(f);
+                if (f > 1)
+                    f = 1;
+                return true;
+            }
+            for (int i = 0; i < Anchors.Count - 1; i++)
+            {
+                var cell = new BezierCurveCellWithRotation(Anchors[i], Anchors[i + 1]);
+                var rast = cell.Rasterize(resolution, scale, X, Y, T, FlatTipWidth, Progress);
+                X.AddRange(rast.X);
+                Y.AddRange(rast.Y);
+                T.AddRange(rast.T);
+                ind++;
+            }
+            return new RasterizedRotatingBezierSpline() { X = X.ToArray(), Y = Y.ToArray(), T = T.ToArray() };
         }
         public override bool TopParentBoundsContains(PointF p)
         {
@@ -883,7 +1042,7 @@ namespace RotatingBezierSplineEditor
         }
         internal static BezierBoardItem Parse(XmlElement spline, BezierBoard board)
         {
-            var sRet = new RotatingBezierSpline(board);
+            var sRet = new RotatingBezierSpline(board, true);
 
             sRet.FlatTipWidth = float.Parse(((XmlText)(spline.GetElementsByTagName("FlatTipWidth")[0].FirstChild)).Data);
             sRet.NormalColor = Color.FromArgb(int.Parse(((XmlText)(spline.GetElementsByTagName("Color")[0].FirstChild)).Data));
@@ -913,12 +1072,12 @@ namespace RotatingBezierSplineEditor
         Image img;
         CenterPoint center;
         CurvatureHandlePoint size;
-        ImageItem() { }
-        public ImageItem(Image img, float x, float y)
+        ImageItem(bool mouseEvents = false):base(mouseEvents) { }
+        public ImageItem(Image img, float x, float y, bool mouseEvents):base(mouseEvents)
         {
             this.img = img;
-            center = new CenterPoint(x, y);
-            size = new CurvatureHandlePoint(x - img.Width / 2, y - img.Height / 2);
+            center = new CenterPoint(x, y, mouseEvents);
+            size = new CurvatureHandlePoint(x - img.Width / 2, y - img.Height / 2, true);
             center.IncrementLocationRequest += (dx, dy) =>
             {
                 size.X += dx;
@@ -956,7 +1115,7 @@ namespace RotatingBezierSplineEditor
 
         internal static BezierBoardItem Parse(XmlElement spline)
         {
-            var sRet = new ImageItem(stringToImage(((XmlText)(spline.GetElementsByTagName("ImageAdress")[0].FirstChild)).Data), 0, 0);
+            var sRet = new ImageItem(stringToImage(((XmlText)(spline.GetElementsByTagName("ImageAdress")[0].FirstChild)).Data), 0, 0, true);
             sRet.center.ExtractCoordinates(spline.GetElementsByTagName("center")[0]);
             sRet.size.ExtractCoordinates(spline.GetElementsByTagName("size")[0]);
 
@@ -1009,14 +1168,14 @@ namespace RotatingBezierSplineEditor
 
         internal static BezierBoardItem FromFile(string fileName)
         {
-            return new ImageItem(Image.FromFile(fileName), 0, 0);
+            return new ImageItem(Image.FromFile(fileName), 0, 0,true);
         }
 
         internal static BezierBoardItem FromClipBoard()
         {
             try
             {
-                return new ImageItem(Clipboard.GetImage(), 0, 0);
+                return new ImageItem(Clipboard.GetImage(), 0, 0, true);
             }
             catch { return null; }
         }

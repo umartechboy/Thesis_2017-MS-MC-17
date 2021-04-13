@@ -12,10 +12,9 @@ using System.Windows.Forms;
 
 namespace RotatingBezierSplineEditor
 {
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
-
-        public Form1()
+        public MainForm()
         {
             InitializeComponent();
             // set images
@@ -271,5 +270,12 @@ Uou can save, open and import rotating bezier splines using the File menu
             bezierBoard1.ClearObjects();
         }
 
+        public static RotatingBezierSpline[] GetSpline()
+        {
+            var form = new MainForm();
+            form.StartPosition = FormStartPosition.CenterParent;
+            form.ShowDialog();
+            return form.bezierBoard1.GetObjects();
+        }
     }
 }

@@ -42,6 +42,10 @@ namespace RotatingBezierSplineEditor
             XAxisBounds = new RectangleF(0, Height - XAxisHeight, Width - YAxisWidth, XAxisHeight);
         }
 
+        internal RotatingBezierSpline[] GetObjects()
+        {
+            return Objects.FindAll(o => o is RotatingBezierSpline).FindAll(o => ((RotatingBezierSpline)o).Anchors.Count > 0).Select(o => (RotatingBezierSpline)o).ToArray();
+        }
         public BezierBoardItem AddItem(BezierBoardItem item)
         {
             if (item == null) return null;
@@ -137,7 +141,7 @@ namespace RotatingBezierSplineEditor
             {
                 if (clickIsForAdding)
                 {
-                    var so = new RotatingBezierSpline(this);
+                    var so = new RotatingBezierSpline(this, true);
                     AddItem(so);
                     continuousAnchorAddition(e, so);
                     Invalidate();
@@ -168,7 +172,7 @@ namespace RotatingBezierSplineEditor
         {
             var a1 = e.Location;
             a1.Offset(1, 1);
-            anchorToAdd = new RotatingBezierSplineAnchor(e.Location, a1, 0, 0);
+            anchorToAdd = new RotatingBezierSplineAnchor(e.Location, a1, 0, 0, true);
             anchorToAdd.BindCurvatureHandlesLength = true;
             CurvatureHandlePoint pointToMoveWhenAdding = so.AddAnchor(anchorToAdd);
             so.UnselectAllAnchors();
@@ -307,6 +311,7 @@ namespace RotatingBezierSplineEditor
             doc.AppendChild(main);
             doc.Save(fileName);
         }
+
 
         protected override void OnPaint(PaintEventArgs e)
         {

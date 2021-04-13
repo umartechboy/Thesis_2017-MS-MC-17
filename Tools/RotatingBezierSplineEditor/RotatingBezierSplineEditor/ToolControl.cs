@@ -28,7 +28,12 @@ namespace RotatingBezierSplineEditor
             MouseEnter += (s, e) => { containsMouseCursor = true; Invalidate(); };
             MouseLeave += (s, e) => { containsMouseCursor = false; Invalidate(); };
             // to implement "Active" changing like radio buttons
-            Click += (s, e) => { if (DistinctSelection) Active = true; else Active = !Active; };
+            Click += (s, e) =>
+            {
+                if (DistinctSelection)
+                    Active = true;
+                else Active = !Active;
+            };
         }
         Image icon;
         Image dull;
