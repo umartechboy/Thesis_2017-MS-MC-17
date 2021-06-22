@@ -53,9 +53,11 @@
     <Compile Include="BezierBoard.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="exListBox.cs" />
-    <Compile Include="exListBox.designer.cs">
-      <DependentUpon>exListBox.cs</DependentUpon>
+    <Compile Include="CurveMenuItem.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="CurveMenuItem.Designer.cs">
+      <DependentUpon>CurveMenuItem.cs</DependentUpon>
     </Compile>
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
