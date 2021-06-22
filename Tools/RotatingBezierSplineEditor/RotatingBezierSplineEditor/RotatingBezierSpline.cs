@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -7,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
+using static RotatingBezierSplineEditor.BezierBoard;
 
 namespace RotatingBezierSplineEditor
 {
@@ -106,13 +108,13 @@ namespace RotatingBezierSplineEditor
         bool wentDownInBounds = false;
         bool lastwasOutside = true;
         Cursor cursorBkp;
-        public event MouseEventHandler OnMouseLeave;
-        public event MouseEventHandler OnMouseMove;
-        public event MouseEventHandler OnMouseEnter;
-        public event MouseEventHandler OnMouseDown;
-        public event MouseEventHandler OnMouseUp;
-        public event MouseEventHandler OnMouseClick;
-        public void NotifyMouseLeave(object sender, MouseEventArgs e, BezierBoardItem Parent, Control ParentControl)
+        public event MouseEventHandlerF OnMouseLeave;
+        public event MouseEventHandlerF OnMouseMove;
+        public event MouseEventHandlerF OnMouseEnter;
+        public event MouseEventHandlerF OnMouseDown;
+        public event MouseEventHandlerF OnMouseUp;
+        public event MouseEventHandlerF OnMouseClick;
+        public void NotifyMouseLeave(object sender, MouseEventArgsF e, BezierBoardItem Parent, Control ParentControl)
         {
             lastwasOutside = true;
             OnMouseLeave?.Invoke(sender, e);
@@ -123,19 +125,19 @@ namespace RotatingBezierSplineEditor
         public void NotifyMouseClick(Point location, MouseButtons button)
         {
             if (MouseDownAt == MousePosition)
-                OnMouseClick?.Invoke(this, new MouseEventArgs(button, 1, location.X, location.Y, 0));
+                OnMouseClick?.Invoke(this, new MouseEventArgsF(button, 1, location.X, location.Y, 0));
         }
-        public void NotifyMouseDown(object sender, MouseEventArgs e)
+        public void NotifyMouseDown(object sender, MouseEventArgsF e)
         {
             lastMouseMove = e.Location;
             wentDownInBounds = true;
             lastwasOutside = false;
             OnMouseDown?.Invoke(sender, e);
         }
-        public void NotifyMouseUp(object sender, MouseEventArgs e) { OnMouseUp?.Invoke(sender, e); }
-        public void NotifyMouseMove(object sender, MouseEventArgs e) { OnMouseMove?.Invoke(sender, e); }
-        public void NotifyMouseEnter(object sender, MouseEventArgs e) { OnMouseEnter?.Invoke(sender, e); }
-        public virtual bool ProcessMouseMove(MouseEventArgs e, BezierBoardItem filter, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
+        public void NotifyMouseUp(object sender, MouseEventArgsF e) { OnMouseUp?.Invoke(sender, e); }
+        public void NotifyMouseMove(object sender, MouseEventArgsF e) { OnMouseMove?.Invoke(sender, e); }
+        public void NotifyMouseEnter(object sender, MouseEventArgsF e) { OnMouseEnter?.Invoke(sender, e); }
+        public virtual bool ProcessMouseMove(MouseEventArgsF e, BezierBoardItem filter, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
         {
             // cache the position.
             MousePosition = new PointF(e.X, e.Y);
@@ -173,7 +175,7 @@ namespace RotatingBezierSplineEditor
                 ;
             if (filter == null || filter == this || wentDownInBounds)
             {
-                var e2 = new MouseEventArgs(e.Button, e.Clicks, (int)(e.X - BoundsOnTopParent.X), (int)(e.Y - BoundsOnTopParent.Y), e.Delta);
+                var e2 = new MouseEventArgsF(e.Button, e.Clicks, (e.X - BoundsOnTopParent.X), (e.Y - BoundsOnTopParent.Y), e.Delta);
                 if (TopParentBoundsContains(e.Location) || wentDownInBounds)
                 {
                     if (lastwasOutside)
@@ -181,10 +183,12 @@ namespace RotatingBezierSplineEditor
                         lastwasOutside = false;
                         cursorBkp = ParentControl.Cursor;
                         NotifyMouseEnter(this, e2);
+                        Trace.WriteLine("BI1  " + ToString() + ": " + e.Location.ToString());
                         if (Cursor == Cursors.No)
                             ParentControl.Cursor = ((BezierBoard)ParentControl).DefaultCursor;
                         else ParentControl.Cursor = Cursor;
                     }
+                    Trace.WriteLine("BI3  " + ToString() + ": " + e.Location.ToString());
                     NotifyMouseMove(this, e);
                     return true;
                 }
@@ -194,6 +198,7 @@ namespace RotatingBezierSplineEditor
                     NotifyMouseLeave(this, e2, this, ParentControl);
                     NotifyMouseMove(this, e2);
 
+                    Trace.WriteLine("BI2  " + ToString() + ": " + e.Location.ToString());
                     if (Parent == null)
                         ParentControl.Cursor = ((BezierBoard)ParentControl).DefaultCursor;
                     else if (Parent.Cursor == Cursors.No)
@@ -201,10 +206,12 @@ namespace RotatingBezierSplineEditor
                     else ParentControl.Cursor = Parent.Cursor;
                     // don't return true.
                 }
+                else
+                    Trace.WriteLine("BI4  " + ToString() + ": " + e.Location.ToString());
             }
             return false;
         }
-        public virtual BezierBoardItem ProcessMouseDown(MouseEventArgs e, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
+        public virtual BezierBoardItem ProcessMouseDown(MouseEventArgsF e, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
         {
             // devide if we need to receive mouse down and up events.
             if (!CanDraw(inkDrawMode, anchorDrawMode))
@@ -227,7 +234,7 @@ namespace RotatingBezierSplineEditor
             return null;
         }
 
-        public virtual void ProcessMouseUp(object sender, MouseEventArgs e, BezierBoardItem filter, BezierBoardItem Parent, Control ParentControl)
+        public virtual void ProcessMouseUp(object sender, MouseEventArgsF e, BezierBoardItem filter, BezierBoardItem Parent, Control ParentControl)
         {
             if (filter != this)
             {
@@ -346,10 +353,10 @@ namespace RotatingBezierSplineEditor
         {
             return new PointF((float)p.X, (float)p.Y);
         }
-        public static implicit operator Point(RBSPoint p)
-        {
-            return new Point((int)p.X, (int)p.Y);
-        }
+        //public static implicit operator PointF(RBSPoint p)
+        //{
+        //    return new PointF((int)p.X, (int)p.Y);
+        //}
         public bool IsCloseBy(PointF P, int tol = 3)
         {
             return Math.Sqrt(Math.Pow(P.X - X, 2) + Math.Pow(P.Y - Y, 2)) < 3;
@@ -582,7 +589,7 @@ namespace RotatingBezierSplineEditor
         }
         public static RotatingBezierSplineAnchor Parse(XmlElement node)
         {
-            var ret = new RotatingBezierSplineAnchor(0, 0, false);
+            var ret = new RotatingBezierSplineAnchor(0, 0, true);
             ret.rotationsOffset = int.Parse(((XmlText)(node.GetElementsByTagName("rotationoffset")[0].FirstChild)).Data);
 
             for (int i = 0; i < ret.Points.Length; i++)
@@ -814,7 +821,7 @@ namespace RotatingBezierSplineEditor
             if (mouseState == MouseState.None)
             {
                 if (thickness > 0 && inkDrawMode.HasFlag(InkDrawMode.Ink))
-                    g.FillPolygon(new SolidBrush(normalColor), psInk);
+                    g.FillPolygon(new SolidBrush(Color.FromArgb((int)(255 * BezierBoard.Fill), normalColor)), psInk);
                 if (inkDrawMode.HasFlag(InkDrawMode.Spline))
                     g.DrawLines(inkDrawMode.HasFlag(InkDrawMode.Ink) ? Pens.White : Pens.Gray, psSpline);
             }
@@ -835,7 +842,7 @@ namespace RotatingBezierSplineEditor
             {
                 if (thickness > 0 && inkDrawMode.HasFlag(InkDrawMode.Ink))
                 {
-                    g.FillPolygon(new SolidBrush(normalColor), psInk);
+                    g.FillPolygon(new SolidBrush(Color.FromArgb((int)(255 * BezierBoard.Fill), normalColor)), psInk);
                     g.DrawPolygon(new Pen(Color.DarkBlue, 1), psInk);
                 }
                 if (inkDrawMode.HasFlag(InkDrawMode.Spline))
@@ -869,9 +876,12 @@ namespace RotatingBezierSplineEditor
     [Serializable]
     public class RotatingBezierSpline : BezierBoardItem
     {
+        public bool Visible { get; set; } = true;
+        public bool Locked { get; set; } = false;
         public RotatingBezierSpline(BezierBoard board, bool mouseEvents) :base(mouseEvents)
         {
             IncrementLocationRequest += (dx, dy) => {
+                if (Locked || !Visible) return;
                 foreach (var a in Anchors)
                 {
                     a.P.NotifyLocationIncrementRequest(dx, dy);
@@ -879,6 +889,7 @@ namespace RotatingBezierSplineEditor
             };
             OnMouseClick += (s, e) =>
             {
+                if (Locked || !Visible) return;
                 if (e.Button == MouseButtons.Left)
                 {
                     SplineAppearanceEditor apf = new SplineAppearanceEditor();
@@ -924,6 +935,8 @@ namespace RotatingBezierSplineEditor
         InkDrawMode inkDrawModeCache;
         public override void Draw(Graphics g, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
         {
+            if (!Visible)
+                return;
             if (FlatTipWidth < 1)
                 inkDrawMode &= ~(InkDrawMode.Ink);
             inkDrawModeCache = inkDrawMode;
@@ -966,6 +979,8 @@ namespace RotatingBezierSplineEditor
         }
         public override bool TopParentBoundsContains(PointF p)
         {
+            if (Locked)
+                return false;
             if (lastCurveCellCache == null) return false;
             else
                 foreach (var c in lastCurveCellCache)
@@ -1168,7 +1183,9 @@ namespace RotatingBezierSplineEditor
 
         internal static BezierBoardItem FromFile(string fileName)
         {
-            return new ImageItem(Image.FromFile(fileName), 0, 0,true);
+            var img = Image.FromFile(fileName);
+            img.RotateFlip(RotateFlipType.RotateNoneFlipY);
+            return new ImageItem(img, 0, 0,true);
         }
 
         internal static BezierBoardItem FromClipBoard()

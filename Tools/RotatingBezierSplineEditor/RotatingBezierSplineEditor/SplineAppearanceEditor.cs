@@ -20,5 +20,14 @@ namespace RotatingBezierSplineEditor
         private void colorP_Click(object sender, EventArgs e)
         {
         }
+
+        private void widthTB_Scroll(object sender, EventArgs e)
+        {
+        }
+
+        private void widthTB_ValueChanged(object sender, EventArgs e)
+        {
+            label1.Text = widthTB.Value.ToString();
+        }
     }
 }

@@ -32,7 +32,13 @@ namespace RotatingBezierSplineEditor
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.panel1 = new System.Windows.Forms.Panel();
+            this.centerP = new RotatingBezierSplineEditor.AnchorEditToolControl();
+            this.rotationHandleP = new RotatingBezierSplineEditor.AnchorEditToolControl();
+            this.curvatureHandlesP = new RotatingBezierSplineEditor.AnchorEditToolControl();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.bothSplinesP = new RotatingBezierSplineEditor.ToolControl();
+            this.linearSplineOnly = new RotatingBezierSplineEditor.ToolControl();
+            this.rotatingSplineOnlyP = new RotatingBezierSplineEditor.ToolControl();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -43,6 +49,9 @@ namespace RotatingBezierSplineEditor
             this.addToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splinesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.imageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.fromCipboardToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.clearAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.displayModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
@@ -57,33 +66,43 @@ namespace RotatingBezierSplineEditor
             this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.backgroundImagesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.addAnchorWithLeftClickToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
+            this.opacityToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem6 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem7 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem8 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem9 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem10 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem11 = new System.Windows.Forms.ToolStripMenuItem();
             this.editingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.anchorsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
             this.centerPointsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.curvatureHandlesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.rotationHandlesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator7 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
+            this.addAnchorWithLeftClickToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.addAnchorWithLeftClickToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator7 = new System.Windows.Forms.ToolStripSeparator();
-            this.toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
             this.bezierBoard1 = new RotatingBezierSplineEditor.BezierBoard();
-            this.bothSplinesP = new RotatingBezierSplineEditor.ToolControl();
-            this.linearSplineOnly = new RotatingBezierSplineEditor.ToolControl();
-            this.rotatingSplineOnlyP = new RotatingBezierSplineEditor.ToolControl();
-            this.centerP = new RotatingBezierSplineEditor.AnchorEditToolControl();
-            this.rotationHandleP = new RotatingBezierSplineEditor.AnchorEditToolControl();
-            this.curvatureHandlesP = new RotatingBezierSplineEditor.AnchorEditToolControl();
-            this.addAnchorWithLeftClickToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.clearAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.fromCipboardToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.documentToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.listView1 = new System.Windows.Forms.ListView();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
+            this.splitContainer1.Panel1.SuspendLayout();
+            this.splitContainer1.Panel2.SuspendLayout();
+            this.splitContainer1.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
@@ -96,6 +115,55 @@ namespace RotatingBezierSplineEditor
             this.panel1.Size = new System.Drawing.Size(80, 241);
             this.panel1.TabIndex = 1;
             // 
+            // centerP
+            // 
+            this.centerP.Active = true;
+            this.centerP.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.centerP.BackgroundImage = global::RotatingBezierSplineEditor.Properties.Resources.Center;
+            this.centerP.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.centerP.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.centerP.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.centerP.DistinctSelection = true;
+            this.centerP.Location = new System.Drawing.Point(0, 0);
+            this.centerP.Name = "centerP";
+            this.centerP.Size = new System.Drawing.Size(80, 81);
+            this.centerP.TabIndex = 0;
+            this.centerP.TargetPart = RotatingBezierSplineEditor.AnchorDrawMode.None;
+            this.toolTip1.SetToolTip(this.centerP, "Show/Hide anchor center points");
+            // 
+            // rotationHandleP
+            // 
+            this.rotationHandleP.Active = false;
+            this.rotationHandleP.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.rotationHandleP.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.rotationHandleP.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.rotationHandleP.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.rotationHandleP.DistinctSelection = true;
+            this.rotationHandleP.Location = new System.Drawing.Point(0, 160);
+            this.rotationHandleP.Name = "rotationHandleP";
+            this.rotationHandleP.Size = new System.Drawing.Size(80, 81);
+            this.rotationHandleP.TabIndex = 0;
+            this.rotationHandleP.TargetPart = RotatingBezierSplineEditor.AnchorDrawMode.None;
+            this.toolTip1.SetToolTip(this.rotationHandleP, "Show/hide rotation handles");
+            // 
+            // curvatureHandlesP
+            // 
+            this.curvatureHandlesP.Active = false;
+            this.curvatureHandlesP.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.curvatureHandlesP.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.curvatureHandlesP.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.curvatureHandlesP.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.curvatureHandlesP.DistinctSelection = true;
+            this.curvatureHandlesP.Location = new System.Drawing.Point(0, 80);
+            this.curvatureHandlesP.Name = "curvatureHandlesP";
+            this.curvatureHandlesP.Size = new System.Drawing.Size(80, 81);
+            this.curvatureHandlesP.TabIndex = 0;
+            this.curvatureHandlesP.TargetPart = RotatingBezierSplineEditor.AnchorDrawMode.None;
+            this.toolTip1.SetToolTip(this.curvatureHandlesP, "Show/hide spline curvature handles");
+            // 
             // panel2
             // 
             this.panel2.Controls.Add(this.bothSplinesP);
@@ -105,6 +173,52 @@ namespace RotatingBezierSplineEditor
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(80, 241);
             this.panel2.TabIndex = 1;
+            // 
+            // bothSplinesP
+            // 
+            this.bothSplinesP.Active = true;
+            this.bothSplinesP.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.bothSplinesP.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.bothSplinesP.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.bothSplinesP.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.bothSplinesP.DistinctSelection = true;
+            this.bothSplinesP.Location = new System.Drawing.Point(0, 0);
+            this.bothSplinesP.Name = "bothSplinesP";
+            this.bothSplinesP.Size = new System.Drawing.Size(80, 81);
+            this.bothSplinesP.TabIndex = 0;
+            this.toolTip1.SetToolTip(this.bothSplinesP, "Combined: Show both the spline and the ink");
+            // 
+            // linearSplineOnly
+            // 
+            this.linearSplineOnly.Active = false;
+            this.linearSplineOnly.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.linearSplineOnly.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.linearSplineOnly.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.linearSplineOnly.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.linearSplineOnly.DistinctSelection = true;
+            this.linearSplineOnly.Location = new System.Drawing.Point(0, 160);
+            this.linearSplineOnly.Name = "linearSplineOnly";
+            this.linearSplineOnly.Size = new System.Drawing.Size(80, 81);
+            this.linearSplineOnly.TabIndex = 0;
+            this.toolTip1.SetToolTip(this.linearSplineOnly, "Spline Only: Shows the spline alongwitht th eselected handles and hide the ink ma" +
+        "rk");
+            // 
+            // rotatingSplineOnlyP
+            // 
+            this.rotatingSplineOnlyP.Active = false;
+            this.rotatingSplineOnlyP.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.rotatingSplineOnlyP.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.rotatingSplineOnlyP.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.rotatingSplineOnlyP.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.rotatingSplineOnlyP.DistinctSelection = true;
+            this.rotatingSplineOnlyP.Location = new System.Drawing.Point(0, 80);
+            this.rotatingSplineOnlyP.Name = "rotatingSplineOnlyP";
+            this.rotatingSplineOnlyP.Size = new System.Drawing.Size(80, 81);
+            this.rotatingSplineOnlyP.TabIndex = 0;
+            this.toolTip1.SetToolTip(this.rotatingSplineOnlyP, "Ink only: Shows only the Ink marks. Editing handles will be disabled");
             // 
             // toolTip1
             // 
@@ -137,7 +251,7 @@ namespace RotatingBezierSplineEditor
             this.helpToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1046, 28);
+            this.menuStrip1.Size = new System.Drawing.Size(1046, 30);
             this.menuStrip1.TabIndex = 4;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -150,7 +264,7 @@ namespace RotatingBezierSplineEditor
             this.clearAllToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.fileToolStripMenuItem1.Name = "fileToolStripMenuItem1";
-            this.fileToolStripMenuItem1.Size = new System.Drawing.Size(46, 24);
+            this.fileToolStripMenuItem1.Size = new System.Drawing.Size(46, 26);
             this.fileToolStripMenuItem1.Text = "File";
             // 
             // openToolStripMenuItem
@@ -197,6 +311,28 @@ namespace RotatingBezierSplineEditor
             this.imageToolStripMenuItem.Text = "Image";
             this.imageToolStripMenuItem.Click += new System.EventHandler(this.imageToolStripMenuItem_Click);
             // 
+            // fromCipboardToolStripMenuItem
+            // 
+            this.fromCipboardToolStripMenuItem.Name = "fromCipboardToolStripMenuItem";
+            this.fromCipboardToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.fromCipboardToolStripMenuItem.Text = "Paste Cipboard";
+            this.fromCipboardToolStripMenuItem.Click += new System.EventHandler(this.fromCipboardToolStripMenuItem_Click);
+            // 
+            // clearAllToolStripMenuItem
+            // 
+            this.clearAllToolStripMenuItem.Name = "clearAllToolStripMenuItem";
+            this.clearAllToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Shift | System.Windows.Forms.Keys.Delete)));
+            this.clearAllToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.clearAllToolStripMenuItem.Text = "Clear All";
+            this.clearAllToolStripMenuItem.Click += new System.EventHandler(this.clearAllToolStripMenuItem_Click);
+            // 
+            // exitToolStripMenuItem
+            // 
+            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
+            this.exitToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.exitToolStripMenuItem.Text = "Exit";
+            // 
             // viewToolStripMenuItem
             // 
             this.viewToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -213,9 +349,12 @@ namespace RotatingBezierSplineEditor
             this.toolStripSeparator6,
             this.toolStripSeparator5,
             this.backgroundImagesToolStripMenuItem,
-            this.addAnchorWithLeftClickToolStripMenuItem1});
+            this.addAnchorWithLeftClickToolStripMenuItem1,
+            this.toolStripSeparator9,
+            this.opacityToolStripMenuItem,
+            this.documentToolStripMenuItem});
             this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
-            this.viewToolStripMenuItem.Size = new System.Drawing.Size(55, 24);
+            this.viewToolStripMenuItem.Size = new System.Drawing.Size(55, 26);
             this.viewToolStripMenuItem.Text = "View";
             // 
             // displayModeToolStripMenuItem
@@ -315,6 +454,110 @@ namespace RotatingBezierSplineEditor
             this.backgroundImagesToolStripMenuItem.Text = "Background Images";
             this.backgroundImagesToolStripMenuItem.Click += new System.EventHandler(this.backgroundImagesToolStripMenuItem_Click);
             // 
+            // addAnchorWithLeftClickToolStripMenuItem1
+            // 
+            this.addAnchorWithLeftClickToolStripMenuItem1.Checked = true;
+            this.addAnchorWithLeftClickToolStripMenuItem1.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.addAnchorWithLeftClickToolStripMenuItem1.Name = "addAnchorWithLeftClickToolStripMenuItem1";
+            this.addAnchorWithLeftClickToolStripMenuItem1.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.V)));
+            this.addAnchorWithLeftClickToolStripMenuItem1.Size = new System.Drawing.Size(321, 26);
+            this.addAnchorWithLeftClickToolStripMenuItem1.Text = "Add Anchor With Left Click";
+            this.addAnchorWithLeftClickToolStripMenuItem1.Click += new System.EventHandler(this.addAnchorWithLeftClickToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator9
+            // 
+            this.toolStripSeparator9.Name = "toolStripSeparator9";
+            this.toolStripSeparator9.Size = new System.Drawing.Size(318, 6);
+            // 
+            // opacityToolStripMenuItem
+            // 
+            this.opacityToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripMenuItem2,
+            this.toolStripMenuItem3,
+            this.toolStripMenuItem4,
+            this.toolStripMenuItem5,
+            this.toolStripMenuItem6,
+            this.toolStripMenuItem7,
+            this.toolStripMenuItem8,
+            this.toolStripMenuItem9,
+            this.toolStripMenuItem10,
+            this.toolStripMenuItem11});
+            this.opacityToolStripMenuItem.Name = "opacityToolStripMenuItem";
+            this.opacityToolStripMenuItem.Size = new System.Drawing.Size(321, 26);
+            this.opacityToolStripMenuItem.Text = "See through";
+            // 
+            // toolStripMenuItem2
+            // 
+            this.toolStripMenuItem2.Name = "toolStripMenuItem2";
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(128, 26);
+            this.toolStripMenuItem2.Text = "10%";
+            this.toolStripMenuItem2.Click += new System.EventHandler(this.toolStripMenuItem2_Click);
+            // 
+            // toolStripMenuItem3
+            // 
+            this.toolStripMenuItem3.Name = "toolStripMenuItem3";
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(128, 26);
+            this.toolStripMenuItem3.Text = "20%";
+            this.toolStripMenuItem3.Click += new System.EventHandler(this.toolStripMenuItem2_Click);
+            // 
+            // toolStripMenuItem4
+            // 
+            this.toolStripMenuItem4.Name = "toolStripMenuItem4";
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(128, 26);
+            this.toolStripMenuItem4.Text = "30%";
+            this.toolStripMenuItem4.Click += new System.EventHandler(this.toolStripMenuItem2_Click);
+            // 
+            // toolStripMenuItem5
+            // 
+            this.toolStripMenuItem5.Name = "toolStripMenuItem5";
+            this.toolStripMenuItem5.Size = new System.Drawing.Size(128, 26);
+            this.toolStripMenuItem5.Text = "40%";
+            this.toolStripMenuItem5.Click += new System.EventHandler(this.toolStripMenuItem2_Click);
+            // 
+            // toolStripMenuItem6
+            // 
+            this.toolStripMenuItem6.Name = "toolStripMenuItem6";
+            this.toolStripMenuItem6.Size = new System.Drawing.Size(128, 26);
+            this.toolStripMenuItem6.Text = "50%";
+            this.toolStripMenuItem6.Click += new System.EventHandler(this.toolStripMenuItem2_Click);
+            // 
+            // toolStripMenuItem7
+            // 
+            this.toolStripMenuItem7.Name = "toolStripMenuItem7";
+            this.toolStripMenuItem7.Size = new System.Drawing.Size(128, 26);
+            this.toolStripMenuItem7.Text = "60%";
+            this.toolStripMenuItem7.Click += new System.EventHandler(this.toolStripMenuItem2_Click);
+            // 
+            // toolStripMenuItem8
+            // 
+            this.toolStripMenuItem8.Name = "toolStripMenuItem8";
+            this.toolStripMenuItem8.Size = new System.Drawing.Size(128, 26);
+            this.toolStripMenuItem8.Text = "70%";
+            this.toolStripMenuItem8.Click += new System.EventHandler(this.toolStripMenuItem2_Click);
+            // 
+            // toolStripMenuItem9
+            // 
+            this.toolStripMenuItem9.Name = "toolStripMenuItem9";
+            this.toolStripMenuItem9.Size = new System.Drawing.Size(128, 26);
+            this.toolStripMenuItem9.Text = "80%";
+            this.toolStripMenuItem9.Click += new System.EventHandler(this.toolStripMenuItem2_Click);
+            // 
+            // toolStripMenuItem10
+            // 
+            this.toolStripMenuItem10.Name = "toolStripMenuItem10";
+            this.toolStripMenuItem10.Size = new System.Drawing.Size(128, 26);
+            this.toolStripMenuItem10.Text = "90%";
+            this.toolStripMenuItem10.Click += new System.EventHandler(this.toolStripMenuItem2_Click);
+            // 
+            // toolStripMenuItem11
+            // 
+            this.toolStripMenuItem11.Checked = true;
+            this.toolStripMenuItem11.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.toolStripMenuItem11.Name = "toolStripMenuItem11";
+            this.toolStripMenuItem11.Size = new System.Drawing.Size(128, 26);
+            this.toolStripMenuItem11.Text = "100%";
+            this.toolStripMenuItem11.Click += new System.EventHandler(this.toolStripMenuItem2_Click);
+            // 
             // editingToolStripMenuItem
             // 
             this.editingToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -327,7 +570,7 @@ namespace RotatingBezierSplineEditor
             this.toolStripSeparator8,
             this.addAnchorWithLeftClickToolStripMenuItem});
             this.editingToolStripMenuItem.Name = "editingToolStripMenuItem";
-            this.editingToolStripMenuItem.Size = new System.Drawing.Size(49, 24);
+            this.editingToolStripMenuItem.Size = new System.Drawing.Size(49, 26);
             this.editingToolStripMenuItem.Text = "Edit";
             // 
             // anchorsToolStripMenuItem
@@ -366,30 +609,15 @@ namespace RotatingBezierSplineEditor
             this.rotationHandlesToolStripMenuItem.Text = "Rotation Handles";
             this.rotationHandlesToolStripMenuItem.Click += new System.EventHandler(this.rotationHandlesToolStripMenuItem_Click);
             // 
-            // helpToolStripMenuItem
+            // toolStripSeparator7
             // 
-            this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.aboutToolStripMenuItem,
-            this.aboutToolStripMenuItem1});
-            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-            this.helpToolStripMenuItem.Size = new System.Drawing.Size(55, 24);
-            this.helpToolStripMenuItem.Text = "Help";
+            this.toolStripSeparator7.Name = "toolStripSeparator7";
+            this.toolStripSeparator7.Size = new System.Drawing.Size(318, 6);
             // 
-            // aboutToolStripMenuItem
+            // toolStripSeparator8
             // 
-            this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F1;
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
-            this.aboutToolStripMenuItem.Text = "How to";
-            this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
-            // 
-            // aboutToolStripMenuItem1
-            // 
-            this.aboutToolStripMenuItem1.Name = "aboutToolStripMenuItem1";
-            this.aboutToolStripMenuItem1.ShortcutKeys = System.Windows.Forms.Keys.F2;
-            this.aboutToolStripMenuItem1.Size = new System.Drawing.Size(224, 26);
-            this.aboutToolStripMenuItem1.Text = "About";
-            this.aboutToolStripMenuItem1.Click += new System.EventHandler(this.aboutToolStripMenuItem1_Click);
+            this.toolStripSeparator8.Name = "toolStripSeparator8";
+            this.toolStripSeparator8.Size = new System.Drawing.Size(318, 6);
             // 
             // addAnchorWithLeftClickToolStripMenuItem
             // 
@@ -401,171 +629,91 @@ namespace RotatingBezierSplineEditor
             this.addAnchorWithLeftClickToolStripMenuItem.Text = "Add Anchor With Left Click";
             this.addAnchorWithLeftClickToolStripMenuItem.Click += new System.EventHandler(this.addAnchorWithLeftClickToolStripMenuItem_Click);
             // 
-            // toolStripSeparator7
+            // helpToolStripMenuItem
             // 
-            this.toolStripSeparator7.Name = "toolStripSeparator7";
-            this.toolStripSeparator7.Size = new System.Drawing.Size(318, 6);
+            this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.aboutToolStripMenuItem,
+            this.aboutToolStripMenuItem1});
+            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(55, 26);
+            this.helpToolStripMenuItem.Text = "Help";
             // 
-            // toolStripSeparator8
+            // aboutToolStripMenuItem
             // 
-            this.toolStripSeparator8.Name = "toolStripSeparator8";
-            this.toolStripSeparator8.Size = new System.Drawing.Size(318, 6);
+            this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
+            this.aboutToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F1;
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(165, 26);
+            this.aboutToolStripMenuItem.Text = "How to";
+            this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
+            // 
+            // aboutToolStripMenuItem1
+            // 
+            this.aboutToolStripMenuItem1.Name = "aboutToolStripMenuItem1";
+            this.aboutToolStripMenuItem1.ShortcutKeys = System.Windows.Forms.Keys.F2;
+            this.aboutToolStripMenuItem1.Size = new System.Drawing.Size(165, 26);
+            this.aboutToolStripMenuItem1.Text = "About";
+            this.aboutToolStripMenuItem1.Click += new System.EventHandler(this.aboutToolStripMenuItem1_Click);
             // 
             // bezierBoard1
             // 
-            this.bezierBoard1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
             this.bezierBoard1.AnchorDrawMode = RotatingBezierSplineEditor.AnchorDrawMode.Centers;
+            this.bezierBoard1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.bezierBoard1.GridEnabled = true;
             this.bezierBoard1.InkDrawMode = RotatingBezierSplineEditor.InkDrawMode.All;
-            this.bezierBoard1.Location = new System.Drawing.Point(86, 33);
+            this.bezierBoard1.Location = new System.Drawing.Point(0, 0);
             this.bezierBoard1.Name = "bezierBoard1";
             this.bezierBoard1.ScaleEnabled = true;
-            this.bezierBoard1.Size = new System.Drawing.Size(948, 653);
+            this.bezierBoard1.Size = new System.Drawing.Size(800, 668);
             this.bezierBoard1.TabIndex = 2;
             this.bezierBoard1.XYLinesEnabled = true;
             this.bezierBoard1.Paint += new System.Windows.Forms.PaintEventHandler(this.bezierBoard1_Paint);
             // 
-            // bothSplinesP
+            // documentToolStripMenuItem
             // 
-            this.bothSplinesP.Active = true;
-            this.bothSplinesP.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.documentToolStripMenuItem.Name = "documentToolStripMenuItem";
+            this.documentToolStripMenuItem.Size = new System.Drawing.Size(321, 26);
+            this.documentToolStripMenuItem.Text = "Document Index";
+            // 
+            // splitContainer1
+            // 
+            this.splitContainer1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.bothSplinesP.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.bothSplinesP.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.bothSplinesP.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.bothSplinesP.DistinctSelection = true;
-            this.bothSplinesP.Location = new System.Drawing.Point(0, 0);
-            this.bothSplinesP.Name = "bothSplinesP";
-            this.bothSplinesP.Size = new System.Drawing.Size(80, 81);
-            this.bothSplinesP.TabIndex = 0;
-            this.toolTip1.SetToolTip(this.bothSplinesP, "Combined: Show both the spline and the ink");
+            this.splitContainer1.Location = new System.Drawing.Point(86, 33);
+            this.splitContainer1.Name = "splitContainer1";
             // 
-            // linearSplineOnly
+            // splitContainer1.Panel1
             // 
-            this.linearSplineOnly.Active = false;
-            this.linearSplineOnly.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.linearSplineOnly.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.linearSplineOnly.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.linearSplineOnly.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.linearSplineOnly.DistinctSelection = true;
-            this.linearSplineOnly.Location = new System.Drawing.Point(0, 160);
-            this.linearSplineOnly.Name = "linearSplineOnly";
-            this.linearSplineOnly.Size = new System.Drawing.Size(80, 81);
-            this.linearSplineOnly.TabIndex = 0;
-            this.toolTip1.SetToolTip(this.linearSplineOnly, "Spline Only: Shows the spline alongwitht th eselected handles and hide the ink ma" +
-        "rk");
+            this.splitContainer1.Panel1.Controls.Add(this.bezierBoard1);
             // 
-            // rotatingSplineOnlyP
+            // splitContainer1.Panel2
             // 
-            this.rotatingSplineOnlyP.Active = false;
-            this.rotatingSplineOnlyP.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.rotatingSplineOnlyP.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.rotatingSplineOnlyP.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.rotatingSplineOnlyP.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.rotatingSplineOnlyP.DistinctSelection = true;
-            this.rotatingSplineOnlyP.Location = new System.Drawing.Point(0, 80);
-            this.rotatingSplineOnlyP.Name = "rotatingSplineOnlyP";
-            this.rotatingSplineOnlyP.Size = new System.Drawing.Size(80, 81);
-            this.rotatingSplineOnlyP.TabIndex = 0;
-            this.toolTip1.SetToolTip(this.rotatingSplineOnlyP, "Ink only: Shows only the Ink marks. Editing handles will be disabled");
+            this.splitContainer1.Panel2.Controls.Add(this.listView1);
+            this.splitContainer1.Size = new System.Drawing.Size(960, 668);
+            this.splitContainer1.SplitterDistance = 800;
+            this.splitContainer1.TabIndex = 5;
             // 
-            // centerP
+            // listView1
             // 
-            this.centerP.Active = true;
-            this.centerP.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.centerP.BackgroundImage = global::RotatingBezierSplineEditor.Properties.Resources.Center;
-            this.centerP.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.centerP.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.centerP.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.centerP.DistinctSelection = true;
-            this.centerP.Location = new System.Drawing.Point(0, 0);
-            this.centerP.Name = "centerP";
-            this.centerP.Size = new System.Drawing.Size(80, 81);
-            this.centerP.TabIndex = 0;
-            this.centerP.TargetPart = RotatingBezierSplineEditor.AnchorDrawMode.None;
-            this.toolTip1.SetToolTip(this.centerP, "Show/Hide anchor center points");
+            this.listView1.HideSelection = false;
+            this.listView1.Location = new System.Drawing.Point(27, 17);
+            this.listView1.Name = "listView1";
+            this.listView1.Size = new System.Drawing.Size(121, 97);
+            this.listView1.TabIndex = 0;
+            this.listView1.UseCompatibleStateImageBehavior = false;
             // 
-            // rotationHandleP
-            // 
-            this.rotationHandleP.Active = false;
-            this.rotationHandleP.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.rotationHandleP.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.rotationHandleP.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.rotationHandleP.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.rotationHandleP.DistinctSelection = true;
-            this.rotationHandleP.Location = new System.Drawing.Point(0, 160);
-            this.rotationHandleP.Name = "rotationHandleP";
-            this.rotationHandleP.Size = new System.Drawing.Size(80, 81);
-            this.rotationHandleP.TabIndex = 0;
-            this.rotationHandleP.TargetPart = RotatingBezierSplineEditor.AnchorDrawMode.None;
-            this.toolTip1.SetToolTip(this.rotationHandleP, "Show/hide rotation handles");
-            // 
-            // curvatureHandlesP
-            // 
-            this.curvatureHandlesP.Active = false;
-            this.curvatureHandlesP.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.curvatureHandlesP.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.curvatureHandlesP.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.curvatureHandlesP.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.curvatureHandlesP.DistinctSelection = true;
-            this.curvatureHandlesP.Location = new System.Drawing.Point(0, 80);
-            this.curvatureHandlesP.Name = "curvatureHandlesP";
-            this.curvatureHandlesP.Size = new System.Drawing.Size(80, 81);
-            this.curvatureHandlesP.TabIndex = 0;
-            this.curvatureHandlesP.TargetPart = RotatingBezierSplineEditor.AnchorDrawMode.None;
-            this.toolTip1.SetToolTip(this.curvatureHandlesP, "Show/hide spline curvature handles");
-            // 
-            // addAnchorWithLeftClickToolStripMenuItem1
-            // 
-            this.addAnchorWithLeftClickToolStripMenuItem1.Checked = true;
-            this.addAnchorWithLeftClickToolStripMenuItem1.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.addAnchorWithLeftClickToolStripMenuItem1.Name = "addAnchorWithLeftClickToolStripMenuItem1";
-            this.addAnchorWithLeftClickToolStripMenuItem1.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.V)));
-            this.addAnchorWithLeftClickToolStripMenuItem1.Size = new System.Drawing.Size(321, 26);
-            this.addAnchorWithLeftClickToolStripMenuItem1.Text = "Add Anchor With Left Click";
-            this.addAnchorWithLeftClickToolStripMenuItem1.Click += new System.EventHandler(this.addAnchorWithLeftClickToolStripMenuItem_Click);
-            // 
-            // clearAllToolStripMenuItem
-            // 
-            this.clearAllToolStripMenuItem.Name = "clearAllToolStripMenuItem";
-            this.clearAllToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Shift | System.Windows.Forms.Keys.Delete)));
-            this.clearAllToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
-            this.clearAllToolStripMenuItem.Text = "Clear All";
-            this.clearAllToolStripMenuItem.Click += new System.EventHandler(this.clearAllToolStripMenuItem_Click);
-            // 
-            // exitToolStripMenuItem
-            // 
-            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
-            this.exitToolStripMenuItem.Text = "Exit";
-            // 
-            // fromCipboardToolStripMenuItem
-            // 
-            this.fromCipboardToolStripMenuItem.Name = "fromCipboardToolStripMenuItem";
-            this.fromCipboardToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
-            this.fromCipboardToolStripMenuItem.Text = "Paste Cipboard";
-            this.fromCipboardToolStripMenuItem.Click += new System.EventHandler(this.fromCipboardToolStripMenuItem_Click);
-            // 
-            // Form1
+            // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1046, 698);
+            this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.menuStrip1);
-            this.Controls.Add(this.bezierBoard1);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
-            this.Name = "Form1";
+            this.Name = "MainForm";
             this.Text = "Rotating Bezier Spline Editor";
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Form1_MouseDown);
             this.panel1.ResumeLayout(false);
@@ -573,6 +721,10 @@ namespace RotatingBezierSplineEditor
             this.contextMenuStrip1.ResumeLayout(false);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
+            this.splitContainer1.Panel1.ResumeLayout(false);
+            this.splitContainer1.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
+            this.splitContainer1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -629,6 +781,21 @@ namespace RotatingBezierSplineEditor
         private System.Windows.Forms.ToolStripMenuItem clearAllToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem fromCipboardToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator9;
+        private System.Windows.Forms.ToolStripMenuItem opacityToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem2;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem3;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem4;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem5;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem6;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem7;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem8;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem9;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem10;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem11;
+        private System.Windows.Forms.ToolStripMenuItem documentToolStripMenuItem;
+        private System.Windows.Forms.SplitContainer splitContainer1;
+        private System.Windows.Forms.ListView listView1;
     }
 }
 

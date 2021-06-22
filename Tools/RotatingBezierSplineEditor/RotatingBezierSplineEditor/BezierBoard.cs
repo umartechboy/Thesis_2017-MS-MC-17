@@ -12,6 +12,28 @@ namespace RotatingBezierSplineEditor
 {
     public class BezierBoard : Panel
     {
+        public delegate void MouseEventHandlerF(object sender, MouseEventArgsF e);
+        public class MouseEventArgsF : EventArgs
+        {
+            public float X { get; private set; }
+            public float Y { get; private set; }
+            public int Delta { get; private set; }
+            public MouseButtons Button { get; private set; }
+            public int Clicks { get; private set; }
+            public PointF Location { get { return new PointF(X, Y); } }
+            public MouseEventArgsF(MouseButtons button, int clicks, float X, float Y, int delta)
+            {
+                this.X = X;
+                this.Y = Y;
+                Delta = delta;
+                Button = button;
+                this.Clicks = clicks;
+            }
+            public override string ToString()
+            {
+                return Location.ToString();
+            }
+        }
         AnchorDrawMode _AnchorDrawMode = AnchorDrawMode.Centers;
         InkDrawMode _InkDrawMode = InkDrawMode.All;
         public InkDrawMode InkDrawMode { get { return _InkDrawMode; } set { _InkDrawMode = value; Invalidate(); } }
@@ -35,6 +57,9 @@ namespace RotatingBezierSplineEditor
         public bool XYLinesEnabled { get { return _xyl & GridEnabled; } set { _xyl = value; Invalidate(); } }
         public int  XAxisHeight { get { return ScaleEnabled? 30:0; } }
         public int YAxisWidth { get { return ScaleEnabled ? 50 : 0; } }
+
+        public static float Fill { get; internal set; } = 1;
+
         private void BezierBoard_SizeChanged(object sender, EventArgs e)
         {
             PlotBounds = new RectangleF(0, 0, Width - YAxisWidth, Height - XAxisHeight);
@@ -66,14 +91,14 @@ namespace RotatingBezierSplineEditor
             return item;
         }
         
-        private void BezierBoard_MouseUp(object sender, MouseEventArgs e)
+        private void BezierBoard_MouseUp(object sender, MouseEventArgs e2)
         {
             if (MouseAtDownForScale != null)
             { MouseAtDownForScale = null; return; }
             if (BoardMoveStartedAt != null)
             { BoardMoveStartedAt = null; return; }
-            var pT = GtoV(e.Location);
-            e = new MouseEventArgs(e.Button, e.Clicks, pT.X, pT.Y, e.Delta);
+            var pT = GtoV(e2.Location);
+            var e = new MouseEventArgsF(e2.Button, e2.Clicks, pT.X, pT.Y, e2.Delta);
             for (int i = Objects.Count - 1; i >= 0; i--)
                 Objects[i].ProcessMouseUp(sender, e, currentControlUnderMouse, null, this);
             currentControlUnderMouse = null;
@@ -87,13 +112,13 @@ namespace RotatingBezierSplineEditor
         Point lastMouseG;
         float ppuAtMouseDown = 1;
         public bool clickIsForAdding = true;
-        private void BezierBoard_MouseDown(object sender, MouseEventArgs e)
+        private void BezierBoard_MouseDown(object sender, MouseEventArgs e2)
         {
-            MouseButtonsThatWentDown = e.Button;
-            MouseLocationAtDown = e.Location;
-            var pT = GtoV(e.Location);
-            var eBkp = new Point(e.X, e.Y);
-            e = new MouseEventArgs(e.Button, e.Clicks, pT.X, pT.Y, e.Delta);
+            MouseButtonsThatWentDown = e2.Button;
+            MouseLocationAtDown = e2.Location;
+            var pT = GtoV(e2.Location);
+            var eBkp = new Point(e2.X, e2.Y);
+            var e = new MouseEventArgsF(e2.Button, e2.Clicks, pT.X, pT.Y, e2.Delta);
             var controls = Objects;
             for (int i = controls.Count - 1; i >= 0; i--)
             {
@@ -136,6 +161,11 @@ namespace RotatingBezierSplineEditor
                 VatMouseDown = GtoV(eBkp);
                 MouseAtDownForScale = eBkp;
                 ppuAtMouseDown = PPU;
+            } // we move here only when no spline is being appended to
+            else if (e.Button == MouseButtons.Middle) // initiate pan
+            {
+                BoardMoveStartedAt = eBkp;
+                OffsetGAtMouseDown = OffsetG;
             }
             else // move or add new curve
             {
@@ -159,19 +189,19 @@ namespace RotatingBezierSplineEditor
         public void ForceBeginDragItem(BezierBoardItem item)
         {
             Cursor.Position = new Point(0, 0);
-            ForceBeginDragItem(item, new MouseEventArgs(MouseButtons.Left, 1, 0, 0, 0));
+            ForceBeginDragItem(item, new MouseEventArgsF(MouseButtons.Left, 1, 0, 0, 0));
         }
-        public void ForceBeginDragItem(BezierBoardItem item, MouseEventArgs e)
+        public void ForceBeginDragItem(BezierBoardItem item, MouseEventArgsF e)
         {
             if (item == null) return;
             currentControlUnderMouse = item;
             item.NotifyMouseDown(this, e);
             item.MouseState = MouseState.Held;
         }
-        void continuousAnchorAddition(MouseEventArgs e, RotatingBezierSpline so)
+        void continuousAnchorAddition(MouseEventArgsF e, RotatingBezierSpline so)
         {
             var a1 = e.Location;
-            a1.Offset(1, 1);
+            a1 = new PointF(a1.X + 1, a1.Y + 1);
             anchorToAdd = new RotatingBezierSplineAnchor(e.Location, a1, 0, 0, true);
             anchorToAdd.BindCurvatureHandlesLength = true;
             CurvatureHandlePoint pointToMoveWhenAdding = so.AddAnchor(anchorToAdd);
@@ -204,17 +234,17 @@ namespace RotatingBezierSplineEditor
         {
             return ((Height - XAxisHeight - vG) - offsetG) / ppu;
         }
-        public Point GtoV(Point p)
+        public PointF GtoV(Point p)
         {
-            return new Point(
-                (int)GxtoV(p.X, OffsetG.X, PPU), 
-                (int)GytoV(p.Y, OffsetG.Y, PPU));
+            return new PointF(
+                GxtoV(p.X, OffsetG.X, PPU), 
+                GytoV(p.Y, OffsetG.Y, PPU));
         }
-        public Point VtoG(Point p)
+        public PointF VtoG(PointF p)
         {
-            return new Point(
-                (int)VxtoG(p.X, OffsetG.X, PPU), 
-                (int)VytoG(p.Y, OffsetG.Y, PPU));
+            return new PointF(
+                VxtoG(p.X, OffsetG.X, PPU), 
+                VytoG(p.Y, OffsetG.Y, PPU));
         }
 
         public void ScaleChanged(PointF latestPoint, PointF lastPoint)
@@ -230,35 +260,35 @@ namespace RotatingBezierSplineEditor
                 currentControlUnderMouse.NotifyMouseClick(MouseLocationAtDown, MouseButtonsThatWentDown);
         }
 
-        private void BezierBoard_MouseMove(object sender, MouseEventArgs e)
+        private void BezierBoard_MouseMove(object sender, MouseEventArgs e2)
         {
             if (MouseAtDownForScale != null)
             {
                 var ec = ((Point)MouseAtDownForScale);
                 var er = new Point((Width - (int)YAxisWidth) / 2, (Height - XAxisHeight) / 2);
                 var refD = RBSPoint.DistanceBetween(ec.X, ec.Y, er.X, er.Y);
-                PPU = ppuAtMouseDown * (float)(RBSPoint.DistanceBetween(e.X, e.Y, er.X, er.Y) / refD);
+                PPU = ppuAtMouseDown * (float)(RBSPoint.DistanceBetween(e2.X, e2.Y, er.X, er.Y) / refD);
                 if (PPU < .01F)
                     PPU = 0.01F;
                 else if (PPU > 100)
                     PPU = 100;
-                ScaleChanged(e.Location, lastMouseG);
-                lastMouseG = e.Location;
+                ScaleChanged(e2.Location, lastMouseG);
+                lastMouseG = e2.Location;
                 Invalidate();
                 return;
             }
             if (BoardMoveStartedAt != null)
             {
                 OffsetG = new PointF(
-                    OffsetGAtMouseDown.X + e.X - ((Point)BoardMoveStartedAt).X,
-                    OffsetGAtMouseDown.Y - e.Y + ((Point)BoardMoveStartedAt).Y
+                    OffsetGAtMouseDown.X + e2.X - ((Point)BoardMoveStartedAt).X,
+                    OffsetGAtMouseDown.Y - e2.Y + ((Point)BoardMoveStartedAt).Y
                     );
-                lastMouseG = e.Location;
+                lastMouseG = e2.Location;
                 Invalidate();
                 return;
             }
-            var pT = GtoV(e.Location);
-            e = new MouseEventArgs(e.Button, e.Clicks, pT.X, pT.Y, e.Delta);
+            var pT = GtoV(e2.Location);
+            var e = new MouseEventArgsF(e2.Button, e2.Clicks, pT.X, pT.Y, e2.Delta);
             var controls = Objects;
             for (int i = controls.Count - 1; i >= 0; i--)
             {
@@ -269,7 +299,7 @@ namespace RotatingBezierSplineEditor
                     break;
                 }
             }
-            Invalidate();
+            Invalidate(); Application.DoEvents();
         }
 
         internal void ImportObjects(string fileName)

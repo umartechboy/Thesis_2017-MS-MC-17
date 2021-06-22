@@ -277,5 +277,16 @@ Uou can save, open and import rotating bezier splines using the File menu
             form.ShowDialog();
             return form.bezierBoard1.GetObjects();
         }
+
+        private void toolStripMenuItem2_Click(object sender, EventArgs e)
+        {
+            foreach (ToolStripMenuItem item in opacityToolStripMenuItem.DropDownItems)
+            {
+                item.Checked = false;
+            }
+            var clickedOn = (ToolStripMenuItem)sender;
+            clickedOn.Checked = true;
+            BezierBoard.Fill = float.Parse(clickedOn.Text.Replace("%", "")) / 100;
+        }
     }
 }
