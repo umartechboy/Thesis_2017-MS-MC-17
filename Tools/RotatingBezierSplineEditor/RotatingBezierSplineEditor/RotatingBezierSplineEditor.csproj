@@ -165,6 +165,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="AppIcon.ico" />
+    <None Include="Resources\pen.PNG" />
+    <None Include="Resources\delete.PNG" />
     <Content Include="گ %282%29.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

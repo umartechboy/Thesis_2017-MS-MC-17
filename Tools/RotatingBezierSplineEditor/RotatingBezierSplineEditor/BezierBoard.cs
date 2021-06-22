@@ -1,4 +1,5 @@
 ﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -12,6 +13,7 @@ namespace RotatingBezierSplineEditor
 {
     public class BezierBoard : Panel
     {
+        public bool MayHaveUnsavedChanges = false;
         public delegate void MouseEventHandlerF(object sender, MouseEventArgsF e);
         public class MouseEventArgsF : EventArgs
         {
@@ -71,11 +73,21 @@ namespace RotatingBezierSplineEditor
         {
             return Objects.FindAll(o => o is RotatingBezierSpline).FindAll(o => ((RotatingBezierSpline)o).Anchors.Count > 0).Select(o => (RotatingBezierSpline)o).ToArray();
         }
+        public class SplineAddedEventArgs : EventArgs
+        { public RotatingBezierSpline Spline { get; set; } }
+        public delegate void SplineAddEventHandler(object sender, SplineAddedEventArgs e);
+        public event SplineAddEventHandler OnSplineAdded;
+        public event SplineAddEventHandler OnSplineRemoved;
         public BezierBoardItem AddItem(BezierBoardItem item)
         {
             if (item == null) return null;
             Objects.Add(item);
-            item.OnSelfRemoveRequest += (s, e) => { Objects.Remove(item); Invalidate(); };
+            item.OnSelfRemoveRequest += (s, e) =>
+            {
+                Objects.Remove(item);
+                OnSplineRemoved?.Invoke(this, new SplineAddedEventArgs() { Spline = (RotatingBezierSpline)item });
+                Invalidate();
+            };
             if (item is RotatingBezierSpline)
             {
                 var sitem = (RotatingBezierSpline)item;
@@ -87,6 +99,7 @@ namespace RotatingBezierSplineEditor
                             ((RotatingBezierSpline)obj).UnselectAllAnchors();
                         }
                 };
+                OnSplineAdded?.Invoke(this, new SplineAddedEventArgs() { Spline = sitem });
             }
             return item;
         }
@@ -111,7 +124,7 @@ namespace RotatingBezierSplineEditor
         PointF VatMouseDown; // for scaling
         Point lastMouseG;
         float ppuAtMouseDown = 1;
-        public bool clickIsForAdding = true;
+        public bool clickIsForAdding = false;
         private void BezierBoard_MouseDown(object sender, MouseEventArgs e2)
         {
             MouseButtonsThatWentDown = e2.Button;
@@ -126,6 +139,7 @@ namespace RotatingBezierSplineEditor
                 if (currentControlUnderMouse != null)
                 {
                     Invalidate();
+                    MayHaveUnsavedChanges = true;
                     return;
                 }
             }
@@ -171,6 +185,7 @@ namespace RotatingBezierSplineEditor
             {
                 if (clickIsForAdding)
                 {
+                    MayHaveUnsavedChanges = true;
                     var so = new RotatingBezierSpline(this, true);
                     AddItem(so);
                     continuousAnchorAddition(e, so);

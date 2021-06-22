@@ -81,6 +81,8 @@ namespace RotatingBezierSplineEditor
             linearSplineOnly.OnActivated += (s, e) => bezierBoard1.InkDrawMode = InkDrawMode.Spline | (bezierBoard1.InkDrawMode & InkDrawMode.Images);
 
 
+            bezierBoard1.OnSplineAdded += BezierBoard1_OnSplineAdded;
+            bezierBoard1.OnSplineRemoved += BezierBoard1_OnSplineRemoved;
             //// add dummy data
             //var sp = new RotatingBezierSpline();
             //sp.AddAnchor(new RotatingBezierSplineAnchor(new PointF(34.5F, -2.75F)));
@@ -102,6 +104,16 @@ namespace RotatingBezierSplineEditor
             //sp.AddAnchor(a1);
             //sp.AddAnchor(a2);
             ////bezierBoard1.AddItem(sp);
+        }
+
+        private void BezierBoard1_OnSplineRemoved(object sender, BezierBoard.SplineAddedEventArgs e)
+        {
+            documentLayoutFP.Controls.Remove(documentLayoutFP.Controls.OfType<CurveMenuItem>().ToList().Find(ci => ci.Spline == e.Spline));
+        }
+
+        private void BezierBoard1_OnSplineAdded(object sender, BezierBoard.SplineAddedEventArgs e)
+        {
+            documentLayoutFP.Controls.Add(new CurveMenuItem(e.Spline));
         }
 
         private void bezierBoard1_Paint(object sender, PaintEventArgs e)
@@ -217,6 +229,8 @@ Uou can save, open and import rotating bezier splines using the File menu
         {
             if (ofd.ShowDialog() == DialogResult.OK)
             {
+                sfd.FileName = ofd.FileName;
+                documentLayoutFP.Controls.Clear();
                 bezierBoard1.ClearObjects();
                 bezierBoard1.ImportObjects(ofd.FileName);
             }
@@ -232,6 +246,7 @@ Uou can save, open and import rotating bezier splines using the File menu
             ofd.Filter = "XML files (*.xml)|*.xml|All files (*.*)|*.*";
             if (ofd.ShowDialog() == DialogResult.OK)
             {
+                //documentLayoutFP.Controls.Clear();
                 //bezierBoard1.ClearObjects();
                 bezierBoard1.ImportObjects(ofd.FileName);
             }
@@ -267,6 +282,7 @@ Uou can save, open and import rotating bezier splines using the File menu
 
         private void clearAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            documentLayoutFP.Controls.Clear();
             bezierBoard1.ClearObjects();
         }
 
@@ -287,6 +303,48 @@ Uou can save, open and import rotating bezier splines using the File menu
             var clickedOn = (ToolStripMenuItem)sender;
             clickedOn.Checked = true;
             BezierBoard.Fill = float.Parse(clickedOn.Text.Replace("%", "")) / 100;
+        }
+
+        private void curveMenuItem1_ControlAdded(object sender, ControlEventArgs e)
+        {
+
+        }
+
+        private void documentLayout_ControlAdded(object sender, ControlEventArgs e)
+        {
+        }
+
+        private void previewRefreshTimerT_Tick(object sender, EventArgs e)
+        {
+            foreach (var ci in documentLayoutFP.Controls.OfType<CurveMenuItem>())
+            {
+                if (ci.NeedsToRedrawPreview)
+                {
+                    ci.RecomputePreview();
+                    ci.NeedsToRedrawPreview = false;
+                }
+            }
+        }
+
+        private void autoSaveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            autoSaverT.Enabled = autoSaveToolStripMenuItem.Checked;
+        }
+
+        private void autoSaverT_Tick(object sender, EventArgs e)
+        {
+            if (!bezierBoard1.MayHaveUnsavedChanges)
+                return;
+            bezierBoard1.MayHaveUnsavedChanges = false;
+            var fNameSeed = "Untitled.xml";
+            if (File.Exists(sfd.FileName))
+                fNameSeed = sfd.FileName;
+            var fname = Path.GetFileNameWithoutExtension(fNameSeed) + " " + DateTime.Now.ToString("MM-dd hh.mm.ss");
+            var dir = Path.Combine(Path.GetDirectoryName(fNameSeed), Path.GetFileNameWithoutExtension(fNameSeed) + "_Autosave");
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+            fname = Path.Combine(dir, fname + Path.GetExtension(fNameSeed));
+            bezierBoard1.SaveObjects(fname);
         }
     }
 }
