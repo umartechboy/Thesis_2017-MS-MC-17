@@ -346,5 +346,13 @@ Uou can save, open and import rotating bezier splines using the File menu
             fname = Path.Combine(dir, fname + Path.GetExtension(fNameSeed));
             bezierBoard1.SaveObjects(fname);
         }
+
+        private void autoSaveDurationChange_Click(object sender, EventArgs e)
+        {
+            var dur = int.Parse(((ToolStripMenuItem)sender).Text.Split(new char[] { ' ' })[0]);
+            if (((ToolStripMenuItem)sender).Text.Split(new char[] { ' ' })[1].ToLower().StartsWith("m"))
+                dur *= 60;
+            autoSaverT.Interval = dur * 1000;
+        }
     }
 }

@@ -1060,12 +1060,21 @@ namespace RotatingBezierSplineEditor
             };
             if (CanReceiveAnchorAtStart && Anchors.Count > 1)
             {
+                var r = a.R1.DistanceFrom(a.P);
+                a.R1.X = (float)(a.P.X + r * Math.Cos(Anchors.First().R1.AngleAbout(Anchors.First().P)));
+                a.R1.Y = (float)(a.P.Y + r * Math.Sin(Anchors.First().R1.AngleAbout(Anchors.First().P)));
                 Anchors.Insert(0, a);
                 OnAnchorAdded?.Invoke(this, new EventArgs());
                 return a.C1;
             }
             else // force add
             {
+                if (Anchors.Count > 0)
+                {
+                    var r = a.R1.DistanceFrom(a.P);
+                    a.R1.X = (float)(a.P.X + r * Math.Cos(Anchors.Last().R1.AngleAbout(Anchors.Last().P)));
+                    a.R1.Y = (float)(a.P.Y + r * Math.Sin(Anchors.Last().R1.AngleAbout(Anchors.Last().P)));
+                }
                 Anchors.Add(a);
                 OnAnchorAdded?.Invoke(this, new EventArgs());
                 return a.C2;

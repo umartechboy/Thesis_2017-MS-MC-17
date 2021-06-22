@@ -98,6 +98,15 @@ namespace RotatingBezierSplineEditor
             this.previewRefreshTimerT = new System.Windows.Forms.Timer(this.components);
             this.autoSaveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.autoSaverT = new System.Windows.Forms.Timer(this.components);
+            this.secondsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.secondsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.minuteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.minutesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.minutesToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.secondsToolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
+            this.secondsToolStripMenuItem3 = new System.Windows.Forms.ToolStripMenuItem();
+            this.minutesToolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
+            this.minutesToolStripMenuItem3 = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
@@ -709,6 +718,7 @@ namespace RotatingBezierSplineEditor
             // 
             // documentLayoutFP
             // 
+            this.documentLayoutFP.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.documentLayoutFP.Dock = System.Windows.Forms.DockStyle.Fill;
             this.documentLayoutFP.Location = new System.Drawing.Point(0, 0);
             this.documentLayoutFP.Name = "documentLayoutFP";
@@ -726,6 +736,16 @@ namespace RotatingBezierSplineEditor
             // 
             this.autoSaveToolStripMenuItem.Checked = true;
             this.autoSaveToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.autoSaveToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.secondsToolStripMenuItem2,
+            this.secondsToolStripMenuItem3,
+            this.secondsToolStripMenuItem,
+            this.secondsToolStripMenuItem1,
+            this.minuteToolStripMenuItem,
+            this.minutesToolStripMenuItem,
+            this.minutesToolStripMenuItem1,
+            this.minutesToolStripMenuItem2,
+            this.minutesToolStripMenuItem3});
             this.autoSaveToolStripMenuItem.Name = "autoSaveToolStripMenuItem";
             this.autoSaveToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.autoSaveToolStripMenuItem.Text = "Auto Save";
@@ -736,6 +756,71 @@ namespace RotatingBezierSplineEditor
             this.autoSaverT.Enabled = true;
             this.autoSaverT.Interval = 15000;
             this.autoSaverT.Tick += new System.EventHandler(this.autoSaverT_Tick);
+            // 
+            // secondsToolStripMenuItem
+            // 
+            this.secondsToolStripMenuItem.Checked = true;
+            this.secondsToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.secondsToolStripMenuItem.Name = "secondsToolStripMenuItem";
+            this.secondsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.secondsToolStripMenuItem.Text = "15 seconds";
+            this.secondsToolStripMenuItem.Click += new System.EventHandler(this.autoSaveDurationChange_Click);
+            // 
+            // secondsToolStripMenuItem1
+            // 
+            this.secondsToolStripMenuItem1.Name = "secondsToolStripMenuItem1";
+            this.secondsToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.secondsToolStripMenuItem1.Text = "30 seconds";
+            this.secondsToolStripMenuItem1.Click += new System.EventHandler(this.autoSaveDurationChange_Click);
+            // 
+            // minuteToolStripMenuItem
+            // 
+            this.minuteToolStripMenuItem.Name = "minuteToolStripMenuItem";
+            this.minuteToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.minuteToolStripMenuItem.Text = "1 minute";
+            this.minuteToolStripMenuItem.Click += new System.EventHandler(this.autoSaveDurationChange_Click);
+            // 
+            // minutesToolStripMenuItem
+            // 
+            this.minutesToolStripMenuItem.Name = "minutesToolStripMenuItem";
+            this.minutesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.minutesToolStripMenuItem.Text = "2 minutes";
+            this.minutesToolStripMenuItem.Click += new System.EventHandler(this.autoSaveDurationChange_Click);
+            // 
+            // minutesToolStripMenuItem1
+            // 
+            this.minutesToolStripMenuItem1.Name = "minutesToolStripMenuItem1";
+            this.minutesToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.minutesToolStripMenuItem1.Text = "3 minutes";
+            this.minutesToolStripMenuItem1.Click += new System.EventHandler(this.autoSaveDurationChange_Click);
+            // 
+            // secondsToolStripMenuItem2
+            // 
+            this.secondsToolStripMenuItem2.Name = "secondsToolStripMenuItem2";
+            this.secondsToolStripMenuItem2.Size = new System.Drawing.Size(180, 22);
+            this.secondsToolStripMenuItem2.Text = "5 seconds";
+            this.secondsToolStripMenuItem2.Click += new System.EventHandler(this.autoSaveDurationChange_Click);
+            // 
+            // secondsToolStripMenuItem3
+            // 
+            this.secondsToolStripMenuItem3.Name = "secondsToolStripMenuItem3";
+            this.secondsToolStripMenuItem3.Size = new System.Drawing.Size(180, 22);
+            this.secondsToolStripMenuItem3.Text = "10 seconds";
+            this.secondsToolStripMenuItem3.Click += new System.EventHandler(this.autoSaveDurationChange_Click);
+            // 
+            // minutesToolStripMenuItem2
+            // 
+            this.minutesToolStripMenuItem2.Name = "minutesToolStripMenuItem2";
+            this.minutesToolStripMenuItem2.Size = new System.Drawing.Size(180, 22);
+            this.minutesToolStripMenuItem2.Text = "10 minutes";
+            this.minutesToolStripMenuItem2.Click += new System.EventHandler(this.autoSaveDurationChange_Click);
+            // 
+            // minutesToolStripMenuItem3
+            // 
+            this.minutesToolStripMenuItem3.Name = "minutesToolStripMenuItem3";
+            this.minutesToolStripMenuItem3.Size = new System.Drawing.Size(180, 22);
+            this.minutesToolStripMenuItem3.Text = "15 minutes";
+            this.minutesToolStripMenuItem3.Click += new System.EventHandler(this.autoSaveDurationChange_Click);
             // 
             // MainForm
             // 
@@ -835,6 +920,15 @@ namespace RotatingBezierSplineEditor
         private System.Windows.Forms.Timer previewRefreshTimerT;
         private System.Windows.Forms.ToolStripMenuItem autoSaveToolStripMenuItem;
         private System.Windows.Forms.Timer autoSaverT;
+        private System.Windows.Forms.ToolStripMenuItem secondsToolStripMenuItem2;
+        private System.Windows.Forms.ToolStripMenuItem secondsToolStripMenuItem3;
+        private System.Windows.Forms.ToolStripMenuItem secondsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem secondsToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem minuteToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem minutesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem minutesToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem minutesToolStripMenuItem2;
+        private System.Windows.Forms.ToolStripMenuItem minutesToolStripMenuItem3;
     }
 }
 

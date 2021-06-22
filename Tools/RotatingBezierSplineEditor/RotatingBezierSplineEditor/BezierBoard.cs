@@ -149,9 +149,9 @@ namespace RotatingBezierSplineEditor
                 if (o is RotatingBezierSpline)
                 {
                     var so = (RotatingBezierSpline)o;
-                    if (so.CanReceiveAnchorAtEnd || so.CanReceiveAnchorAtStart)
+                    if ((so.CanReceiveAnchorAtEnd || so.CanReceiveAnchorAtStart) && (clickIsForAdding && so.Visible && !so.Locked))
                     {
-                        if (e.Button == MouseButtons.Left && clickIsForAdding) // this is not an append operation, but a cancel op.
+                        if (e.Button == MouseButtons.Left ) // this is not an append operation, but a cancel op.
                         {
                             continuousAnchorAddition(e, so);
                             return;
