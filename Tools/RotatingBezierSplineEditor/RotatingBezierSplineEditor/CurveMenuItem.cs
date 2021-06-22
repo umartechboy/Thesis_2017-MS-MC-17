@@ -14,6 +14,12 @@ namespace RotatingBezierSplineEditor
         public CurveMenuItem()
         {
             InitializeComponent();
+            try
+            {
+                visibleTC.SetImage(Image.FromFile("Resources\\visible.png"), 30);
+                activeTC.SetImage(Image.FromFile("Resources\\active.png"), 30);
+            }
+            catch { }
         }
     }
 }
