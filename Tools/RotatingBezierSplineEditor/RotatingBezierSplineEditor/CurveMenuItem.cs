@@ -15,23 +15,30 @@ namespace RotatingBezierSplineEditor
 
         public CurveMenuItem()
         {
+            var st = DateTime.Now;
             InitializeComponent();
+            var s1 = DateTime.Now - st;
             try
             {
-                visibleTC.SetImage(Image.FromFile("Resources\\visible.png"), 23);
-                activeTC.SetImage(Image.FromFile("Resources\\active.png"), 23);
                 //delTC.SetImage(Image.FromFile("Resources\\delete.png"), 23);
                 //appearanceTC.SetImage(Image.FromFile("Resources\\appearance.png"), 23);
             }
             catch { }
+            var s2 = DateTime.Now - st;
         }
 
-        public CurveMenuItem(RotatingBezierSpline spline):this()
+        public CurveMenuItem(RotatingBezierSpline spline, Image visibleIcon, Image activeIcon, Image visibleIconDull, Image activeIconDull, int sz):this()
         {
+            var st = DateTime.Now;
+            visibleTC.SetImage(visibleIcon, sz, visibleIconDull);
+            activeTC.SetImage(activeIcon, sz, activeIconDull);
+            var s1 = DateTime.Now - st;
             this.Spline = spline;
             spline.OnAnchorAdded += Spline_OnAnchorAdded;
             spline.WidthChangeRequest += Spline_WidthChangeRequest;
+            
             Spline_OnAnchorAdded(spline, new EventArgs());
+            var s2 = DateTime.Now - st;
         }
 
         private void Spline_WidthChangeRequest(object sender, EventArgs e)
@@ -91,6 +98,33 @@ namespace RotatingBezierSplineEditor
         private void delP_MouseClick(object sender, MouseEventArgs e)
         {
             Spline.SelfRemoveRequest();
+        }
+
+        private void prevP_MouseEnter(object sender, EventArgs e)
+        {
+            Spline.MouseState = MouseState.Hover;
+            Spline.Board.Invalidate();
+        }
+
+        private void CurveMenuItem_MouseEnter(object sender, EventArgs e)
+        {
+            Spline.MouseState = MouseState.Hover;
+            Spline.Board.Invalidate();
+
+        }
+
+        private void prevP_MouseLeave(object sender, EventArgs e)
+        {
+            Spline.MouseState = MouseState.None;
+            Spline.Board.Invalidate();
+
+        }
+
+        private void CurveMenuItem_MouseLeave(object sender, EventArgs e)
+        {
+            Spline.MouseState = MouseState.None;
+            Spline.Board.Invalidate();
+
         }
     }
 }

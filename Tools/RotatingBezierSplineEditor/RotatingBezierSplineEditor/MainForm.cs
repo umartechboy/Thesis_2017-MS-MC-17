@@ -14,9 +14,16 @@ namespace RotatingBezierSplineEditor
 {
     public partial class MainForm : Form
     {
+        Image visibleIconDull, activeIconDull;
+        Image visibleIcon, activeIcon;
         public MainForm()
         {
             InitializeComponent();
+            var tc = new ToolControl();
+            visibleIcon = Image.FromFile("Resources\\visible.png");
+            activeIcon = Image.FromFile("Resources\\active.png");
+            visibleIconDull = tc.SetImage(visibleIcon, 23);
+            activeIconDull = tc.SetImage(activeIcon, 23); ;
             // set images
             centerP.SetImage(Image.FromFile("Resources\\Center.png"), 65); 
             curvatureHandlesP.SetImage(Image.FromFile("Resources\\CurvatureHandles.png"), 65);
@@ -113,7 +120,11 @@ namespace RotatingBezierSplineEditor
 
         private void BezierBoard1_OnSplineAdded(object sender, BezierBoard.SplineAddedEventArgs e)
         {
-            documentLayoutFP.Controls.Add(new CurveMenuItem(e.Spline));
+            var st = DateTime.Now;
+            var con = new CurveMenuItem(e.Spline, visibleIcon, activeIcon, visibleIconDull, activeIconDull, 23);
+            var s1 = DateTime.Now - st;
+            documentLayoutFP.Controls.Add(con);
+            var s2 = DateTime.Now - st;
         }
 
         private void bezierBoard1_Paint(object sender, PaintEventArgs e)
@@ -291,7 +302,7 @@ Uou can save, open and import rotating bezier splines using the File menu
             var form = new MainForm();
             form.StartPosition = FormStartPosition.CenterParent;
             form.ShowDialog();
-            return form.bezierBoard1.GetObjects();
+            return form.bezierBoard1.GetSplineObjects();
         }
 
         private void toolStripMenuItem2_Click(object sender, EventArgs e)
@@ -329,6 +340,86 @@ Uou can save, open and import rotating bezier splines using the File menu
         private void autoSaveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             autoSaverT.Enabled = autoSaveToolStripMenuItem.Checked;
+        }
+
+        void ProcessRenderRequest(ExportRequest Request)
+        {
+            var splines = bezierBoard1.GetSplineObjects().ToList();
+            var images = bezierBoard1.GetImageObjects().ToList();
+            if (splines.Count == 0)
+                return;
+            var minX = splines.Min(spline => spline.BoundingRectangle().Left);
+            var maxX = splines.Max(spline => spline.BoundingRectangle().Right);
+            var minY = splines.Min(spline => spline.BoundingRectangle().Top);
+            var maxY = splines.Max(spline => spline.BoundingRectangle().Bottom);
+            float scale = Request.DPI / 1000.0F;
+            var rect = new RectangleF(minX, minY, maxX - minX, maxY - minY);
+            var bmp = new Bitmap((int)(rect.Width * scale), (int)(rect.Height * scale));
+            var g = Graphics.FromImage(bmp);
+            g.ScaleTransform(1, -1);
+            g.TranslateTransform(0, -bmp.Height);
+            g.TranslateTransform(-rect.X * scale, -rect.Y * scale);
+            g.ScaleTransform(scale, scale);
+            var scBkp = BezierBoard.ForceSingleColorSplines;
+            var colBkp = BezierBoard.ForcedInkColor;
+            BezierBoard.ForcedInkColor = Request.ForceColor;
+            BezierBoard.ForceSingleColorSplines = Request.ForceSingleColor;
+            if (Request.RenderImages)
+            {
+                foreach (var image in images)
+                    image.Draw(g, InkDrawMode.Images, Request.AnchorMode, null, null);
+            }
+            if (!Request.DontRenderSplines)
+            {
+                foreach (var Spline in splines)
+                {
+                    var bkp = BezierBoard.FlatTipRenderAlgorithm;
+                    BezierBoard.FlatTipRenderAlgorithm = Request.RenderAlgorithm;
+                    float widBkp = Spline.FlatTipWidth;
+                    if (Spline.FlatTipWidth < 2)
+                        Spline.FlatTipWidth = 2;
+                    Spline.Draw(g, Request.DrawMode, Request.AnchorMode, null, null);
+                    Spline.FlatTipWidth = widBkp;
+                    BezierBoard.FlatTipRenderAlgorithm = bkp;
+                }
+            }
+            Request.RenderOutput = bmp;
+            BezierBoard.ForcedInkColor = colBkp;
+            BezierBoard.ForceSingleColorSplines = scBkp;
+        }
+        private void exportToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var em = new ExportMenu();
+            em.OnExportRequest += (s, e2) =>
+            {
+                ProcessRenderRequest(e2.Request);
+            };
+            em.ShowDialog();
+        }
+
+        private void polygonToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            BezierBoard.FlatTipRenderAlgorithm = FlatTipRenderAlgorithm.Polygon;
+            polygonToolStripMenuItem.Checked = true;
+            rectanglesToolStripMenuItem.Checked = false;
+            bezierBoard1.Invalidate();
+            Application.DoEvents();
+        }
+
+        private void rectanglesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            BezierBoard.FlatTipRenderAlgorithm = FlatTipRenderAlgorithm.Rectangle;
+            polygonToolStripMenuItem.Checked = false;
+            rectanglesToolStripMenuItem.Checked = true;
+            bezierBoard1.Invalidate();
+            Application.DoEvents();
+        }
+
+        private void analyzeTraceAccuracyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var taf = new TraceAnalyzer();
+            taf.OnExportRequest += (s, e2) => { ProcessRenderRequest(e2.Request); };
+            taf.ShowDialog();
         }
 
         private void autoSaverT_Tick(object sender, EventArgs e)

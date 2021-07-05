@@ -1,0 +1,5 @@
+* Changed the tool Name to Drogon.
+* Corrected the issue of WPF transformation. Some time, Roll seemed to be opposite. It looks like the conventions in WPF are diff than ours. To apply Roll, we need to use 0,-1,0 instead of 0,1,0
+- The previous fix was Undone.
+* The previous fix did fix the problem apparantly but it didn't remove the root cause. It appears that I had took the wrong direction of Robot Y axis. Changes had to be made in Pitch section of ChangeFor function in SimCalc, GravityThreadStep in robot, and GroundModel in robot.
+* Also, the name for Pitch and Roll was changed interchangble due to this confusion. I've now corrected the issue. 

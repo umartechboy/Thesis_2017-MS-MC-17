@@ -1,0 +1,46 @@
+﻿<Window x:Class="RoboSim.MainWpfPrevWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Height="342.482" Width="390.307" WindowStyle="SingleBorderWindow" Loaded="MainWindow_Loaded" Topmost="False">
+
+    <Grid Name="MainGrid">
+        <Grid Name="simPrevGrid">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0*"/>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="68*"/>
+                <ColumnDefinition Width="20"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="25"/>
+            </Grid.RowDefinitions>
+            <Border BorderBrush="Black" BorderThickness="1" Grid.Column="1" MouseUp="Border_MouseUp" Background="White" MouseMove="Border_MouseMove" Grid.RowSpan="2" MouseWheel="Border_MouseWheel" Grid.ColumnSpan="3">
+                <Viewport3D Margin="-1" x:Name="mainViewPort" MouseLeave="mainViewPort_MouseLeave" MouseEnter="mainViewPort_MouseEnter" MouseDown="mainViewPort_MouseDown" MouseMove="mainViewPort_MouseMove">
+                    <Viewport3D.Camera>
+                        <PerspectiveCamera 
+                  Position = "-10 , 0, 0"
+                  LookDirection = "1, 0, 0"
+                  UpDirection = "0 , 0, 1"
+                  >
+                            <PerspectiveCamera.Transform>
+                                <Transform3DGroup>
+                                    <RotateTransform3D>
+                                        <RotateTransform3D.Rotation>
+                                            <AxisAngleRotation3D
+                                      Axis="0 1 0" 
+                                      Angle="0" />
+                                        </RotateTransform3D.Rotation>
+                                    </RotateTransform3D>
+                                </Transform3DGroup>
+                            </PerspectiveCamera.Transform>
+                        </PerspectiveCamera>
+                    </Viewport3D.Camera>
+                </Viewport3D>
+            </Border>
+
+        </Grid>
+
+    </Grid>
+</Window>

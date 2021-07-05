@@ -800,11 +800,12 @@ namespace RotatingBezierSplineEditor
         {
             // draw the spline
             int divisions = 20;
-            psSpline = new PointF[divisions + 1];
-            RBSPoint pPrevious = null;
-            double r1 = this.A1.R;
-            double r2 = this.A2.R;
-            psInk = new PointF[divisions * 4];
+
+                psSpline = new PointF[divisions + 1];
+                RBSPoint pPrevious = null;
+                double r1 = this.A1.R;
+                double r2 = this.A2.R;
+                psInk = new PointF[divisions * 4];
             for (int i = 0; i <= divisions; i++)
             {
                 double f = i / (double)divisions;
@@ -843,11 +844,27 @@ namespace RotatingBezierSplineEditor
                 pPrevious = P;
             }
 
-
             if (mouseState == MouseState.None)
             {
                 if (thickness > 0 && inkDrawMode.HasFlag(InkDrawMode.Ink))
-                    g.FillPolygon(new SolidBrush(Color.FromArgb((int)(255 * BezierBoard.Fill), normalColor)), psInk);
+                {
+                    if (BezierBoard.FlatTipRenderAlgorithm == FlatTipRenderAlgorithm.Polygon)
+                        g.FillPolygon(new SolidBrush(Color.FromArgb((int)(255 * BezierBoard.Fill), normalColor)), psInk);
+                    else
+                    {
+                        for (int i = 0; i < psInk.Length / 2 - 1; i++)
+                        {
+                            g.FillPolygon(new SolidBrush(Color.FromArgb((int)(255 * BezierBoard.Fill), normalColor)),
+                                new PointF[] {
+                                    psInk[i], psInk[psInk.Length - i - 1],psInk[psInk.Length - i - 2], psInk[i + 1],
+                                }
+                                );
+                            g.DrawLine(new Pen(new SolidBrush(Color.FromArgb((int)(255 * BezierBoard.Fill), normalColor)), 2),
+                                    psInk[i], psInk[psInk.Length - i - 1]
+                                );
+                        }
+                    }
+                }
                 if (inkDrawMode.HasFlag(InkDrawMode.Spline))
                     g.DrawLines(inkDrawMode.HasFlag(InkDrawMode.Ink) ? Pens.White : Pens.Gray, psSpline);
             }
@@ -855,7 +872,7 @@ namespace RotatingBezierSplineEditor
             {
                 if (thickness > 0 && inkDrawMode.HasFlag(InkDrawMode.Ink))
                 {
-                    g.FillPolygon(Brushes.DarkGray, psInk);
+                    g.FillPolygon(new SolidBrush(Color.FromArgb((int)(255 * BezierBoard.Fill), Color.DarkGray)), psInk);
                     g.DrawPolygon(new Pen(Color.DarkBlue, 3), psInk);
                 }
                 if (inkDrawMode.HasFlag(InkDrawMode.Spline))
@@ -906,7 +923,7 @@ namespace RotatingBezierSplineEditor
         bool _v = true, _l = false;
         public bool Visible { get { return _v; } set { _v = value;  Board.Invalidate(); } } 
         public bool Locked { get { return _l; } set { _l = value; Board.Invalidate(); } }
-        BezierBoard Board { get; set; }
+        public BezierBoard Board { get; set; }
         public RotatingBezierSpline(BezierBoard board, bool mouseEvents) :base(mouseEvents)
         {
             Board = board;
@@ -968,7 +985,10 @@ namespace RotatingBezierSplineEditor
             {
                 var cell = new BezierCurveCellWithRotation(Anchors[i], Anchors[i + 1]);
                 lastCurveCellCache.Add(cell);
-                cell.Draw(g, FlatTipWidth, NormalColor, MouseState, inkDrawMode, Locked ? AnchorDrawMode.None : anchorDrawMode, this, ParentControl);
+                var col = NormalColor;
+                if (BezierBoard.ForceSingleColorSplines)
+                    col = BezierBoard.ForcedInkColor;
+                cell.Draw(g, FlatTipWidth, col, MouseState, inkDrawMode, Locked ? AnchorDrawMode.None : anchorDrawMode, this, ParentControl);
             }
         }
         public RasterizedRotatingBezierSpline Rasterize(double resolution, double scale, Func<float, bool> progressUpdate)
@@ -1061,8 +1081,6 @@ namespace RotatingBezierSplineEditor
             if (CanReceiveAnchorAtStart && Anchors.Count > 1)
             {
                 var r = a.R1.DistanceFrom(a.P);
-                a.R1.X = (float)(a.P.X + r * Math.Cos(Anchors.First().R1.AngleAbout(Anchors.First().P)));
-                a.R1.Y = (float)(a.P.Y + r * Math.Sin(Anchors.First().R1.AngleAbout(Anchors.First().P)));
                 Anchors.Insert(0, a);
                 OnAnchorAdded?.Invoke(this, new EventArgs());
                 return a.C1;
@@ -1072,8 +1090,6 @@ namespace RotatingBezierSplineEditor
                 if (Anchors.Count > 0)
                 {
                     var r = a.R1.DistanceFrom(a.P);
-                    a.R1.X = (float)(a.P.X + r * Math.Cos(Anchors.Last().R1.AngleAbout(Anchors.Last().P)));
-                    a.R1.Y = (float)(a.P.Y + r * Math.Sin(Anchors.Last().R1.AngleAbout(Anchors.Last().P)));
                 }
                 Anchors.Add(a);
                 OnAnchorAdded?.Invoke(this, new EventArgs());

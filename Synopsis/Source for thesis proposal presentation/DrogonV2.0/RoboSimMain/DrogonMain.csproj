@@ -1,0 +1,165 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{7E9402B5-CEC4-4862-B2D5-1070F8658460}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>RoboSimMain</RootNamespace>
+    <AssemblyName>RoboSimMain</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="MathNet.Numerics, Version=4.5.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MathNet.Numerics.4.5.1\lib\net40\MathNet.Numerics.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="WindowsFormsIntegration" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="MotorPositionCharts.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MotorPositionCharts.Designer.cs">
+      <DependentUpon>MotorPositionCharts.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PanelPlotForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PanelPlotForm.Designer.cs">
+      <DependentUpon>PanelPlotForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="dbPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ExplorablePanelExt.cs" />
+    <Compile Include="SaveFormState.cs" />
+    <Compile Include="ShowCloseForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SimulatorMain.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SimulatorMain.Designer.cs">
+      <DependentUpon>SimulatorMain.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UARTCommands.cs" />
+    <Compile Include="WindowToForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="WindowToForm.Designer.cs">
+      <DependentUpon>WindowToForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="RobotEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="RobotEditor.Designer.cs">
+      <DependentUpon>RobotEditor.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="MotorPositionCharts.resx">
+      <DependentUpon>MotorPositionCharts.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PanelPlotForm.resx">
+      <DependentUpon>PanelPlotForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SimulatorMain.resx">
+      <DependentUpon>SimulatorMain.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="WindowToForm.resx">
+      <DependentUpon>WindowToForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="RobotEditor.resx">
+      <DependentUpon>RobotEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MagneticPendulum\MagneticPendulum.csproj">
+      <Project>{fb29cffe-acc9-40ff-80ec-074da88054f8}</Project>
+      <Name>MagneticPendulum</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Physics\Physics.csproj">
+      <Project>{5b196e54-40c4-42a2-adba-0ee1967c92b0}</Project>
+      <Name>Physics</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ScriptDesigner\ScriptDesigner.csproj">
+      <Project>{49215707-f394-4d95-ad1f-3ce3a90d1e6c}</Project>
+      <Name>ScriptDesigner</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\wpfPrev\wpfPrev.csproj">
+      <Project>{e630840b-bb2d-4cf8-a33f-8e7e511920fd}</Project>
+      <Name>wpfPrev</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

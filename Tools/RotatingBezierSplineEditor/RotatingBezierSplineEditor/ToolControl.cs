@@ -69,24 +69,29 @@ namespace RotatingBezierSplineEditor
         /// </summary>
         /// <param name="Image">Image to be used base icon</param>
         /// <param name="size">size of the rendered icon</param>
-        public void SetImage(Image Image, int size)
+        public Image SetImage(Image Image, int size, Image dull = null)
         {
             this.size = size;
             icon = Image;
             // make new memory space for the dull image
-            var bmp = new Bitmap(Image);
-            // this method can be made fast by using Unsafe access. Create BitmapData using the specs of this bmp, "UnlockBits" on the bitmap using the new bitmap data. Read Scan0 of bmpData using Marshal.Copy, alter it, put back the data by locking the bits.
-            for (int y = 0; y < bmp.Height; y++)
+            if (dull == null)
             {
-                for (int x = 0; x < bmp.Width; x++)
+                var bmp = new Bitmap(Image);
+            // this method can be made fast by using Unsafe access. Create BitmapData using the specs of this bmp, "UnlockBits" on the bitmap using the new bitmap data. Read Scan0 of bmpData using Marshal.Copy, alter it, put back the data by locking the bits.
+                for (int y = 0; y < bmp.Height; y++)
                 {
-                    var c = bmp.GetPixel(x,y);
-                    var g = (c.R + c.G + c.B) / 3;
-                    // get a gray level
-                    bmp.SetPixel(x, y, Color.FromArgb(c.A == 0 /*Do it only on transparent pixels*/? 0 : 60, g, g, g));
+                    for (int x = 0; x < bmp.Width; x++)
+                    {
+                        var c = bmp.GetPixel(x, y);
+                        var g = (c.R + c.G + c.B) / 3;
+                        // get a gray level
+                        bmp.SetPixel(x, y, Color.FromArgb(c.A == 0 /*Do it only on transparent pixels*/? 0 : 60, g, g, g));
+                    }
                 }
+                dull = bmp;
             }
-            dull = bmp;
+            this.dull = dull;
+            return dull;
         }
         bool containsMouseCursor = false;
         protected override void OnPaint(PaintEventArgs e)

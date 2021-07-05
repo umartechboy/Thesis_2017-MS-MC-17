@@ -69,9 +69,13 @@ namespace RotatingBezierSplineEditor
             XAxisBounds = new RectangleF(0, Height - XAxisHeight, Width - YAxisWidth, XAxisHeight);
         }
 
-        internal RotatingBezierSpline[] GetObjects()
+        internal RotatingBezierSpline[] GetSplineObjects()
         {
             return Objects.FindAll(o => o is RotatingBezierSpline).FindAll(o => ((RotatingBezierSpline)o).Anchors.Count > 0).Select(o => (RotatingBezierSpline)o).ToArray();
+        }
+        internal ImageItem[] GetImageObjects()
+        {
+            return Objects.FindAll(o => o is ImageItem).Select(o => (ImageItem)o).ToArray();
         }
         public class SplineAddedEventArgs : EventArgs
         { public RotatingBezierSpline Spline { get; set; } }
@@ -80,6 +84,7 @@ namespace RotatingBezierSplineEditor
         public event SplineAddEventHandler OnSplineRemoved;
         public BezierBoardItem AddItem(BezierBoardItem item)
         {
+            var st = DateTime.Now;
             if (item == null) return null;
             Objects.Add(item);
             item.OnSelfRemoveRequest += (s, e) =>
@@ -99,7 +104,9 @@ namespace RotatingBezierSplineEditor
                             ((RotatingBezierSpline)obj).UnselectAllAnchors();
                         }
                 };
+                var s1 = DateTime.Now - st;
                 OnSplineAdded?.Invoke(this, new SplineAddedEventArgs() { Spline = sitem });
+                var s2 = DateTime.Now - st;
             }
             return item;
         }
@@ -220,6 +227,23 @@ namespace RotatingBezierSplineEditor
             anchorToAdd = new RotatingBezierSplineAnchor(e.Location, a1, 0, 0, true);
             anchorToAdd.BindCurvatureHandlesLength = true;
             CurvatureHandlePoint pointToMoveWhenAdding = so.AddAnchor(anchorToAdd);
+
+            if (so.CanReceiveAnchorAtStart && so.Anchors.Count > 1)
+            {
+                var r = anchorToAdd.R1.DistanceFrom(anchorToAdd.P);
+                anchorToAdd.R1.X = (float)(anchorToAdd.P.X + r * Math.Cos(so.Anchors.First().R1.AngleAbout(so.Anchors.First().P)));
+                anchorToAdd.R1.Y = (float)(anchorToAdd.P.Y + r * Math.Sin(so.Anchors.First().R1.AngleAbout(so.Anchors.First().P)));
+            }
+            else
+            {
+                if (so.Anchors.Count > 0)
+                {
+                    var r = anchorToAdd.R1.DistanceFrom(anchorToAdd.P);
+                    anchorToAdd.R1.X = (float)(anchorToAdd.P.X + r * Math.Cos(so.Anchors.Last().R1.AngleAbout(so.Anchors.Last().P)));
+                    anchorToAdd.R1.Y = (float)(anchorToAdd.P.Y + r * Math.Sin(so.Anchors.Last().R1.AngleAbout(so.Anchors.Last().P)));
+                }
+            }
+
             so.UnselectAllAnchors();
             ForceBeginDragItem(pointToMoveWhenAdding, e);
             void unbindEv(object ss, EventArgs ee)
@@ -323,8 +347,23 @@ namespace RotatingBezierSplineEditor
             doc.Load(fileName);
             foreach (XmlElement obj in doc.GetElementsByTagName("image"))
                 AddItem(ImageItem.Parse(obj));
+            var emptys = new List<RotatingBezierSpline>();
             foreach (XmlElement obj in doc.GetElementsByTagName("spline"))
-                AddItem(RotatingBezierSpline.Parse(obj, this));
+            {
+                var st = DateTime.Now;
+                var sp = (RotatingBezierSpline)RotatingBezierSpline.Parse(obj, this);
+                if (sp.Anchors.Count <= 1)
+                    emptys.Add(sp);
+                else
+                    AddItem(sp);
+                var spent = DateTime.Now - st;
+            }
+            if (emptys.Count > 0)
+            {
+                    if (MessageBox.Show("There are " + emptys.Count +" splines with 1 or fewer anchor points. Do you want to import them too?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
+                    foreach(var sp in emptys)
+                        AddItem(sp);
+            }
         }
 
         internal void ClearObjects()
@@ -624,7 +663,11 @@ namespace RotatingBezierSplineEditor
 
             //g.DrawString(unitStr, AxisBounds.X + Font.Height * 2.5F, AxisBounds.Y + AxisBounds.Height/2 + unitSize.Width/2, -90);
         }
+        public static FlatTipRenderAlgorithm FlatTipRenderAlgorithm { get; set; }
+        public static Color ForcedInkColor { get; set; } = Color.Black;
+        public static bool ForceSingleColorSplines { get; set; } = false;
     }
+    
     public enum InkDrawMode
     {
         None = 0,
@@ -634,12 +677,18 @@ namespace RotatingBezierSplineEditor
         CompleteSpline = Spline | Ink,
         All = CompleteSpline | Images
     }
+    public enum FlatTipRenderAlgorithm
+    {
+        Polygon,
+        Rectangle
+    }
     public enum AnchorDrawMode
     {
         None = 0,
         Centers = 1,
         RotaionHandles = 2 ,
         CurvatureHandles = 4,
+        All = Centers | RotaionHandles| CurvatureHandles,
     }
     public class NumberUtils
     {

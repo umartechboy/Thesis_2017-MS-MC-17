@@ -59,6 +59,12 @@
     <Compile Include="CurveMenuItem.Designer.cs">
       <DependentUpon>CurveMenuItem.cs</DependentUpon>
     </Compile>
+    <Compile Include="ExportMenu.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ExportMenu.Designer.cs">
+      <DependentUpon>ExportMenu.cs</DependentUpon>
+    </Compile>
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -85,9 +91,18 @@
     <Compile Include="ToolControl.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="TraceAnalyzer.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TraceAnalyzer.Designer.cs">
+      <DependentUpon>TraceAnalyzer.cs</DependentUpon>
+    </Compile>
     <Compile Include="Transformation.cs" />
     <EmbeddedResource Include="CurveMenuItem.resx">
       <DependentUpon>CurveMenuItem.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ExportMenu.resx">
+      <DependentUpon>ExportMenu.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
@@ -99,6 +114,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="SplineAppearanceEditor.resx">
       <DependentUpon>SplineAppearanceEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TraceAnalyzer.resx">
+      <DependentUpon>TraceAnalyzer.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
