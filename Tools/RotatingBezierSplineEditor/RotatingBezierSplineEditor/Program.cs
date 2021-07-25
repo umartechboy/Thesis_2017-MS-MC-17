@@ -12,11 +12,18 @@ namespace RotatingBezierSplineEditor
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main()
+        static void Main(string [] Args)
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainForm());
+            try
+            {
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+                var f = new MainForm();
+                if (Args.Length > 0)
+                    f.FileToLoad = Args[0];
+                Application.Run(f);
+            }
+            catch (Exception ex){ MessageBox.Show(ex.ToString()); }
         }
     }
 }

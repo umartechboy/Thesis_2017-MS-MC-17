@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -11,9 +12,15 @@ namespace RotatingBezierSplineEditor
 {
     public partial class TraceAnalyzer : Form
     {
+        BezierBoard Board;
         public TraceAnalyzer()
         {
             InitializeComponent();
+        }
+
+        public TraceAnalyzer(BezierBoard board) : this()
+        {
+            this.Board = board;
         }
 
         public event ExportRequestHandler OnExportRequest;
@@ -21,7 +28,7 @@ namespace RotatingBezierSplineEditor
         {
             var er = new ExportRequest();
             er.DrawMode = InkDrawMode.Ink;
-            er.RenderImages = false;
+            er.RenderAllImages = false;
             er.DontRenderSplines = false;
             er.RenderAlgorithm = FlatTipRenderAlgorithm.Rectangle;
             er.ForceSingleColor = true;
@@ -34,14 +41,17 @@ namespace RotatingBezierSplineEditor
         {
             var er = new ExportRequest();
             er.DrawMode = InkDrawMode.Images;
-            er.RenderImages = true;
+            er.RenderAllImages = false;
+            er.AlternateImageToRender = ReferenceImageItem;
             er.DontRenderSplines = true;
             er.RenderAlgorithm = FlatTipRenderAlgorithm.Rectangle;
             er.DPI = (int)dpiNUD.Value;
             OnExportRequest?.Invoke(this, new ExportRequestEventArgs() { Request = er });
             return er.RenderOutput;
         }
-        BinaryBitmap Source, Ink;
+
+        ImageItem ReferenceImageItem;
+        BinaryBitmap ReferenceBitmap, InkBitmap;
         Bitmap Extra, Missing, Highlight;
 
         private void button1_Click(object sender, EventArgs e)
@@ -79,28 +89,26 @@ namespace RotatingBezierSplineEditor
         {
             var worker = (BackgroundWorker)sender;
             var inkImg = alternateInk;
-            var sourceImg = alternateSource;
-            if (inkImg == null)
+            if (inkFromScene.Checked)
                 inkImg = RenderInk();
             worker.ReportProgress(10);
             if (worker.CancellationPending) return;
-            if (sourceImg == null)
-                sourceImg = RenderSource();
+            var sourceImg = RenderSource();
             worker.ReportProgress(20);
             if (worker.CancellationPending) return;
             if (inkImg == null || sourceImg == null)
                 return;
             if (inkImg.Size != sourceImg.Size)
                 return;
-            Ink = new BinaryBitmap(new Bitmap(inkImg));
-            Source = new BinaryBitmap(new Bitmap(sourceImg));
-            Extra = BinaryBitmap.Subtract(Ink, Source);
+            InkBitmap = new BinaryBitmap(new Bitmap(inkImg));
+            ReferenceBitmap = new BinaryBitmap(new Bitmap(sourceImg));
+            Extra = BinaryBitmap.Subtract(InkBitmap, ReferenceBitmap);
             worker.ReportProgress(35);
             if (worker.CancellationPending) return;
-            Missing = BinaryBitmap.Subtract(Source, Ink);
+            Missing = BinaryBitmap.Subtract(ReferenceBitmap, InkBitmap);
             worker.ReportProgress(50);
             if (worker.CancellationPending) return;
-            Highlight = BinaryBitmap.Difference(Source, Ink);
+            Highlight = BinaryBitmap.Difference(ReferenceBitmap, InkBitmap);
             if (worker.CancellationPending) return;
             worker.ReportProgress(65);
             SourcePixels = BinaryBitmap.CountPixels(new Bitmap(sourceImg));
@@ -119,16 +127,82 @@ namespace RotatingBezierSplineEditor
             progP.Value = e.ProgressPercentage;
         }
 
+        private void loadImageB_Click(object sender, EventArgs e)
+        {
+            var ofd = new OpenFileDialog();
+            ofd.Filter = "Image files (*.jpg, *.bmp, *.png)|*.png;*.jpg;*.bmp|All files (*.*)|*.*";
+            if (ofd.ShowDialog() == DialogResult.OK)
+            {
+                try { AddReferenceImage(ImageItem.FromFile(Board, ofd.FileName)); }
+                catch { }
+            }
+        }
+
+        private void loadInkFromFile_MouseClick(object sender, MouseEventArgs e)
+        {
+        }
+
+        private void saveCurrentB_Click(object sender, EventArgs e)
+        {
+            if (previewPB.Image == null)
+                return;
+            var sfd = new SaveFileDialog();
+            sfd.Filter = "Transperent image (*.png)|*.png;|Bitmap (*.bmp)|*.bmp|Light weight compressed image (*.jpg)|*.jpg";
+            if (sfd.ShowDialog() == DialogResult.OK)
+            {
+                previewPB.Image.Save(sfd.FileName);
+            }
+
+        }
+
+        private void SaveResults_Click(object sender, EventArgs e)
+        {
+            var sfd = new SaveFileDialog();
+            sfd.Title = "Choose a seed name";
+            if (sfd.ShowDialog() == DialogResult.OK)
+            {
+                var seed = Path.Combine(
+                    Path.GetDirectoryName(sfd.FileName),
+                    Path.GetFileNameWithoutExtension(sfd.FileName));
+                Extra?.Save(seed + " - Extra - " + dpiNUD.Value + "dpi.png", System.Drawing.Imaging.ImageFormat.Png);
+                Missing?.Save(seed + " - Missing - " + dpiNUD.Value + "dpi.png", System.Drawing.Imaging.ImageFormat.Png);
+                Highlight?.Save(seed + " - Highlights - " + dpiNUD.Value + "dpi.png", System.Drawing.Imaging.ImageFormat.Png);
+                ReferenceBitmap.Bitmap?.Save(seed + " - Source - " + dpiNUD.Value + "dpi.png", System.Drawing.Imaging.ImageFormat.Png);
+                InkBitmap.Bitmap?.Save(seed + " - Ink - " + dpiNUD.Value + "dpi.png", System.Drawing.Imaging.ImageFormat.Png);
+                File.WriteAllText(seed + " - Summary - " + dpiNUD.Value + "dpi.txt", summaryL.Text);
+            }
+        }
+
+        private void loadInkFromFile_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (loadInkFromFile.Checked)
+            {
+                var ofd = new OpenFileDialog();
+                ofd.Filter = "Image file (*.png, *.bmp, *.jpg)|*.png;*.bmp;*.jpg";
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        loadInkFromFile.Text = Path.GetFileNameWithoutExtension(ofd.FileName);
+                        alternateInk = Image.FromFile(ofd.FileName);
+                        Process();
+                        Display();
+                    }
+                    catch { }
+                }
+            }
+        }
+
         private void bWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             progLabel.Text = "";
             progP.Value = 0;
             Display();
             processB.Text = "Process";
-            if (Source == null || Ink == null)
+            if (ReferenceBitmap == null || InkBitmap == null)
                 return;
             summaryL.Text = string.Format("Total Pixels: {0}\r\nPixels in Ink: {1}\r\nMissing: -{2}% ({3})\r\nExtra: {4}% ({5})",
-                Source.Width * Source.Height,
+                ReferenceBitmap.Width * ReferenceBitmap.Height,
                 SourcePixels,
                 (MissingPixels / (double)SourcePixels * 100).ToString("F2"),
                 MissingPixels,
@@ -136,21 +210,6 @@ namespace RotatingBezierSplineEditor
                 ExtraPixels);
         }
 
-        private void loadInkB_Click(object sender, EventArgs e)
-        {
-            var ofd = new OpenFileDialog();
-            ofd.Filter = "Image file (*.png, *.bmp, *.jpg)|*.png;*.bmp;*.jpg";
-            if (ofd.ShowDialog() == DialogResult.OK)
-            {
-                try
-                {
-                    alternateInk = Image.FromFile(ofd.FileName);
-                    Process();
-                    Display();
-                }
-                catch { }
-            }
-        }
 
         void Process()
         {
@@ -168,22 +227,50 @@ namespace RotatingBezierSplineEditor
         void Display()
         {
             if (extraCB.Checked)
-                pictureBox2.Image = Extra;
+                previewPB.Image = Extra;
             else if (missingCB.Checked)
-                pictureBox2.Image = Missing;
+                previewPB.Image = Missing;
             else if (highLightCB.Checked)
-                pictureBox2.Image = Highlight;
+                previewPB.Image = Highlight;
             else if (sourceCB.Checked)
-                pictureBox2.Image = Source.Bitmap;
+                previewPB.Image = ReferenceBitmap.Bitmap;
             else if (traceCB.Checked)
             {
-                if (Ink != null)
-                    pictureBox2.Image = Ink.Bitmap;
+                if (InkBitmap != null)
+                    try
+                    {
+                        previewPB.Image = InkBitmap.Bitmap;
+                    }
+                    catch
+                    { }
             }
         }
         private void previewModeCBs_CheckedChanged(object sender, EventArgs e)
         {
             Display();
+        }
+
+        internal void AddReferenceImage(ImageItem sourceImage)
+        {
+            var p = new Panel();
+            p.Cursor = Cursors.Hand;
+            void p_Click()
+            {
+                foreach (var po in imagesFL.Controls.OfType<Panel>())
+                    po.BorderStyle = BorderStyle.None;
+                p.BorderStyle = BorderStyle.Fixed3D;
+                ReferenceImageItem = sourceImage;
+            }
+            p.Click += (s, e) => p_Click();
+            p.BackgroundImageLayout = ImageLayout.Zoom;
+            var img = new Bitmap(sourceImage.SourceImage);
+            img.RotateFlip(RotateFlipType.Rotate180FlipX);
+            p.BackgroundImage = img;
+            p.Width = imagesFL.Height - 15;
+            p.Height = imagesFL.Height - 15;
+            imagesFL.Controls.Add(p);
+            if (imagesFL.Controls.Count == 1)
+                p_Click();
         }
     }
     public class BinaryBitmap

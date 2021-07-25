@@ -27,7 +27,7 @@ namespace RotatingBezierSplineEditor
                 er.DrawMode |= InkDrawMode.Spline;
             if (handlesCB.Checked)
                 er.AnchorMode |= AnchorDrawMode.All;
-            er.RenderImages = bImageCB.Checked;
+            er.RenderAllImages = bImageCB.Checked;
             er.DontRenderSplines = dontRenderSplineCB.Checked;
             er.RenderAlgorithm = polyRB.Checked ? FlatTipRenderAlgorithm.Polygon : FlatTipRenderAlgorithm.Rectangle;
             er.ForceSingleColor = singleColCB.Checked;
@@ -109,7 +109,8 @@ namespace RotatingBezierSplineEditor
         public InkDrawMode DrawMode { get; set; } = InkDrawMode.None;
         public AnchorDrawMode AnchorMode { get; set; } = AnchorDrawMode.None;
         public int DPI { get; set; }
-        public bool RenderImages { get; set; }
+        public bool RenderAllImages { get; set; } = false;
+        public ImageItem AlternateImageToRender { get; set; }
         public bool DontRenderSplines { get; set; }
         //public string FileName { get; set; }
         public Image RenderOutput { get; set; }

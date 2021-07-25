@@ -28,8 +28,8 @@ namespace RotatingBezierSplineEditor
     }
     public interface IBezierBoardItem
     {
-        bool TopParentBoundsContains(PointF p);
-        void Draw(Graphics g, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl);
+        bool TopParentBoundsContains(PointF p, PointF offsetG, float scale);
+        void Draw(Graphics g, PointF offsetG, float scale, InkDrawMode inkDrawMode,  AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl);
         bool CanDraw(InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode);
         bool CanBeSelected { get; set; }
         RectangleF BoundsOnTopParent { get; }
@@ -37,13 +37,17 @@ namespace RotatingBezierSplineEditor
     public class BezierBoardItem:IBezierBoardItem
     {
         public string Tag = "";
+        public BezierBoard Board { get; set; }
+        bool _v = true, _l = false;
+        public bool Visible { get { return _v; } set { _v = value; Board.Invalidate(); } }
+        public bool Locked { get { return _l; } set { _l = value; Board.Invalidate(); } }
         public event EventHandler OnSelected;
         public event IncrementLocationHandler IncrementLocationRequest;
         public event EventHandler LocationResetRequest;
         public event EventHandler OnSelfRemoveRequest;
-        public void SelfRemoveRequest()
+        public void SelfRemoveRequest(bool dontAsk = false)
         {
-            if (this is RotatingBezierSpline)
+            if (this is RotatingBezierSpline && !dontAsk)
                 if (MessageBox.Show("Do you want to delete this spline?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) != DialogResult.Yes)
                     return;
             OnSelfRemoveRequest?.Invoke(this, new EventArgs());
@@ -107,6 +111,8 @@ namespace RotatingBezierSplineEditor
         { throw new NotImplementedException(); }
         public MouseState MouseState { get; set; }
         public virtual Cursor Cursor { get; set; } = Cursors.No;
+        public int Index { get; internal set; }
+
         public PointF MousePosition;
         bool wentDownInBounds = false;
         bool lastwasOutside = true;
@@ -140,7 +146,7 @@ namespace RotatingBezierSplineEditor
         public void NotifyMouseUp(object sender, MouseEventArgsF e) { OnMouseUp?.Invoke(sender, e); }
         public void NotifyMouseMove(object sender, MouseEventArgsF e) { OnMouseMove?.Invoke(sender, e); }
         public void NotifyMouseEnter(object sender, MouseEventArgsF e) { OnMouseEnter?.Invoke(sender, e); }
-        public virtual bool ProcessMouseMove(MouseEventArgsF e, BezierBoardItem filter, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
+        public virtual bool ProcessMouseMove(MouseEventArgsF e, PointF offsetG, float scale, BezierBoardItem filter, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
         {
             if (this is RotatingBezierSpline)
             {
@@ -155,12 +161,12 @@ namespace RotatingBezierSplineEditor
             // resolve any debts to previous relationships
             if (!CanDraw(inkDrawMode, anchorDrawMode))
                 return false;
-            if (TopParentBoundsContains(e.Location))
+            if (TopParentBoundsContains(e.Location, offsetG, scale))
             {
                 // before returning, call mouse leave on sister controls that had mouse hover
                 if (Parent != null)
                 {
-                    if (Parent.GetChildren().Find(c => c.MouseState == MouseState.Held) != null) // a sister control is being held and moved
+                    if (Parent.GetChildren().Find(c => c.MouseState == MouseState.Held && c != this) != null) // a sister control is being held and moved
                         return false;
                     if (Parent.sisterItemUnderMouseMove != null && Parent.sisterItemUnderMouseMove != this)
                         Parent.sisterItemUnderMouseMove.NotifyMouseLeave(this, e, this, ParentControl);
@@ -175,7 +181,7 @@ namespace RotatingBezierSplineEditor
                 var controls = GetChildren();
                 for (int i = controls.Count - 1; i >= 0; i--)
                 {
-                    if (controls[i].ProcessMouseMove(e, filter, inkDrawMode, anchorDrawMode, this, ParentControl))
+                    if (controls[i].ProcessMouseMove(e, offsetG, scale, filter, inkDrawMode, anchorDrawMode, this, ParentControl))
                     {
                         return true;
                     }
@@ -187,42 +193,45 @@ namespace RotatingBezierSplineEditor
             if (filter == null || filter == this || wentDownInBounds)
             {
                 var e2 = new MouseEventArgsF(e.Button, e.Clicks, (e.X - BoundsOnTopParent.X), (e.Y - BoundsOnTopParent.Y), e.Delta);
-                if (TopParentBoundsContains(e.Location) || wentDownInBounds)
+
+                if (TopParentBoundsContains(e.Location, offsetG, scale) || wentDownInBounds)
                 {
+                    Trace.WriteLine("B1 " + MouseState + ": " + e.Location);
                     if (lastwasOutside)
                     {
                         lastwasOutside = false;
                         cursorBkp = ParentControl.Cursor;
                         NotifyMouseEnter(this, e2);
-                        Trace.WriteLine("BI1  " + ToString() + ": " + e.Location.ToString());
                         if (Cursor == Cursors.No)
                             ParentControl.Cursor = ((BezierBoard)ParentControl).DefaultCursor;
                         else ParentControl.Cursor = Cursor;
                     }
-                    Trace.WriteLine("BI3  " + ToString() + ": " + e.Location.ToString());
                     NotifyMouseMove(this, e);
                     return true;
                 }
-                else if (!lastwasOutside)
-                {
-                    lastwasOutside = true;
-                    NotifyMouseLeave(this, e2, this, ParentControl);
-                    NotifyMouseMove(this, e2);
-
-                    Trace.WriteLine("BI2  " + ToString() + ": " + e.Location.ToString());
-                    if (Parent == null)
-                        ParentControl.Cursor = ((BezierBoard)ParentControl).DefaultCursor;
-                    else if (Parent.Cursor == Cursors.No)
-                        ParentControl.Cursor = ((BezierBoard)ParentControl).DefaultCursor;
-                    else ParentControl.Cursor = Parent.Cursor;
-                    // don't return true.
-                }
                 else
-                    Trace.WriteLine("BI4  " + ToString() + ": " + e.Location.ToString());
+                {
+                    if (!lastwasOutside)
+                    {
+                        if (!TopParentBoundsContains(e.Location, offsetG, scale))
+                        {
+                            NotifyMouseLeave(this, e2, this, ParentControl);
+                            lastwasOutside = true;
+                        }
+                        NotifyMouseMove(this, e2);
+
+                        if (Parent == null)
+                            ParentControl.Cursor = ((BezierBoard)ParentControl).DefaultCursor;
+                        else if (Parent.Cursor == Cursors.No)
+                            ParentControl.Cursor = ((BezierBoard)ParentControl).DefaultCursor;
+                        else ParentControl.Cursor = Parent.Cursor;
+                        // don't return true.
+                    }
+                }
             }
             return false;
         }
-        public virtual BezierBoardItem ProcessMouseDown(MouseEventArgsF e, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
+        public virtual BezierBoardItem ProcessMouseDown(MouseEventArgsF e, PointF offsetG, float scale, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
         {
             // devide if we need to receive mouse down and up events.
             if (!CanDraw(inkDrawMode, anchorDrawMode))
@@ -238,11 +247,11 @@ namespace RotatingBezierSplineEditor
             var controls = GetChildren();
             for (int i = controls.Count - 1; i >= 0; i--)
             {
-                var cr = controls[i].ProcessMouseDown(e, inkDrawMode, anchorDrawMode, this, ParentControl);
+                var cr = controls[i].ProcessMouseDown(e, offsetG, scale, inkDrawMode, anchorDrawMode, this, ParentControl);
                 if (cr != null)
                     return cr;
             }
-            if (TopParentBoundsContains(e.Location))
+            if (TopParentBoundsContains(e.Location, offsetG, scale))
             {
                 NotifyMouseDown(this, e);
                 return this;
@@ -250,7 +259,7 @@ namespace RotatingBezierSplineEditor
             return null;
         }
 
-        public virtual void ProcessMouseUp(object sender, MouseEventArgsF e, BezierBoardItem filter, BezierBoardItem Parent, Control ParentControl)
+        public virtual void ProcessMouseUp(object sender, PointF offsetG, float scale, MouseEventArgsF e, BezierBoardItem filter, BezierBoardItem Parent, Control ParentControl)
         {
             if (this is RotatingBezierSpline)
             {
@@ -262,23 +271,23 @@ namespace RotatingBezierSplineEditor
                 var controls = GetChildren();
                 for (int i = controls.Count - 1; i >= 0; i--)
                 {
-                    controls[i].ProcessMouseUp(this, e, filter, this, ParentControl);
+                    controls[i].ProcessMouseUp(this, offsetG, scale, e, filter, this, ParentControl);
                 }
             }
             if (filter == this || filter == null)
             {
-                if (TopParentBoundsContains(e.Location) || wentDownInBounds)
+                if (TopParentBoundsContains(e.Location, offsetG, scale) || wentDownInBounds)
                 {
                     NotifyMouseUp(sender, e);
                 }
             }
             wentDownInBounds = false;
         }
-        public virtual bool TopParentBoundsContains(PointF p)
+        public virtual bool TopParentBoundsContains(PointF p, PointF offsetG, float scale)
         {
             return BoundsOnTopParent.Contains(p);
         }
-        public virtual void Draw(Graphics g, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
+        public virtual void Draw(Graphics g, PointF offsetG, float scale, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
         { throw new NotImplementedException(); }
         public virtual bool CanDraw(InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode)
         {
@@ -301,33 +310,59 @@ namespace RotatingBezierSplineEditor
         {
             return anchorDrawMode.HasFlag(AnchorDrawMode.Centers) & inkDrawMode.HasFlag(InkDrawMode.Spline);
         }
-        public override void Draw(Graphics g, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
+        public override void Draw(Graphics g, PointF offsetG, float scale, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
         {
             float sz = 4F;
             if (MouseState == MouseState.Hover)
                 sz = 6;
-            g.FillEllipse((MouseState == MouseState.Held || MouseState == MouseState.Selected) ? Brushes.Black : Brushes.Gray, (float)X - sz, (float)Y - sz, sz * 2, sz * 2);
+            var inner = new RectangleF((float)X * scale - sz + offsetG.X,
+                (float)Y * scale - sz + offsetG.Y,
+                sz * 2, sz * 2);
+            var outer = inner;
+            outer.Inflate(.5F, .5F);
+            if (MouseState == MouseState.Held || MouseState == MouseState.Selected)
+                g.FillEllipse(Brushes.Gray, 
+                    outer);
+            else
+                g.FillEllipse(Brushes.Black,
+                    outer);
+            g.FillEllipse((MouseState == MouseState.Held || MouseState == MouseState.Selected) ? Brushes.Black : Brushes.Gray, 
+               inner);
             if (MouseState == MouseState.Held)
-                base.Draw(g, inkDrawMode, anchorDrawMode, Parent, ParentControl);
+                base.Draw(g, offsetG, scale, inkDrawMode, anchorDrawMode, Parent, ParentControl);
         }
     }
     public class RotationHandlePoint : RBSPoint
     {
         Cursor _c;
-        public override Cursor Cursor { get { if (_c == null) _c = new Cursor("resources\\rotation_icon.ico"); return _c; } }
-        public static float HandleLength = 50;
-        public RotationHandlePoint(double x, double y, bool mouseEvents) : base((float)x, (float)y, mouseEvents)
-        { }
-        public RotationHandlePoint(CenterPoint cp, double angle, bool mouseEvents) : base(cp.X + HandleLength * Math.Cos(angle), cp.Y + HandleLength * Math.Sin(angle), mouseEvents)
-        { }
-        public override void Draw(Graphics g, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
+        public override Cursor Cursor { get { if (_c == null) _c = new Cursor(Path.Combine(Application.StartupPath, "resources\\rotation_icon.ico")); return _c; } }
+        float _hl = 50;
+        public float HandleLength
         {
-            float sz = 3F;
+            get { return _hl; }
+            set
+            {
+                _hl = value; 
+                if (_hl < 1)
+                    _hl = .0001F;
+            }
+        }
+        public RotationHandlePoint(CenterPoint cp, double angle, float HandleLength, bool mouseEvents) : base(cp.X + HandleLength * Math.Cos(angle), cp.Y + HandleLength * Math.Sin(angle), mouseEvents)
+        {
+            this.HandleLength = HandleLength;
+        }
+        public override void Draw(Graphics g, PointF offsetG, float scale, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
+        {
+            float sz = 6F;
             if (MouseState == MouseState.Hover)
-                sz = 6;
+                sz = 8;
 
-            g.DrawEllipse((MouseState == MouseState.Held || MouseState == MouseState.Selected) ? Pens.Black : Pens.Gray, (float)X - sz, (float)Y - sz, sz * 2, sz * 2);
-            base.Draw(g, inkDrawMode, anchorDrawMode, Parent, ParentControl);
+            g.DrawEllipse(new Pen((MouseState == MouseState.Held || MouseState == MouseState.Selected) ? Brushes.Gray : Brushes.Black, 4),
+                (float)X * scale - sz + offsetG.X, (float)Y * scale - sz + offsetG.Y, sz * 2, sz * 2);
+
+            g.DrawEllipse(new Pen((MouseState == MouseState.Held || MouseState == MouseState.Selected) ? Brushes.Black : Brushes.Gray, 3), 
+                (float)X*scale - sz + offsetG.X, (float)Y*scale - sz + offsetG.Y, sz * 2, sz * 2);
+            base.Draw(g, offsetG, scale, inkDrawMode, anchorDrawMode, Parent, ParentControl);
         }
         public override bool CanDraw(InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode)
         {
@@ -341,17 +376,23 @@ namespace RotatingBezierSplineEditor
         { }
         public CurvatureHandlePoint(float x, float y, bool mouseEvents) : base(x, y, mouseEvents)
         { }
-        public override void Draw(Graphics g, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
+        public override void Draw(Graphics g, PointF offsetG, float scale, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
         {
-            float sz = 3F;
+            float sz = 6F;
             if (MouseState == MouseState.Hover)
-                sz = 6;
+                sz = 7;
             if (MouseState == MouseState.Held || MouseState == MouseState.Selected)
-                g.FillRectangle(Brushes.Black, (float)X - sz, (float)Y - sz, sz * 2, sz * 2);
+            {
+                g.FillRectangle(Brushes.Gray, (float)X * scale - sz + offsetG.X - 1, (float)Y * scale - sz - 1 + offsetG.Y, sz * 2 + 2, sz * 2 + 2);
+                g.FillRectangle(Brushes.Black, (float)X * scale - sz + offsetG.X, (float)Y * scale - sz + offsetG.Y, sz * 2, sz * 2);
+            }
             else
-                g.DrawRectangle(Pens.DarkGray, (float)X - sz, (float)Y - sz, sz * 2, sz * 2);
+            {
+                g.DrawRectangle(new Pen(Brushes.Black, 3), (float)X * scale - sz + offsetG.X, (float)Y * scale - sz + offsetG.Y, sz * 2, sz * 2);
+                g.DrawRectangle(new Pen(Brushes.Gray, 2), (float)X * scale - sz + offsetG.X, (float)Y * scale - sz + offsetG.Y, sz * 2, sz * 2);
+            }
 
-            base.Draw(g, inkDrawMode, anchorDrawMode, Parent, ParentControl);
+            base.Draw(g, offsetG, scale, inkDrawMode, anchorDrawMode, Parent, ParentControl);
         }
         public override bool CanDraw(InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode)
         {
@@ -385,6 +426,16 @@ namespace RotatingBezierSplineEditor
         public RBSPoint(double x , double y, bool mouseEvents):base(mouseEvents)
         {
             X = (float)x; Y = (float)y;
+        }
+        /// <summary>
+        /// Use only for calculating points to be drawn.
+        /// </summary>
+        /// <param name="offsetG"></param>
+        /// <param name="scale"></param>
+        /// <returns></returns>
+        public RBSPoint Transform(PointF offsetG, float scale)
+        {
+            return new RBSPoint(X * scale + offsetG.X , Y * scale + offsetG.Y, false);
         }
         public static RBSPoint Intermediate(RBSPoint a, RBSPoint b, double frac, bool mouseEvents)
         {
@@ -420,14 +471,18 @@ namespace RotatingBezierSplineEditor
             Y += dy;
         }
 
-        public override void Draw(Graphics g, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
+        public override void Draw(Graphics g, PointF offsetG, float scale, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
         {
             //g.DrawEllipse(Pens.Black, (float)X - 3, (float)Y - 3, 6, 6); 
             if (MouseState == MouseState.Held || MouseState == MouseState.Hover)
             {
+                g.TranslateTransform(offsetG.X, offsetG.Y);
+                g.ScaleTransform(scale, scale);
                 g.ScaleTransform(1, -1);
-                g.DrawString("{" + X + ", " + Y + "}", new Font("CONSOLA", 20), Brushes.Black, X + 10, -Y);
+                g.DrawString("{" + X + ", " + Y + "}", new Font("CONSOLA", 20 / scale), Brushes.Black, X + 10, -Y);
                 g.ScaleTransform(1, -1);
+                g.ScaleTransform(1 / scale, 1 / scale);
+                g.TranslateTransform(-offsetG.X, -offsetG.Y);
             }
         }
         public void ExtractCoordinates(XmlNode node)
@@ -444,6 +499,15 @@ namespace RotatingBezierSplineEditor
             var v = doc.CreateTextNode(c.X.ToString() + ", " + c.Y.ToString());
             pointNode.AppendChild(v);
             node.AppendChild(pointNode);
+        }
+        public override bool TopParentBoundsContains(PointF p, PointF offsetG, float scale)
+        {
+            // we need to scale down because the size of the displayed points in normalized.
+            var bounds = new RectangleF(
+                BoundsOnTopParent.X + (BoundsOnTopParent.Width - BoundsOnTopParent.Width / scale) / 2,
+                BoundsOnTopParent.Y + (BoundsOnTopParent.Height - BoundsOnTopParent.Height/ scale) / 2, 
+                BoundsOnTopParent.Width / scale, BoundsOnTopParent.Height / scale);
+            return bounds.Contains(p);
         }
     }
     
@@ -468,11 +532,13 @@ namespace RotatingBezierSplineEditor
         int rotationsOffset = 0;
         public bool BindCurvatureHandlesLength { get; set; } = false;
         public double R { get{ return rotationsOffset * 2 * Math.PI + Math.Atan2(R1.Y - P.Y, R1.X - P.X); } }
-        public RotatingBezierSplineAnchor(float x, float y, bool mouseEvents) : this(new PointF(x, y), mouseEvents) { }
-        public RotatingBezierSplineAnchor(PointF P, bool mouseEvents) : this(P, new PointF(P.X, P.Y), 0, 0, mouseEvents)
+        public RotatingBezierSplineAnchor(float x, float y, float flatTipWidth, bool mouseEvents) : this(new PointF(x, y), flatTipWidth, mouseEvents) 
+        { 
+        }
+        public RotatingBezierSplineAnchor(PointF P, float flatTipWidth, bool mouseEvents) : this(P, new PointF(P.X, P.Y), 0, 0, flatTipWidth, mouseEvents)
         {
         }
-        public RotatingBezierSplineAnchor(PointF p, PointF a1, double a2Length, double rotation, bool mouseEvents) : base(mouseEvents)
+        public RotatingBezierSplineAnchor(PointF p, PointF a1, double a2Length, double rotation, float flatTipWidth, bool mouseEvents) : base(mouseEvents)
         {
             this.P = new CenterPoint(p.X, p.Y, mouseEvents);
             this.C1 = new CurvatureHandlePoint(a1.X, a1.Y, mouseEvents);
@@ -489,7 +555,7 @@ namespace RotatingBezierSplineEditor
                 rotation += 2 * Math.PI;
                 rotationsOffset++;
             }
-            R1 = new RotationHandlePoint(this.P, rotation, mouseEvents);
+            R1 = new RotationHandlePoint(this.P, rotation, flatTipWidth / 2, mouseEvents);
             //R2 = new RotationHandlePoint(this.P, rotation + Math.PI);
             Points = new RBSPoint[] { this.P, C1, C2, R1, /*R2*/ };
             P.IncrementLocationRequest += (dx, dy) =>
@@ -503,8 +569,8 @@ namespace RotatingBezierSplineEditor
             R1.LocationResetRequest += (s, e) =>
             {
                 double newAngle = R1.AngleAbout(P);
-                R1.X = (float)(P.X + RotationHandlePoint.HandleLength * Math.Cos(newAngle));
-                R1.Y = (float)(P.Y + RotationHandlePoint.HandleLength * Math.Sin(newAngle));
+                R1.X = (float)(P.X + R1.HandleLength * Math.Cos(newAngle));
+                R1.Y = (float)(P.Y + R1.HandleLength * Math.Sin(newAngle));
             };
             //R2.LocationResetRequest += (s, e) =>
             //{
@@ -580,22 +646,26 @@ namespace RotatingBezierSplineEditor
             R1.IncrementLocationRequest += (s, e) => OnShapeChanged?.Invoke(this, new EventArgs());
         }
 
-        public override void Draw(Graphics g, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
+        public override void Draw(Graphics g, PointF offsetG, float scale, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
         {
             if (anchorDrawMode.HasFlag(AnchorDrawMode.Centers))
-                P.Draw(g, inkDrawMode, anchorDrawMode, this, ParentControl);
+                P.Draw(g, offsetG, scale, inkDrawMode, anchorDrawMode, this, ParentControl);
             if (anchorDrawMode.HasFlag(AnchorDrawMode.CurvatureHandles))
             {
                 // draw the lines
-                g.DrawLine(Pens.Black, C1, P);
-                g.DrawLine(Pens.Black, C2, P);
-                C1.Draw(g, inkDrawMode, anchorDrawMode, this, ParentControl); C2.Draw(g, inkDrawMode, anchorDrawMode, this, ParentControl);
+                g.DrawLine(new Pen(Brushes.White, 2), C1.Transform(offsetG, scale), P.Transform(offsetG, scale));
+                g.DrawLine(Pens.Black, C1.Transform(offsetG, scale), P.Transform(offsetG, scale));
+                g.DrawLine(new Pen(Brushes.White, 2), C2.Transform(offsetG, scale), P.Transform(offsetG, scale));
+                g.DrawLine(Pens.Black, C2.Transform(offsetG, scale), P.Transform(offsetG, scale));
+                C1.Draw(g, offsetG, scale, inkDrawMode, anchorDrawMode, this, ParentControl);
+                C2.Draw(g, offsetG, scale, inkDrawMode, anchorDrawMode, this, ParentControl);
             }
             if (anchorDrawMode.HasFlag(AnchorDrawMode.RotaionHandles))
             {
-                g.DrawLine(Pens.Black, R1, P);
+                g.DrawLine(new Pen(Brushes.White, 2), R1.Transform(offsetG, scale), P.Transform(offsetG, scale));
+                g.DrawLine(Pens.Black, R1.Transform(offsetG, scale), P.Transform(offsetG, scale));
                 //g.DrawLine(Pens.Black, R2, P);
-                R1.Draw(g, inkDrawMode, anchorDrawMode, this, ParentControl);
+                R1.Draw(g, offsetG, scale, inkDrawMode, anchorDrawMode, this, ParentControl);
                 //R2.Draw(g, inkDrawMode, anchorDrawMode, this, ParentControl);
             }
 
@@ -613,14 +683,35 @@ namespace RotatingBezierSplineEditor
                 Points[i].Save(anchor, names[i]);
             node.AppendChild(anchor);
         }
-        public static RotatingBezierSplineAnchor Parse(XmlElement node)
+        public static RotatingBezierSplineAnchor Parse(XmlElement node, float flatTipWidth)
         {
-            var ret = new RotatingBezierSplineAnchor(0, 0, true);
+            var ret = new RotatingBezierSplineAnchor(0, 0, flatTipWidth, true);
             ret.rotationsOffset = int.Parse(((XmlText)(node.GetElementsByTagName("rotationoffset")[0].FirstChild)).Data);
 
             for (int i = 0; i < ret.Points.Length; i++)
                 ret.Points[i].ExtractCoordinates((XmlElement)(node.GetElementsByTagName(names[i])[0]));
             return ret;
+        }
+
+        internal void ResetRotationHandleLength()
+        {
+            R1.X = (float)(P.X + R1.HandleLength * Math.Cos(R));
+            R1.Y = (float)(P.Y + R1.HandleLength * Math.Sin(R));
+        }
+
+        internal RotatingBezierSplineAnchor MakeCopy(float flatTipWidth, float xOffset, float yOffset)
+        {
+            var anchor = new RotatingBezierSplineAnchor(new PointF(this.P.X, this.P.Y), flatTipWidth, true);
+            anchor.P.X = this.P.X + xOffset;
+            anchor.P.Y = this.P.Y + yOffset;
+            anchor.C1.X = this.C1.X + xOffset;
+            anchor.C1.Y = this.C1.Y + yOffset;
+            anchor.C2.X = this.C2.X + xOffset;
+            anchor.C2.Y = this.C2.Y + yOffset;
+            anchor.R1.X = this.R1.X + xOffset;
+            anchor.R1.Y = this.R1.Y + yOffset;
+            anchor.rotationsOffset = this.rotationsOffset;
+            return anchor;
         }
         //public RotatingBezierSplineAnchor YInvertedClone()
         //{
@@ -645,10 +736,12 @@ namespace RotatingBezierSplineEditor
             this.A1 = a1;
             this.A2 = a2;
         }
-        public bool InkContains(PointF p)
+        public bool InkContains(PointF p, PointF offsetG, float scale)
         {
             if (psInk == null) return false;
-            return IsPointInPolygon4(psInk, p);
+            return IsPointInPolygon4(psInk, new PointF(
+                p.X * scale + offsetG.X,
+                p.Y * scale + offsetG.Y));
         }
         /// <summary>
         /// Determines if the given point is inside the polygon
@@ -796,9 +889,10 @@ namespace RotatingBezierSplineEditor
         }
         PointF[] psInk;
         PointF[] psSpline;
-        public void Draw(Graphics g, float thickness, Color normalColor, MouseState mouseState, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
+        public void Draw(Graphics g, PointF offsetG, float scale, float thickness, Color normalColor, MouseState mouseState, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
         {
             // draw the spline
+            thickness *= scale;
             int divisions = 20;
 
                 psSpline = new PointF[divisions + 1];
@@ -809,9 +903,9 @@ namespace RotatingBezierSplineEditor
             for (int i = 0; i <= divisions; i++)
             {
                 double f = i / (double)divisions;
-                RBSPoint pl1_1 = RBSPoint.Intermediate(A1.P, A1.C2, f, false);
-                RBSPoint pl1_2 = RBSPoint.Intermediate(A1.C2, A2.C1, f, false);
-                RBSPoint pl1_3 = RBSPoint.Intermediate(A2.C1, A2.P, f, false);
+                RBSPoint pl1_1 = RBSPoint.Intermediate(A1.P.Transform(offsetG, scale), A1.C2.Transform(offsetG, scale), f, false);
+                RBSPoint pl1_2 = RBSPoint.Intermediate(A1.C2.Transform(offsetG, scale), A2.C1.Transform(offsetG, scale), f, false);
+                RBSPoint pl1_3 = RBSPoint.Intermediate(A2.C1.Transform(offsetG, scale), A2.P.Transform(offsetG, scale), f, false);
 
                 RBSPoint pl2_1 = RBSPoint.Intermediate(pl1_1, pl1_2, f, false);
                 RBSPoint pl2_2 = RBSPoint.Intermediate(pl1_2, pl1_3, f, false);
@@ -866,7 +960,7 @@ namespace RotatingBezierSplineEditor
                     }
                 }
                 if (inkDrawMode.HasFlag(InkDrawMode.Spline))
-                    g.DrawLines(inkDrawMode.HasFlag(InkDrawMode.Ink) ? Pens.White : Pens.Gray, psSpline);
+                    g.DrawLines(new Pen(inkDrawMode.HasFlag(InkDrawMode.Ink) ? Brushes.White : Brushes.Gray, 2), psSpline);
             }
             else if (mouseState == MouseState.Hover)
             {
@@ -878,7 +972,8 @@ namespace RotatingBezierSplineEditor
                 if (inkDrawMode.HasFlag(InkDrawMode.Spline))
                 {
                     g.DrawLines(Pens.Black, psSpline);
-                    g.DrawLines(new Pen(Color.FromArgb(100, 0, 0, 0), 3), psSpline);
+                    g.DrawLines(new Pen(Color.FromArgb(100, 255, 255, 255), 2), psSpline);
+                    g.DrawLines(new Pen(Color.FromArgb(100, 0, 0, 0), 1), psSpline);
                 }
             }
             else if (mouseState == MouseState.Held)
@@ -897,18 +992,22 @@ namespace RotatingBezierSplineEditor
 
             if (inkDrawMode.HasFlag(InkDrawMode.Spline)) // draw the handles as well
             {
-                A1.Draw(g, inkDrawMode, anchorDrawMode, Parent, ParentControl);
-                A2.Draw(g, inkDrawMode, anchorDrawMode, Parent, ParentControl);
+                A1.Draw(g, offsetG, scale, inkDrawMode, anchorDrawMode, Parent, ParentControl);
+                A2.Draw(g, offsetG, scale, inkDrawMode, anchorDrawMode, Parent, ParentControl);
             }
         }
 
-        internal bool SplineIntersects(PointF p, int distance)
+        internal bool SplineIntersects(PointF p, int distance, PointF offsetG, float scale)
         {
             if (psSpline == null)
                 return false;
             foreach (var ps in psSpline)
             {
-                if (RBSPoint.DistanceBetween(p, ps) <= distance)
+                if (RBSPoint.DistanceBetween(new PointF(
+                        p.X * scale + offsetG.X,
+                        p.Y * scale + offsetG.Y), 
+                        ps
+                    ) <= distance)
                     return true;
             }
             return false;
@@ -919,11 +1018,9 @@ namespace RotatingBezierSplineEditor
     [Serializable]
     public class RotatingBezierSpline : BezierBoardItem
     {
+        public string Label { get; set; } = "";
         public event EventHandler WidthChangeRequest;
-        bool _v = true, _l = false;
-        public bool Visible { get { return _v; } set { _v = value;  Board.Invalidate(); } } 
-        public bool Locked { get { return _l; } set { _l = value; Board.Invalidate(); } }
-        public BezierBoard Board { get; set; }
+        public event EventHandler OnShowCurveMenuRequest;
         public RotatingBezierSpline(BezierBoard board, bool mouseEvents) :base(mouseEvents)
         {
             Board = board;
@@ -943,7 +1040,7 @@ namespace RotatingBezierSplineEditor
                 }
                 else
                 {
-                    SelfRemoveRequest();
+                    OnShowCurveMenuRequest(this, new EventArgs());
                 }
             };
         }
@@ -971,7 +1068,7 @@ namespace RotatingBezierSplineEditor
         public float FlatTipWidth { get; set; } = 0;
         List<BezierCurveCellWithRotation> lastCurveCellCache;
         InkDrawMode inkDrawModeCache;
-        public override void Draw(Graphics g, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
+        public override void Draw(Graphics g, PointF offsetG, float scale, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
         {
             if (!Visible)
                 return;
@@ -980,7 +1077,7 @@ namespace RotatingBezierSplineEditor
             inkDrawModeCache = inkDrawMode;
             lastCurveCellCache = new List<BezierCurveCellWithRotation>();
             if (Anchors.Count == 1) // adding new spline
-                Anchors[0].Draw(g, inkDrawMode, anchorDrawMode, this, ParentControl);
+                Anchors[0].Draw(g, offsetG, scale, inkDrawMode, anchorDrawMode, this, ParentControl);
             for (int i = 0; i < Anchors.Count - 1; i++)
             {
                 var cell = new BezierCurveCellWithRotation(Anchors[i], Anchors[i + 1]);
@@ -988,7 +1085,7 @@ namespace RotatingBezierSplineEditor
                 var col = NormalColor;
                 if (BezierBoard.ForceSingleColorSplines)
                     col = BezierBoard.ForcedInkColor;
-                cell.Draw(g, FlatTipWidth, col, MouseState, inkDrawMode, Locked ? AnchorDrawMode.None : anchorDrawMode, this, ParentControl);
+                cell.Draw(g, offsetG, scale, FlatTipWidth, col, MouseState, inkDrawMode, Locked ? AnchorDrawMode.None : anchorDrawMode, this, ParentControl);
             }
         }
         public RasterizedRotatingBezierSpline Rasterize(double resolution, double scale, Func<float, bool> progressUpdate)
@@ -1018,9 +1115,11 @@ namespace RotatingBezierSplineEditor
             }
             return new RasterizedRotatingBezierSpline() { X = X.ToArray(), Y = Y.ToArray(), T = T.ToArray() };
         }
-        public override bool TopParentBoundsContains(PointF p)
+        public override bool TopParentBoundsContains(PointF p, PointF offsetG, float scale)
         {
             if (Locked)
+                return false;
+            if (!BezierBoard.SplinesCanBeSelected)
                 return false;
             if (lastCurveCellCache == null) return false;
             else
@@ -1028,12 +1127,12 @@ namespace RotatingBezierSplineEditor
                 {
                     if (inkDrawModeCache.HasFlag(InkDrawMode.Ink))
                     {
-                        if (c.InkContains(p))
+                        if (c.InkContains(p, offsetG, scale))
                             return true;
                     }
                     else if (inkDrawModeCache.HasFlag(InkDrawMode.Spline))
                     {
-                        if (c.SplineIntersects(p, 10))
+                        if (c.SplineIntersects(p, 10, offsetG, scale))
                             return true;
                     }
                 }
@@ -1059,6 +1158,8 @@ namespace RotatingBezierSplineEditor
                 return false;
             }
         }
+
+
         public event EventHandler OnAnchorAdded;
         public CurvatureHandlePoint AddAnchor(RotatingBezierSplineAnchor a)
         {
@@ -1076,7 +1177,38 @@ namespace RotatingBezierSplineEditor
             a.P.OnMouseClick += (s, e) =>
             {
                 if (e.Button == MouseButtons.Right)
+                {
                     Anchors.Remove(a);
+                    if (Anchors.Count == 0) // spline was removed
+                    {
+                        SelfRemoveRequest(true);
+                    }
+                }
+            };
+            a.C1.OnMouseClick += (s, e) =>
+            {
+                if (e.Button == MouseButtons.Right)
+                {
+                    a.C1.X = a.P.X;
+                    a.C1.Y = a.P.Y;
+                }
+                a.P.MouseState = MouseState.Selected;
+                a.P.NotifySelected();
+            }; 
+            a.C2.OnMouseClick += (s, e) =>
+            {
+                if (e.Button == MouseButtons.Right)
+                {
+                    a.C2.X = a.P.X;
+                    a.C2.Y = a.P.Y;
+                }
+                a.P.MouseState = MouseState.Selected;
+                a.P.NotifySelected();
+            };
+            a.R1.OnMouseClick += (s, e) =>
+            {
+                a.P.MouseState = MouseState.Selected;
+                a.P.NotifySelected();
             };
             if (CanReceiveAnchorAtStart && Anchors.Count > 1)
             {
@@ -1095,6 +1227,8 @@ namespace RotatingBezierSplineEditor
                 OnAnchorAdded?.Invoke(this, new EventArgs());
                 return a.C2;
             }
+            a.P.MouseState = MouseState.Selected;
+            a.P.NotifySelected();
         }
 
         public void UnselectAllAnchors()
@@ -1108,10 +1242,15 @@ namespace RotatingBezierSplineEditor
         {
             var sRet = new RotatingBezierSpline(board, true);
 
+            try
+            {
+                sRet.Label = ((XmlText)(spline.GetElementsByTagName("Label")[0].FirstChild)).Data;
+            }
+            catch { }
             sRet.FlatTipWidth = float.Parse(((XmlText)(spline.GetElementsByTagName("FlatTipWidth")[0].FirstChild)).Data);
             sRet.NormalColor = Color.FromArgb(int.Parse(((XmlText)(spline.GetElementsByTagName("Color")[0].FirstChild)).Data));
             foreach (XmlElement obj in spline.GetElementsByTagName("anchor"))
-                sRet.AddAnchor(RotatingBezierSplineAnchor.Parse(obj));
+                sRet.AddAnchor(RotatingBezierSplineAnchor.Parse(obj, sRet.FlatTipWidth));
             return sRet;
         }
         public override void Save(XmlNode node)
@@ -1119,8 +1258,12 @@ namespace RotatingBezierSplineEditor
             var doc = node.OwnerDocument;
             var spline = doc.CreateElement("spline");
             node.AppendChild(spline);
+            var lab = doc.CreateElement("Label");
+            var v = doc.CreateTextNode(Label);
+            lab.AppendChild(v);
+            spline.AppendChild(lab);
             var wid = doc.CreateElement("FlatTipWidth");
-            var v = doc.CreateTextNode(FlatTipWidth.ToString());
+            v = doc.CreateTextNode(FlatTipWidth.ToString());
             wid.AppendChild(v);
             spline.AppendChild(wid);
             var col = doc.CreateElement("Color");
@@ -1152,20 +1295,42 @@ namespace RotatingBezierSplineEditor
             {
                 FlatTipWidth = apf.widthTB.Value;
                 WidthChangeRequest?.Invoke(this, new EventArgs());
+                foreach (var a in Anchors)
+                {
+                    a.R1.HandleLength = FlatTipWidth / 2;
+                    a.ResetRotationHandleLength();
+                }
                 Board.Invalidate(); Application.DoEvents();
             };
             apf.ShowDialog();
         }
+        public override string ToString()
+        {
+            return Index.ToString() + ": " + Label;
+        }
+
+        internal RotatingBezierSpline MakeCopy(BezierBoard board)
+        {
+            var spline = new RotatingBezierSpline(board, true);
+            foreach (var a in Anchors)
+                spline.AddAnchor(a.MakeCopy(FlatTipWidth, 
+                    (Anchors.Max(an => an.GetChildren().Select(bi => (RBSPoint)bi).Max(rp => rp.X)) -
+                    Anchors.Min(an => an.GetChildren().Select(bi => (RBSPoint)bi).Min(rp => rp.X))) * 1.2F, 0));
+            spline.Label = this.Label + " - Duplicate";
+            spline.FlatTipWidth = this.FlatTipWidth;
+            return spline;
+        }
     }
     public class ImageItem : BezierBoardItem
     {
-        Image img;
+        public Image SourceImage { get; private set; }
         CenterPoint center;
         CurvatureHandlePoint size;
         ImageItem(bool mouseEvents = false):base(mouseEvents) { }
-        public ImageItem(Image img, float x, float y, bool mouseEvents):base(mouseEvents)
+        public ImageItem(BezierBoard board, Image img, float x, float y, bool mouseEvents):base(mouseEvents)
         {
-            this.img = img;
+            Board = board;
+            this.SourceImage = img;
             center = new CenterPoint(x, y, mouseEvents);
             size = new CurvatureHandlePoint(x - img.Width / 2, y - img.Height / 2, true);
             center.IncrementLocationRequest += (dx, dy) =>
@@ -1174,7 +1339,16 @@ namespace RotatingBezierSplineEditor
                 size.Y += dy;
                 center.X += dx;
                 center.Y += dy;
-            }; 
+            };
+            center.OnMouseClick += (s, e) =>
+            {
+                if (Locked)
+                    return;
+                if (e.Button == MouseButtons.Right)
+                {
+                    SelfRemoveRequest();
+                }
+            };
             size.IncrementLocationRequest += (dx, dy) =>
             {
                 size.X += dx;
@@ -1185,8 +1359,9 @@ namespace RotatingBezierSplineEditor
         {
             return true;
         }
-        public override void Draw(Graphics g, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
+        public override void Draw(Graphics g, PointF offsetG, float scale, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
         {
+            if (!Visible) return;
             if (inkDrawMode.HasFlag(InkDrawMode.Images))
             {
                 PointF[] destinationPoints = {
@@ -1196,16 +1371,16 @@ namespace RotatingBezierSplineEditor
 
 
                 // Draw the image mapped to the parallelogram.
-                g.DrawImage(img, destinationPoints);
+                g.DrawImage(SourceImage, destinationPoints);
                 //g.DrawImage(img, size.X, size.Y, 2 * (float)Math.Abs(size.X - center.X), 2 * (float)Math.Abs(size.Y - center.Y));
-                size.Draw(g, inkDrawMode, anchorDrawMode, this, ParentControl);
-                center.Draw(g, inkDrawMode, anchorDrawMode, this, ParentControl);
+                size.Draw(g, offsetG, scale, inkDrawMode, anchorDrawMode, this, ParentControl);
+                center.Draw(g, offsetG, scale, inkDrawMode, anchorDrawMode, this, ParentControl);
             }
         }
 
-        internal static BezierBoardItem Parse(XmlElement spline)
+        internal static BezierBoardItem Parse(BezierBoard board, XmlElement spline)
         {
-            var sRet = new ImageItem(stringToImage(((XmlText)(spline.GetElementsByTagName("ImageAdress")[0].FirstChild)).Data), 0, 0, true);
+            var sRet = new ImageItem(board, stringToImage(((XmlText)(spline.GetElementsByTagName("ImageAdress")[0].FirstChild)).Data), 0, 0, true);
             sRet.center.ExtractCoordinates(spline.GetElementsByTagName("center")[0]);
             sRet.size.ExtractCoordinates(spline.GetElementsByTagName("size")[0]);
 
@@ -1217,7 +1392,7 @@ namespace RotatingBezierSplineEditor
             var spline = doc.CreateElement("image");
             node.AppendChild(spline);
             var imageAddress = doc.CreateElement("ImageAdress");
-            var imagedata = imageToString(img);
+            var imagedata = imageToString(SourceImage);
             var v = doc.CreateTextNode(imagedata);
             imageAddress.AppendChild(v);
             spline.AppendChild(imageAddress);
@@ -1234,7 +1409,7 @@ namespace RotatingBezierSplineEditor
             //img.Save(imagedata, System.Drawing.Imaging.ImageFormat.Jpeg);
             //return imagedata;
             MemoryStream ms = new MemoryStream();
-            img.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
+            img.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
             var bytes = ms.ToArray();
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < bytes.Length; i++)
@@ -1250,24 +1425,28 @@ namespace RotatingBezierSplineEditor
             return new BezierBoardItem[] { center, size }.ToList();
         }
         public override Cursor Cursor { get => Cursors.SizeAll; }
-        public override bool TopParentBoundsContains(PointF p)
-        {
-            return false;
-            //return new RectangleF(size.X, size.Y, 2 * (float)Math.Abs(size.X - center.X), 2 * (float)Math.Abs(size.Y - center.Y)).Contains(p);
-        }
 
-        internal static BezierBoardItem FromFile(string fileName)
+        internal static ImageItem FromFile(BezierBoard board, string fileName)
         {
             var img = Image.FromFile(fileName);
             img.RotateFlip(RotateFlipType.RotateNoneFlipY);
-            return new ImageItem(img, 0, 0,true);
+            return new ImageItem(board, img, 0, 0,true);
         }
 
-        internal static BezierBoardItem FromClipBoard()
+        internal static ImageItem FromClipBoard(BezierBoard board)
         {
             try
             {
-                return new ImageItem(Clipboard.GetImage(), 0, 0, true);
+                return new ImageItem(board, Clipboard.GetImage(), 0, 0, true);
+            }
+            catch { return null; }
+        }
+
+        internal static ImageItem FromImage(Image bitmap, BezierBoard board)
+        {
+            try
+            {
+                return new ImageItem(board, bitmap, 0, 0, true);
             }
             catch { return null; }
         }

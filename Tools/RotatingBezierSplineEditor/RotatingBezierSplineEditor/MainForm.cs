@@ -20,14 +20,14 @@ namespace RotatingBezierSplineEditor
         {
             InitializeComponent();
             var tc = new ToolControl();
-            visibleIcon = Image.FromFile("Resources\\visible.png");
-            activeIcon = Image.FromFile("Resources\\active.png");
+            visibleIcon = Image.FromFile(Path.Combine(Application.StartupPath, "Resources\\visible.png"));
+            activeIcon = Image.FromFile(Path.Combine(Application.StartupPath, "Resources\\active.png"));
             visibleIconDull = tc.SetImage(visibleIcon, 23);
             activeIconDull = tc.SetImage(activeIcon, 23); ;
             // set images
-            centerP.SetImage(Image.FromFile("Resources\\Center.png"), 65); 
-            curvatureHandlesP.SetImage(Image.FromFile("Resources\\CurvatureHandles.png"), 65);
-            rotationHandleP.SetImage(Image.FromFile("Resources\\RotationHandles.png"), 56);
+            centerP.SetImage(Image.FromFile(Path.Combine(Application.StartupPath, "Resources\\Center.png")), 65); 
+            curvatureHandlesP.SetImage(Image.FromFile(Path.Combine(Application.StartupPath, "Resources\\CurvatureHandles.png")), 65);
+            rotationHandleP.SetImage(Image.FromFile(Path.Combine(Application.StartupPath, "Resources\\RotationHandles.png")), 56);
             centerP.DistinctSelection = false;
             curvatureHandlesP.DistinctSelection = false;
             rotationHandleP.DistinctSelection = false;
@@ -79,17 +79,21 @@ namespace RotatingBezierSplineEditor
             rotatingSplineOnlyP.OnActivated += (s, e) => setDisplayStyleMenuItems();
             linearSplineOnly.OnActivated += (s, e) => setDisplayStyleMenuItems();
 
-            bothSplinesP.SetImage(Image.FromFile("Resources\\bothSplines.png"), 45);
-            rotatingSplineOnlyP.SetImage(Image.FromFile("Resources\\rotatingSplineOnly.png"), 45);
-            linearSplineOnly.SetImage(Image.FromFile("Resources\\splineOnly.png"), 45);
+            bothSplinesP.SetImage(Image.FromFile(Path.Combine(Application.StartupPath, "Resources\\bothSplines.png")), 45);
+            rotatingSplineOnlyP.SetImage(Image.FromFile(Path.Combine(Application.StartupPath, "Resources\\rotatingSplineOnly.png")), 45);
+            linearSplineOnly.SetImage(Image.FromFile(Path.Combine(Application.StartupPath, "Resources\\splineOnly.png")), 45);
 
             bothSplinesP.OnActivated += (s, e) => bezierBoard1.InkDrawMode = InkDrawMode.Ink | InkDrawMode.Spline | (bezierBoard1.InkDrawMode & InkDrawMode.Images);
             rotatingSplineOnlyP.OnActivated += (s, e) => bezierBoard1.InkDrawMode = InkDrawMode.Ink | (bezierBoard1.InkDrawMode & InkDrawMode.Images);
             linearSplineOnly.OnActivated += (s, e) => bezierBoard1.InkDrawMode = InkDrawMode.Spline | (bezierBoard1.InkDrawMode & InkDrawMode.Images);
 
 
-            bezierBoard1.OnSplineAdded += BezierBoard1_OnSplineAdded;
-            bezierBoard1.OnSplineRemoved += BezierBoard1_OnSplineRemoved;
+            bezierBoard1.OnBezierBoardItemAdded += BezierBoard1_OnSplineAdded;
+            bezierBoard1.OnBezierBoardItemRemoved += BezierBoard1_OnSplineRemoved;
+            bezierBoard1.OnRequestToShowAll += Con_OnRequestToShowAll;
+            bezierBoard1.OnRequestToUnlockAll += Con_OnRequestToUnlockAll;
+            bezierBoard1.OnRequestShowOnly += Con_OnRequestShowOnly;
+            bezierBoard1.OnRequestToUnlockOnly += Con_OnRequestToUnlockOnly;
             //// add dummy data
             //var sp = new RotatingBezierSpline();
             //sp.AddAnchor(new RotatingBezierSplineAnchor(new PointF(34.5F, -2.75F)));
@@ -113,18 +117,66 @@ namespace RotatingBezierSplineEditor
             ////bezierBoard1.AddItem(sp);
         }
 
-        private void BezierBoard1_OnSplineRemoved(object sender, BezierBoard.SplineAddedEventArgs e)
+        private void BezierBoard1_OnSplineRemoved(object sender, BezierBoard.BezierBoardItemEventArgs e)
         {
-            documentLayoutFP.Controls.Remove(documentLayoutFP.Controls.OfType<CurveMenuItem>().ToList().Find(ci => ci.Spline == e.Spline));
+            documentLayoutFP.Controls.Remove(documentLayoutFP.Controls.OfType<BezierBoardItemMenuItem>().ToList().Find(ci => ci.Item == e.Item));
         }
 
-        private void BezierBoard1_OnSplineAdded(object sender, BezierBoard.SplineAddedEventArgs e)
+        private void BezierBoard1_OnSplineAdded(object sender, BezierBoard.BezierBoardItemEventArgs e)
         {
-            var st = DateTime.Now;
-            var con = new CurveMenuItem(e.Spline, visibleIcon, activeIcon, visibleIconDull, activeIconDull, 23);
-            var s1 = DateTime.Now - st;
+            BezierBoardItemMenuItem con = null;
+            if (e.Item is RotatingBezierSpline)
+                con = new CurveMenuItem((RotatingBezierSpline)e.Item, visibleIcon, activeIcon, visibleIconDull, activeIconDull, 23);
+            else if (e.Item is ImageItem)
+                con = new ImageMenuItem((ImageItem)e.Item, visibleIcon, activeIcon, visibleIconDull, activeIconDull, 23);
+            con.OnRequestToShowAll += Con_OnRequestToShowAll;
+            con.OnRequestToUnlockAll += Con_OnRequestToUnlockAll;
+            con.OnRequestShowOnly += Con_OnRequestShowOnly;
+            con.OnRequestToUnlockOnly += Con_OnRequestToUnlockOnly;
+            con.OnMoveDownRequest += (s, e2) =>
+            {
+                documentLayoutFP.Controls.SetChildIndex(con, documentLayoutFP.Controls.GetChildIndex(con) + 1);
+                for (int i = 0; i < documentLayoutFP.Controls.Count; i++)
+                    ((BezierBoardItemMenuItem)documentLayoutFP.Controls[i]).Item.Index = i;
+            };
+            con.OnMoveUpRequest += (s, e2) =>
+            {
+                documentLayoutFP.Controls.SetChildIndex(con, documentLayoutFP.Controls.GetChildIndex(con) - 1);
+                for (int i = 0; i < documentLayoutFP.Controls.Count; i++)
+                    ((BezierBoardItemMenuItem)documentLayoutFP.Controls[i]).Item.Index = i;
+            };
             documentLayoutFP.Controls.Add(con);
-            var s2 = DateTime.Now - st;
+        }
+
+        private void Con_OnRequestToUnlockOnly(object sender, EventArgs e)
+        {
+            foreach (var cmi in documentLayoutFP.Controls.OfType<CurveMenuItem>())
+            {
+                if (cmi != sender && cmi.Item != sender)
+                    cmi.SplineEnabled.Active = false;
+
+            }
+        }
+
+        private void Con_OnRequestShowOnly(object sender, EventArgs e)
+        {
+            foreach (var cmi in documentLayoutFP.Controls.OfType<CurveMenuItem>())
+            {
+                if (cmi != sender && cmi.Item != sender)
+                    cmi.SplineVisible.Active = false;
+            }
+        }
+
+        private void Con_OnRequestToUnlockAll(object sender, EventArgs e)
+        {
+            foreach (var cmi in documentLayoutFP.Controls.OfType<CurveMenuItem>())
+                cmi.SplineEnabled.Active = true;
+        }
+
+        private void Con_OnRequestToShowAll(object sender, EventArgs e)
+        {
+            foreach (var cmi in documentLayoutFP.Controls.OfType<CurveMenuItem>())
+                cmi.SplineVisible.Active = true;
         }
 
         private void bezierBoard1_Paint(object sender, PaintEventArgs e)
@@ -227,20 +279,22 @@ Uou can save, open and import rotating bezier splines using the File menu
         SaveFileDialog sfd = new SaveFileDialog();
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            sfd.Filter = "XML files (*.xml)|*.xml";
+            sfd.Filter = "Rotating Bezier Spline Files (*.rbs)|*.rbs|XML documents (*.xml)|*.xml";
             if (File.Exists(sfd.FileName))
                 bezierBoard1.SaveObjects(sfd.FileName);
             else if (sfd.ShowDialog() == DialogResult.OK)
-            {
                 bezierBoard1.SaveObjects(sfd.FileName);
-            }
         }
         OpenFileDialog ofd = new OpenFileDialog();
+
+        public string FileToLoad { get; internal set; }
+
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (ofd.ShowDialog() == DialogResult.OK)
             {
                 sfd.FileName = ofd.FileName;
+                Text = "Gregor -- " + Path.GetFileNameWithoutExtension(sfd.FileName);
                 documentLayoutFP.Controls.Clear();
                 bezierBoard1.ClearObjects();
                 bezierBoard1.ImportObjects(ofd.FileName);
@@ -254,7 +308,7 @@ Uou can save, open and import rotating bezier splines using the File menu
 
         private void splinesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ofd.Filter = "XML files (*.xml)|*.xml|All files (*.*)|*.*";
+            ofd.Filter = "Rotating Bezier Spline Files (*.rbs)|*.rbs|XML documents (*.xml)|*.xml";
             if (ofd.ShowDialog() == DialogResult.OK)
             {
                 //documentLayoutFP.Controls.Clear();
@@ -268,13 +322,13 @@ Uou can save, open and import rotating bezier splines using the File menu
             ofd.Filter = "Image files (*.jpg, *.bmp, *.png)|*.png;*.jpg;*.bmp|All files (*.*)|*.*";
             if (ofd.ShowDialog() == DialogResult.OK)
             {
-                var item = bezierBoard1.AddItem(ImageItem.FromFile(ofd.FileName));
+                var item = bezierBoard1.AddItem(ImageItem.FromFile(bezierBoard1, ofd.FileName));
                 bezierBoard1.ForceBeginDragItem(item);
             }
         }
         private void fromCipboardToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var item = bezierBoard1.AddItem(ImageItem.FromClipBoard());
+            var item = bezierBoard1.AddItem(ImageItem.FromClipBoard(bezierBoard1));
             bezierBoard1.ForceBeginDragItem(item);
         }
 
@@ -295,6 +349,8 @@ Uou can save, open and import rotating bezier splines using the File menu
         {
             documentLayoutFP.Controls.Clear();
             bezierBoard1.ClearObjects();
+            sfd.FileName = "";
+            Text = "Gregor";
         }
 
         public static RotatingBezierSpline[] GetSpline()
@@ -364,10 +420,14 @@ Uou can save, open and import rotating bezier splines using the File menu
             var colBkp = BezierBoard.ForcedInkColor;
             BezierBoard.ForcedInkColor = Request.ForceColor;
             BezierBoard.ForceSingleColorSplines = Request.ForceSingleColor;
-            if (Request.RenderImages)
+            if (Request.RenderAllImages)
             {
                 foreach (var image in images)
-                    image.Draw(g, InkDrawMode.Images, Request.AnchorMode, null, null);
+                    image.Draw(g, new PointF(), 1, InkDrawMode.Images, Request.AnchorMode, null, null);
+            }
+            if (Request.AlternateImageToRender != null)
+            {
+                Request.AlternateImageToRender.Draw(g, new PointF(), 1, InkDrawMode.Images, Request.AnchorMode, null, null);
             }
             if (!Request.DontRenderSplines)
             {
@@ -378,7 +438,7 @@ Uou can save, open and import rotating bezier splines using the File menu
                     float widBkp = Spline.FlatTipWidth;
                     if (Spline.FlatTipWidth < 2)
                         Spline.FlatTipWidth = 2;
-                    Spline.Draw(g, Request.DrawMode, Request.AnchorMode, null, null);
+                    Spline.Draw(g, new PointF(), 1, Request.DrawMode, Request.AnchorMode, null, null);
                     Spline.FlatTipWidth = widBkp;
                     BezierBoard.FlatTipRenderAlgorithm = bkp;
                 }
@@ -417,9 +477,75 @@ Uou can save, open and import rotating bezier splines using the File menu
 
         private void analyzeTraceAccuracyToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var taf = new TraceAnalyzer();
+            var taf = new TraceAnalyzer(bezierBoard1);
+            foreach (var imgI in documentLayoutFP.Controls.OfType<ImageMenuItem>())
+                taf.AddReferenceImage(imgI.Item);
             taf.OnExportRequest += (s, e2) => { ProcessRenderRequest(e2.Request); };
             taf.ShowDialog();
+        }
+
+        private void splinesCanBeDraggedToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            BezierBoard.SplinesCanBeSelected = splinesCanBeDraggedToolStripMenuItem.Checked = !splinesCanBeDraggedToolStripMenuItem.Checked;
+        }
+
+        private void resetRotationHandleLengthsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (var s in bezierBoard1.GetSplineObjects())
+            {
+                foreach (var a in s.Anchors)
+                    a.ResetRotationHandleLength();
+            }
+        }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (bezierBoard1.MayHaveUnsavedChanges)
+            {
+                if (MessageBox.Show("There are unsaved chnages in the worksheet. Do you want to go back and save them first?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+                    e.Cancel = true;
+            }
+        }
+
+        private void exportAndAnalyzeTraceAccuracyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var em = new ExportMenu();
+            em.OnExportRequest += (s, e2) =>
+            {
+                ProcessRenderRequest(e2.Request);
+            };
+            em.ShowDialog();
+        }
+
+        private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            sfd.Filter = "Rotating Bezier Spline Files (*.rbs)|*.rbs|XML documents (*.xml)|*.xml";
+            if (sfd.ShowDialog() == DialogResult.OK)
+            {
+                bezierBoard1.SaveObjects(sfd.FileName);
+            }
+        }
+
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+            if (File.Exists(FileToLoad))
+            {
+                
+            }
+        }
+
+        private void autoFileOpener_Tick(object sender, EventArgs e)
+        {
+            autoFileOpener.Enabled = false;
+            if (File.Exists(FileToLoad))
+            {
+                sfd.FileName = FileToLoad;
+                ofd.FileName = FileToLoad;
+                Text = "Gregor -- " + Path.GetFileNameWithoutExtension(sfd.FileName);
+                documentLayoutFP.Controls.Clear();
+                bezierBoard1.ClearObjects();
+                bezierBoard1.ImportObjects(ofd.FileName);
+            }
         }
 
         private void autoSaverT_Tick(object sender, EventArgs e)
@@ -427,7 +553,7 @@ Uou can save, open and import rotating bezier splines using the File menu
             if (!bezierBoard1.MayHaveUnsavedChanges)
                 return;
             bezierBoard1.MayHaveUnsavedChanges = false;
-            var fNameSeed = "Untitled.xml";
+            var fNameSeed = "Untitled.rbs";
             if (File.Exists(sfd.FileName))
                 fNameSeed = sfd.FileName;
             var fname = Path.GetFileNameWithoutExtension(fNameSeed) + " " + DateTime.Now.ToString("MM-dd hh.mm.ss");

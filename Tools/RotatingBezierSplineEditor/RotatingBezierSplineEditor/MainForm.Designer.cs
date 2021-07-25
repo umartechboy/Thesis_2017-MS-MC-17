@@ -97,8 +97,10 @@ namespace RotatingBezierSplineEditor
             this.toolStripSeparator7 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
             this.addAnchorWithLeftClickToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.splinesCanBeDraggedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.analyzeTraceAccuracyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.resetRotationHandleLengthsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
@@ -106,6 +108,7 @@ namespace RotatingBezierSplineEditor
             this.documentLayoutFP = new System.Windows.Forms.FlowLayoutPanel();
             this.previewRefreshTimerT = new System.Windows.Forms.Timer(this.components);
             this.autoSaverT = new System.Windows.Forms.Timer(this.components);
+            this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.bezierBoard1 = new RotatingBezierSplineEditor.BezierBoard();
             this.bothSplinesP = new RotatingBezierSplineEditor.ToolControl();
             this.linearSplineOnly = new RotatingBezierSplineEditor.ToolControl();
@@ -113,6 +116,7 @@ namespace RotatingBezierSplineEditor
             this.centerP = new RotatingBezierSplineEditor.AnchorEditToolControl();
             this.rotationHandleP = new RotatingBezierSplineEditor.AnchorEditToolControl();
             this.curvatureHandlesP = new RotatingBezierSplineEditor.AnchorEditToolControl();
+            this.autoFileOpener = new System.Windows.Forms.Timer(this.components);
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
@@ -187,6 +191,7 @@ namespace RotatingBezierSplineEditor
             this.fileToolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.openToolStripMenuItem,
             this.saveToolStripMenuItem,
+            this.saveAsToolStripMenuItem,
             this.addToolStripMenuItem,
             this.exportToolStripMenuItem,
             this.clearAllToolStripMenuItem,
@@ -200,7 +205,7 @@ namespace RotatingBezierSplineEditor
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
             this.openToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(220, 26);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(233, 26);
             this.openToolStripMenuItem.Text = "Open";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
@@ -208,7 +213,7 @@ namespace RotatingBezierSplineEditor
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
             this.saveToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(220, 26);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(233, 26);
             this.saveToolStripMenuItem.Text = "Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
@@ -218,7 +223,7 @@ namespace RotatingBezierSplineEditor
             this.splinesToolStripMenuItem,
             this.imageToolStripMenuItem});
             this.addToolStripMenuItem.Name = "addToolStripMenuItem";
-            this.addToolStripMenuItem.Size = new System.Drawing.Size(220, 26);
+            this.addToolStripMenuItem.Size = new System.Drawing.Size(233, 26);
             this.addToolStripMenuItem.Text = "Import";
             this.addToolStripMenuItem.Click += new System.EventHandler(this.importToolStripMenuItem_Click);
             // 
@@ -251,7 +256,7 @@ namespace RotatingBezierSplineEditor
             // 
             this.exportToolStripMenuItem.Name = "exportToolStripMenuItem";
             this.exportToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.E)));
-            this.exportToolStripMenuItem.Size = new System.Drawing.Size(220, 26);
+            this.exportToolStripMenuItem.Size = new System.Drawing.Size(233, 26);
             this.exportToolStripMenuItem.Text = "Export";
             this.exportToolStripMenuItem.Click += new System.EventHandler(this.exportToolStripMenuItem_Click);
             // 
@@ -259,7 +264,7 @@ namespace RotatingBezierSplineEditor
             // 
             this.clearAllToolStripMenuItem.Name = "clearAllToolStripMenuItem";
             this.clearAllToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Shift | System.Windows.Forms.Keys.Delete)));
-            this.clearAllToolStripMenuItem.Size = new System.Drawing.Size(220, 26);
+            this.clearAllToolStripMenuItem.Size = new System.Drawing.Size(233, 26);
             this.clearAllToolStripMenuItem.Text = "Clear All";
             this.clearAllToolStripMenuItem.Click += new System.EventHandler(this.clearAllToolStripMenuItem_Click);
             // 
@@ -278,7 +283,7 @@ namespace RotatingBezierSplineEditor
             this.minutesToolStripMenuItem2,
             this.minutesToolStripMenuItem3});
             this.autoSaveToolStripMenuItem.Name = "autoSaveToolStripMenuItem";
-            this.autoSaveToolStripMenuItem.Size = new System.Drawing.Size(220, 26);
+            this.autoSaveToolStripMenuItem.Size = new System.Drawing.Size(233, 26);
             this.autoSaveToolStripMenuItem.Text = "Auto Save";
             this.autoSaveToolStripMenuItem.Click += new System.EventHandler(this.autoSaveToolStripMenuItem_Click);
             // 
@@ -351,7 +356,7 @@ namespace RotatingBezierSplineEditor
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
             this.exitToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(220, 26);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(233, 26);
             this.exitToolStripMenuItem.Text = "Exit";
             // 
             // viewToolStripMenuItem
@@ -621,7 +626,8 @@ namespace RotatingBezierSplineEditor
             this.rotationHandlesToolStripMenuItem,
             this.toolStripSeparator7,
             this.toolStripSeparator8,
-            this.addAnchorWithLeftClickToolStripMenuItem});
+            this.addAnchorWithLeftClickToolStripMenuItem,
+            this.splinesCanBeDraggedToolStripMenuItem});
             this.editingToolStripMenuItem.Name = "editingToolStripMenuItem";
             this.editingToolStripMenuItem.Size = new System.Drawing.Size(49, 24);
             this.editingToolStripMenuItem.Text = "Edit";
@@ -680,10 +686,20 @@ namespace RotatingBezierSplineEditor
             this.addAnchorWithLeftClickToolStripMenuItem.Text = "Add Anchor With Left Click";
             this.addAnchorWithLeftClickToolStripMenuItem.Click += new System.EventHandler(this.addAnchorWithLeftClickToolStripMenuItem_Click);
             // 
+            // splinesCanBeDraggedToolStripMenuItem
+            // 
+            this.splinesCanBeDraggedToolStripMenuItem.Checked = true;
+            this.splinesCanBeDraggedToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.splinesCanBeDraggedToolStripMenuItem.Name = "splinesCanBeDraggedToolStripMenuItem";
+            this.splinesCanBeDraggedToolStripMenuItem.Size = new System.Drawing.Size(321, 26);
+            this.splinesCanBeDraggedToolStripMenuItem.Text = "Splines can be dragged";
+            this.splinesCanBeDraggedToolStripMenuItem.Click += new System.EventHandler(this.splinesCanBeDraggedToolStripMenuItem_Click);
+            // 
             // toolsToolStripMenuItem
             // 
             this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.analyzeTraceAccuracyToolStripMenuItem});
+            this.analyzeTraceAccuracyToolStripMenuItem,
+            this.resetRotationHandleLengthsToolStripMenuItem});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
             this.toolsToolStripMenuItem.Size = new System.Drawing.Size(58, 24);
             this.toolsToolStripMenuItem.Text = "Tools";
@@ -691,9 +707,16 @@ namespace RotatingBezierSplineEditor
             // analyzeTraceAccuracyToolStripMenuItem
             // 
             this.analyzeTraceAccuracyToolStripMenuItem.Name = "analyzeTraceAccuracyToolStripMenuItem";
-            this.analyzeTraceAccuracyToolStripMenuItem.Size = new System.Drawing.Size(242, 26);
+            this.analyzeTraceAccuracyToolStripMenuItem.Size = new System.Drawing.Size(286, 26);
             this.analyzeTraceAccuracyToolStripMenuItem.Text = "Analyze trace accuracy";
             this.analyzeTraceAccuracyToolStripMenuItem.Click += new System.EventHandler(this.analyzeTraceAccuracyToolStripMenuItem_Click);
+            // 
+            // resetRotationHandleLengthsToolStripMenuItem
+            // 
+            this.resetRotationHandleLengthsToolStripMenuItem.Name = "resetRotationHandleLengthsToolStripMenuItem";
+            this.resetRotationHandleLengthsToolStripMenuItem.Size = new System.Drawing.Size(286, 26);
+            this.resetRotationHandleLengthsToolStripMenuItem.Text = "Reset rotation handle lengths";
+            this.resetRotationHandleLengthsToolStripMenuItem.Click += new System.EventHandler(this.resetRotationHandleLengthsToolStripMenuItem_Click);
             // 
             // helpToolStripMenuItem
             // 
@@ -763,6 +786,15 @@ namespace RotatingBezierSplineEditor
             this.autoSaverT.Enabled = true;
             this.autoSaverT.Interval = 15000;
             this.autoSaverT.Tick += new System.EventHandler(this.autoSaverT_Tick);
+            // 
+            // saveAsToolStripMenuItem
+            // 
+            this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
+            this.saveAsToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.S)));
+            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(233, 26);
+            this.saveAsToolStripMenuItem.Text = "Save As";
+            this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.saveAsToolStripMenuItem_Click);
             // 
             // bezierBoard1
             // 
@@ -880,6 +912,12 @@ namespace RotatingBezierSplineEditor
             this.curvatureHandlesP.TargetPart = RotatingBezierSplineEditor.AnchorDrawMode.None;
             this.toolTip1.SetToolTip(this.curvatureHandlesP, "Show/hide spline curvature handles");
             // 
+            // autoFileOpener
+            // 
+            this.autoFileOpener.Enabled = true;
+            this.autoFileOpener.Interval = 1000;
+            this.autoFileOpener.Tick += new System.EventHandler(this.autoFileOpener_Tick);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -894,6 +932,8 @@ namespace RotatingBezierSplineEditor
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "MainForm";
             this.Text = "Rotating Bezier Spline Editor";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
+            this.Load += new System.EventHandler(this.MainForm_Load);
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Form1_MouseDown);
             this.panel1.ResumeLayout(false);
             this.panel2.ResumeLayout(false);
@@ -993,6 +1033,10 @@ namespace RotatingBezierSplineEditor
         private System.Windows.Forms.ToolStripMenuItem rectanglesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem toolsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem analyzeTraceAccuracyToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem splinesCanBeDraggedToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem resetRotationHandleLengthsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem saveAsToolStripMenuItem;
+        private System.Windows.Forms.Timer autoFileOpener;
     }
 }
 

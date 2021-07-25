@@ -1,8 +1,10 @@
 ﻿using System;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +15,10 @@ namespace RotatingBezierSplineEditor
 {
     public class BezierBoard : Panel
     {
+        public event EventHandler OnRequestToShowAll;
+        public event EventHandler OnRequestToUnlockAll;
+        public event EventHandler OnRequestShowOnly;
+        public event EventHandler OnRequestToUnlockOnly;
         public bool MayHaveUnsavedChanges = false;
         public delegate void MouseEventHandlerF(object sender, MouseEventArgsF e);
         public class MouseEventArgsF : EventArgs
@@ -77,25 +83,47 @@ namespace RotatingBezierSplineEditor
         {
             return Objects.FindAll(o => o is ImageItem).Select(o => (ImageItem)o).ToArray();
         }
-        public class SplineAddedEventArgs : EventArgs
-        { public RotatingBezierSpline Spline { get; set; } }
-        public delegate void SplineAddEventHandler(object sender, SplineAddedEventArgs e);
-        public event SplineAddEventHandler OnSplineAdded;
-        public event SplineAddEventHandler OnSplineRemoved;
+        public class BezierBoardItemEventArgs : EventArgs
+        { public BezierBoardItem Item { get; set; } }
+        public delegate void BezierBoardItemEventHandler(object sender, BezierBoardItemEventArgs e);
+        public event BezierBoardItemEventHandler OnBezierBoardItemAdded;
+        public event BezierBoardItemEventHandler OnBezierBoardItemRemoved;
         public BezierBoardItem AddItem(BezierBoardItem item)
         {
+            if (Objects.Count > 0)
+                item.Index = Objects.Max(oo => oo.Index) + 1;
             var st = DateTime.Now;
             if (item == null) return null;
             Objects.Add(item);
             item.OnSelfRemoveRequest += (s, e) =>
             {
                 Objects.Remove(item);
-                OnSplineRemoved?.Invoke(this, new SplineAddedEventArgs() { Spline = (RotatingBezierSpline)item });
+                OnBezierBoardItemRemoved?.Invoke(this, new BezierBoardItemEventArgs() { Item = item });
                 Invalidate();
             };
             if (item is RotatingBezierSpline)
             {
                 var sitem = (RotatingBezierSpline)item;
+                sitem.OnShowCurveMenuRequest += (s, e) =>
+                {
+                    CurveMenuItem cmi = new CurveMenuItem();
+                    cmi.cms.Items.Add("Duplicate").Click += (ss, ee) => {
+                        var spline = sitem.MakeCopy(this);
+                        AddItem(spline);
+                        Invalidate();
+                    };
+                    cmi.cms.Items.Add("Delete").Click+=(ss,ee) => {
+                        Objects.Remove(item);
+                        OnBezierBoardItemRemoved?.Invoke(this, new BezierBoardItemEventArgs() { Item = (RotatingBezierSpline)item });
+                        Invalidate();
+                    };
+                    cmi.OnRequestShowOnly += (s_, e_) => OnRequestShowOnly?.Invoke(sitem, new EventArgs());
+                    cmi.OnRequestToUnlockOnly += (s_, e_) => OnRequestToUnlockOnly?.Invoke(sitem, new EventArgs());
+                    cmi.OnRequestToShowAll += (s_, e_) => OnRequestToShowAll?.Invoke(sitem, new EventArgs());
+                    cmi.OnRequestToUnlockAll += (s_, e_) => OnRequestToUnlockAll?.Invoke(sitem, new EventArgs());
+                    cmi.cms.Show(Cursor.Position);
+                    };
+            
                 sitem.OnSelected += (s, e) => { foreach (var obj in Objects)
                         if (obj is RotatingBezierSpline)
                         {
@@ -104,10 +132,8 @@ namespace RotatingBezierSplineEditor
                             ((RotatingBezierSpline)obj).UnselectAllAnchors();
                         }
                 };
-                var s1 = DateTime.Now - st;
-                OnSplineAdded?.Invoke(this, new SplineAddedEventArgs() { Spline = sitem });
-                var s2 = DateTime.Now - st;
             }
+            OnBezierBoardItemAdded?.Invoke(this, new BezierBoardItemEventArgs() { Item = item });
             return item;
         }
         
@@ -120,7 +146,7 @@ namespace RotatingBezierSplineEditor
             var pT = GtoV(e2.Location);
             var e = new MouseEventArgsF(e2.Button, e2.Clicks, pT.X, pT.Y, e2.Delta);
             for (int i = Objects.Count - 1; i >= 0; i--)
-                Objects[i].ProcessMouseUp(sender, e, currentControlUnderMouse, null, this);
+                Objects[i].ProcessMouseUp(sender, new PointF(OffsetG.X, -Height + OffsetG.Y + XAxisHeight), PPU, e, currentControlUnderMouse, null, this);
             currentControlUnderMouse = null;
             Invalidate();
         }
@@ -142,7 +168,7 @@ namespace RotatingBezierSplineEditor
             var controls = Objects;
             for (int i = controls.Count - 1; i >= 0; i--)
             {
-                currentControlUnderMouse = controls[i].ProcessMouseDown(e, InkDrawMode, AnchorDrawMode, null, this);
+                currentControlUnderMouse = controls[i].ProcessMouseDown(e, new PointF(OffsetG.X, -Height + OffsetG.Y + XAxisHeight), PPU, InkDrawMode, AnchorDrawMode, null, this);
                 if (currentControlUnderMouse != null)
                 {
                     Invalidate();
@@ -224,9 +250,8 @@ namespace RotatingBezierSplineEditor
         {
             var a1 = e.Location;
             a1 = new PointF(a1.X + 1, a1.Y + 1);
-            anchorToAdd = new RotatingBezierSplineAnchor(e.Location, a1, 0, 0, true);
+            anchorToAdd = new RotatingBezierSplineAnchor(e.Location, a1, 0, 0, so.FlatTipWidth,  true);
             anchorToAdd.BindCurvatureHandlesLength = true;
-            CurvatureHandlePoint pointToMoveWhenAdding = so.AddAnchor(anchorToAdd);
 
             if (so.CanReceiveAnchorAtStart && so.Anchors.Count > 1)
             {
@@ -236,15 +261,16 @@ namespace RotatingBezierSplineEditor
             }
             else
             {
-                if (so.Anchors.Count > 0)
+                if (so.Anchors.Count > 1)
                 {
                     var r = anchorToAdd.R1.DistanceFrom(anchorToAdd.P);
-                    anchorToAdd.R1.X = (float)(anchorToAdd.P.X + r * Math.Cos(so.Anchors.Last().R1.AngleAbout(so.Anchors.Last().P)));
-                    anchorToAdd.R1.Y = (float)(anchorToAdd.P.Y + r * Math.Sin(so.Anchors.Last().R1.AngleAbout(so.Anchors.Last().P)));
+                    anchorToAdd.R1.X = (float)(anchorToAdd.P.X + r * Math.Cos(so.Anchors[so.Anchors.Count - 2].R1.AngleAbout(so.Anchors[so.Anchors.Count - 2].P)));
+                    anchorToAdd.R1.Y = (float)(anchorToAdd.P.Y + r * Math.Sin(so.Anchors[so.Anchors.Count - 2].R1.AngleAbout(so.Anchors[so.Anchors.Count - 2].P)));
                 }
             }
-
+            CurvatureHandlePoint pointToMoveWhenAdding = so.AddAnchor(anchorToAdd);
             so.UnselectAllAnchors();
+
             ForceBeginDragItem(pointToMoveWhenAdding, e);
             void unbindEv(object ss, EventArgs ee)
             {
@@ -326,6 +352,7 @@ namespace RotatingBezierSplineEditor
                 Invalidate();
                 return;
             }
+            
             var pT = GtoV(e2.Location);
             var e = new MouseEventArgsF(e2.Button, e2.Clicks, pT.X, pT.Y, e2.Delta);
             var controls = Objects;
@@ -333,7 +360,7 @@ namespace RotatingBezierSplineEditor
             {
                 if (controls[i] == null)
                     continue;
-                if (controls[i].ProcessMouseMove(e, currentControlUnderMouse, InkDrawMode, AnchorDrawMode, null, this))
+                if (controls[i].ProcessMouseMove(e, new PointF(OffsetG.X, -Height + OffsetG.Y + XAxisHeight), PPU, currentControlUnderMouse, InkDrawMode, AnchorDrawMode, null, this))
                 {
                     break;
                 }
@@ -343,20 +370,36 @@ namespace RotatingBezierSplineEditor
 
         internal void ImportObjects(string fileName)
         {
+            string fileToDelete = "";
+            if (fileName.ToLower().EndsWith(".rbs"))
+            {
+                fileToDelete = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                    Path.GetFileNameWithoutExtension(fileName) + "_temp.xml");
+                DecompressFile(fileName, fileToDelete);
+                fileName = fileToDelete;
+            }
             XmlDocument doc = new XmlDocument();
             doc.Load(fileName);
+            int index = 1;
             foreach (XmlElement obj in doc.GetElementsByTagName("image"))
-                AddItem(ImageItem.Parse(obj));
+            {
+                var ii = ImageItem.Parse(this, obj);
+                AddItem(ii);
+                ii.Index = index++;
+            }
             var emptys = new List<RotatingBezierSpline>();
+            int unnamedIndex = 1;
             foreach (XmlElement obj in doc.GetElementsByTagName("spline"))
             {
-                var st = DateTime.Now;
                 var sp = (RotatingBezierSpline)RotatingBezierSpline.Parse(obj, this);
+                if (sp.Label == "")
+                    sp.Label = "Spline " + (unnamedIndex++);
+                sp.Index = index++;
                 if (sp.Anchors.Count <= 1)
                     emptys.Add(sp);
                 else
                     AddItem(sp);
-                var spent = DateTime.Now - st;
             }
             if (emptys.Count > 0)
             {
@@ -364,6 +407,8 @@ namespace RotatingBezierSplineEditor
                     foreach(var sp in emptys)
                         AddItem(sp);
             }
+            if (fileToDelete != "")
+                File.Delete(fileToDelete);
         }
 
         internal void ClearObjects()
@@ -373,7 +418,8 @@ namespace RotatingBezierSplineEditor
 
         internal void SaveObjects(string fileName, params int [] indices)
         {
-            if (indices == null) indices = new int[0];
+            if (indices == null)
+                indices = new int[0];
             if (indices.Length == 0)
             {
                 indices = new int[Objects.Count];
@@ -390,13 +436,58 @@ namespace RotatingBezierSplineEditor
             doc.InsertBefore(xmlDeclaration, root);
 
             var main = doc.CreateElement("objects");
+            List<BezierBoardItem> sortedItems = new List<BezierBoardItem>();
             foreach (var ind in indices)
-                Objects[ind].Save(main);
+                sortedItems.Add(Objects[ind]);
+            sortedItems = sortedItems.OrderBy(i => i.Index).ToList();
+            foreach (var item in sortedItems)
+                item.Save(main);
             doc.AppendChild(main);
-            doc.Save(fileName);
+            if (fileName.ToLower().EndsWith(".xml"))
+            {
+                doc.Save(fileName);
+            }
+            else
+            {
+                doc.Save(fileName + "_uncompressed");
+                CompressFile(fileName + "_uncompressed", fileName);
+                File.Delete(fileName + "_uncompressed");
+            }
         }
+        public static void CompressFile(string path, string destFileName)
+        {
+            FileStream sourceFile = File.OpenRead(path);
+            FileStream destinationFile = File.Create(destFileName);
 
+            byte[] buffer = new byte[sourceFile.Length];
+            sourceFile.Read(buffer, 0, buffer.Length);
 
+            using (GZipStream output = new GZipStream(destinationFile,
+                CompressionMode.Compress))
+            {
+                Console.WriteLine("Compressing {0} to {1}.", sourceFile.Name,
+                    destinationFile.Name, false);
+
+                output.Write(buffer, 0, buffer.Length);
+            }
+
+            // Close the files.
+            sourceFile.Close();
+            destinationFile.Close();
+        }
+        public static void DecompressFile(string path, string newFileName)
+        {
+            using (FileStream originalFileStream = File.OpenRead(path))
+            {
+                using (FileStream decompressedFileStream = File.Create(newFileName))
+                {
+                    using (GZipStream decompressionStream = new GZipStream(originalFileStream, CompressionMode.Decompress))
+                    {
+                        decompressionStream.CopyTo(decompressedFileStream);
+                    }
+                }
+            }
+        }
         protected override void OnPaint(PaintEventArgs e)
         {
             var g = e.Graphics;
@@ -411,9 +502,17 @@ namespace RotatingBezierSplineEditor
             g.TranslateTransform(0 + OffsetG.X, -Height + OffsetG.Y + XAxisHeight);
             g.ScaleTransform(PPU, PPU);
             foreach (var obj in Objects.FindAll(o => o is ImageItem))
-                obj?.Draw(e.Graphics, InkDrawMode, AnchorDrawMode, null, this);
+                obj?.Draw(e.Graphics,new PointF(), 1, InkDrawMode, AnchorDrawMode, null, this);
+
+            g.ResetTransform();
+            g.ResetClip();
+
+            g.SetClip(new RectangleF(0, 0, Width - YAxisWidth, Height - XAxisHeight));
+            g.ScaleTransform(1, -1);
+            //g.TranslateTransform(0 + OffsetG.X, -Height + OffsetG.Y + XAxisHeight);
+            //g.ScaleTransform(PPU, PPU);
             foreach (var obj in Objects.FindAll(o => !(o is ImageItem)))
-                obj?.Draw(e.Graphics, InkDrawMode, AnchorDrawMode, null, this);
+                obj?.Draw(e.Graphics, new PointF(OffsetG.X, -Height + OffsetG.Y+ XAxisHeight), PPU,  InkDrawMode, AnchorDrawMode, null, this);
 
             g.ResetTransform();
             g.ResetClip();
@@ -443,7 +542,7 @@ namespace RotatingBezierSplineEditor
             }
 
         }
-        float PPU = 1F;
+        public float PPU { get; private set; } = 1F;
         PointF OffsetG = new PointF(100,100);
         Font tickFont = new Font("ARIAL", 10);
         RectangleF PlotBounds, YAxisBounds, XAxisBounds;
@@ -666,6 +765,7 @@ namespace RotatingBezierSplineEditor
         public static FlatTipRenderAlgorithm FlatTipRenderAlgorithm { get; set; }
         public static Color ForcedInkColor { get; set; } = Color.Black;
         public static bool ForceSingleColorSplines { get; set; } = false;
+        public static bool SplinesCanBeSelected { get; internal set; } = true;
     }
     
     public enum InkDrawMode

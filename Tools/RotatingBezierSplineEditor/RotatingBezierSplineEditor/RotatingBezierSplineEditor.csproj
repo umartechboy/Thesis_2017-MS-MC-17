@@ -53,6 +53,12 @@
     <Compile Include="BezierBoard.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="BezierBoardItemMenuItem.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="BezierBoardItemMenuItem.Designer.cs">
+      <DependentUpon>BezierBoardItemMenuItem.cs</DependentUpon>
+    </Compile>
     <Compile Include="CurveMenuItem.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -64,6 +70,12 @@
     </Compile>
     <Compile Include="ExportMenu.Designer.cs">
       <DependentUpon>ExportMenu.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ImageMenuItem.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ImageMenuItem.Designer.cs">
+      <DependentUpon>ImageMenuItem.cs</DependentUpon>
     </Compile>
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
@@ -103,6 +115,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ExportMenu.resx">
       <DependentUpon>ExportMenu.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ImageMenuItem.resx">
+      <DependentUpon>ImageMenuItem.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
@@ -185,6 +200,7 @@
     <Content Include="AppIcon.ico" />
     <None Include="Resources\pen.PNG" />
     <None Include="Resources\delete.PNG" />
+    <None Include="bin\transparentBack.png" />
     <Content Include="گ %282%29.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

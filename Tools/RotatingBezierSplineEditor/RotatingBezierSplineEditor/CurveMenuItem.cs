@@ -9,11 +9,11 @@ using System.Windows.Forms;
 
 namespace RotatingBezierSplineEditor
 {
-    public partial class CurveMenuItem : UserControl
+    public partial class CurveMenuItem : BezierBoardItemMenuItem
     {
-        public RotatingBezierSpline Spline { get; set; }
+        public new RotatingBezierSpline Item { get { return (RotatingBezierSpline)base.Item; } }
 
-        public CurveMenuItem()
+        public CurveMenuItem(BezierBoardItem item = null):base(item)
         {
             var st = DateTime.Now;
             InitializeComponent();
@@ -27,18 +27,15 @@ namespace RotatingBezierSplineEditor
             var s2 = DateTime.Now - st;
         }
 
-        public CurveMenuItem(RotatingBezierSpline spline, Image visibleIcon, Image activeIcon, Image visibleIconDull, Image activeIconDull, int sz):this()
+        public CurveMenuItem(RotatingBezierSpline spline, Image visibleIcon, Image activeIcon, Image visibleIconDull, Image activeIconDull, int sz):this(spline)
         {
-            var st = DateTime.Now;
-            visibleTC.SetImage(visibleIcon, sz, visibleIconDull);
-            activeTC.SetImage(activeIcon, sz, activeIconDull);
-            var s1 = DateTime.Now - st;
-            this.Spline = spline;
+            SplineVisible.SetImage(visibleIcon, sz, visibleIconDull);
+            SplineEnabled.SetImage(activeIcon, sz, activeIconDull);
+            this.textBox1.Text = spline.Label;
             spline.OnAnchorAdded += Spline_OnAnchorAdded;
             spline.WidthChangeRequest += Spline_WidthChangeRequest;
             
             Spline_OnAnchorAdded(spline, new EventArgs());
-            var s2 = DateTime.Now - st;
         }
 
         private void Spline_WidthChangeRequest(object sender, EventArgs e)
@@ -47,10 +44,12 @@ namespace RotatingBezierSplineEditor
         }
 
         public bool NeedsToRedrawPreview { get; set; } = false;
+        public int Index { get; internal set; }
+
         private void Spline_OnAnchorAdded(object sender, EventArgs e)
         {
             NeedsToRedrawPreview = true;
-            foreach (var a in Spline.Anchors)
+            foreach (var a in Item.Anchors)
             {
                 a.OnShapeChanged -= A_OnShapeChanged;
                 a.OnShapeChanged += A_OnShapeChanged;
@@ -64,67 +63,111 @@ namespace RotatingBezierSplineEditor
 
         internal void RecomputePreview()
         {
-            if (Spline.BoundingRectangle().Width == 0) return;
-            if (Spline.BoundingRectangle().Height == 0) return;
-            var bmp = new Bitmap((int)Spline.BoundingRectangle().Width, (int)Spline.BoundingRectangle().Height);
-            var g = Graphics.FromImage(bmp);
-            g.ScaleTransform(1, -1);
-            g.TranslateTransform(0, -bmp.Height);
-            g.TranslateTransform(-Spline.BoundingRectangle().X , -Spline.BoundingRectangle().Y);
-            float widBkp = Spline.FlatTipWidth;
-            if (Spline.FlatTipWidth < 2)
-                Spline.FlatTipWidth = 2;
-            Spline.Draw(g, InkDrawMode.Ink, AnchorDrawMode.None, null, null);
-            Spline.FlatTipWidth = widBkp;
-            prevP.BackgroundImage = bmp;
-            prevP.BackgroundImageLayout = ImageLayout.Zoom;
+            if (Item.BoundingRectangle().Width == 0) return;
+            if (Item.BoundingRectangle().Height == 0) return;
+            try
+            {
+                var bmp = new Bitmap((int)Item.BoundingRectangle().Width, (int)Item.BoundingRectangle().Height);
+                var g = Graphics.FromImage(bmp);
+                g.ScaleTransform(1, -1);
+                g.TranslateTransform(0, -bmp.Height);
+                g.TranslateTransform(-Item.BoundingRectangle().X, -Item.BoundingRectangle().Y);
+                float widBkp = Item.FlatTipWidth;
+                if (Item.FlatTipWidth < 2)
+                    Item.FlatTipWidth = 2;
+                Item.Draw(g, new PointF(), 1, InkDrawMode.Ink, AnchorDrawMode.None, null, null);
+                Item.FlatTipWidth = widBkp;
+                prevP.BackgroundImage = bmp;
+                prevP.BackgroundImageLayout = ImageLayout.Zoom;
+            }
+            catch { }
         }
 
         private void visibleTC_OnActivated(object sender, EventArgs e)
         {
-            Spline.Visible = visibleTC.Active;
+            Item.Visible = SplineVisible.Active;
         }
 
         private void activeTC_OnActivated(object sender, EventArgs e)
         {
-            Spline.Locked = !activeTC.Active;
+            Item.Locked = !SplineEnabled.Active;
         }
 
         private void appearnceP_MouseClick(object sender, MouseEventArgs e)
         {
-            Spline.ChangeAppearance();
+            Item.ChangeAppearance();
         }
 
         private void delP_MouseClick(object sender, MouseEventArgs e)
         {
-            Spline.SelfRemoveRequest();
+            Item.SelfRemoveRequest();
         }
 
         private void prevP_MouseEnter(object sender, EventArgs e)
         {
-            Spline.MouseState = MouseState.Hover;
-            Spline.Board.Invalidate();
+            Item.MouseState = MouseState.Hover;
+            Item.Board.Invalidate();
         }
 
         private void CurveMenuItem_MouseEnter(object sender, EventArgs e)
         {
-            Spline.MouseState = MouseState.Hover;
-            Spline.Board.Invalidate();
+            Item.MouseState = MouseState.Hover;
+            Item.Board.Invalidate();
 
         }
 
         private void prevP_MouseLeave(object sender, EventArgs e)
         {
-            Spline.MouseState = MouseState.None;
-            Spline.Board.Invalidate();
+            Item.MouseState = MouseState.None;
+            Item.Board.Invalidate();
 
         }
 
         private void CurveMenuItem_MouseLeave(object sender, EventArgs e)
         {
-            Spline.MouseState = MouseState.None;
-            Spline.Board.Invalidate();
+            Item.MouseState = MouseState.None;
+            Item.Board.Invalidate();
 
+        }
+
+        private void prevP_MouseClick(object sender, MouseEventArgs e)
+        {
+
+        }
+
+        private void showAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            NotifyRequestToShowAll();
+        }
+
+        private void unlockAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            NotifyRequestToUnlockAll();
+        }
+
+        private void showOnlyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            NotifyRequestShowOnly();
+        }
+
+        private void lockAllButThisToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            NotifyRequestToUnlockOnly();
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+            Item.Label = textBox1.Text;
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            NotifyMoveUpRequest();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            NotifyMoveDownRequest();
         }
     }
 }
