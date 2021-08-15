@@ -556,6 +556,7 @@ Uou can save, open and import rotating bezier splines using the File menu
             var fNameSeed = "Untitled.rbs";
             if (File.Exists(sfd.FileName))
                 fNameSeed = sfd.FileName;
+
             var fname = Path.GetFileNameWithoutExtension(fNameSeed) + " " + DateTime.Now.ToString("MM-dd hh.mm.ss");
             var dir = Path.Combine(Path.GetDirectoryName(fNameSeed), Path.GetFileNameWithoutExtension(fNameSeed) + "_Autosave");
             if (!Directory.Exists(dir))
