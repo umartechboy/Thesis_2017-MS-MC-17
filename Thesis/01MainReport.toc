@@ -1,7 +1,7 @@
 \tocdepth@munge 
 \contentsline {section}{\numberline {}Contents}{2}{}
 \tocdepth@restore 
-\contentsline {section}{\numberline {I}Introduction}{4}{}
+\contentsline {section}{\numberline {I}Introduction}{5}{}
 \contentsline {section}{\numberline {II}Rotating/Twisting Bezier Splines}{6}{}
 \contentsline {subsection}{\numberline {A}Introduction}{6}{}
 \contentsline {subsection}{\numberline {B}The Necessity}{6}{}
@@ -10,70 +10,84 @@
 \contentsline {subsubsection}{\numberline {2}Twist/Rotation Handle}{9}{}
 \contentsline {subsection}{\numberline {D}Conversion of Existing Calligraphy Artwork}{10}{}
 \contentsline {subsection}{\numberline {E}Machine Data Generation}{11}{}
-\contentsline {subsection}{\numberline {F}Characterization}{11}{}
+\contentsline {subsection}{\numberline {F}Characterization}{12}{}
 \contentsline {subsection}{\numberline {G}Supported Scripts}{12}{}
 \contentsline {subsubsection}{\numberline {1}Coverage}{13}{}
 \contentsline {subsubsection}{\numberline {2}Sample Results}{13}{}
-\contentsline {subsubsection}{\numberline {3}Performance with Different Scripts}{13}{}
-\contentsline {section}{\numberline {III}Robotic Manipulator}{13}{}
-\contentsline {subsection}{\numberline {A}Functional Requirements of the Manipulator}{13}{}
+\contentsline {subsubsection}{\numberline {3}Performance with Different Scripts}{14}{}
+\contentsline {section}{\numberline {III}Robotic Manipulator}{14}{}
+\contentsline {subsection}{\numberline {A}Functional Requirements of the Manipulator}{14}{}
 \contentsline {subsection}{\numberline {B}Robot Representation}{14}{}
-\contentsline {subsection}{\numberline {C}Selecting a Configuration}{18}{}
-\contentsline {subsection}{\numberline {D}Mathematical Modelling}{18}{}
+\contentsline {subsection}{\numberline {C}Selecting a Configuration}{15}{}
+\contentsline {subsection}{\numberline {D}Mathematical Modelling}{17}{}
 \contentsline {subsection}{\numberline {E}Simulation and Analysis Solutions}{19}{}
 \contentsline {subsection}{\numberline {F}Inverse and Forward Kinematics}{19}{}
 \contentsline {subsection}{\numberline {G}The Calligraphy Job}{19}{}
-\contentsline {subsection}{\numberline {H}Forward Kinematics}{21}{}
-\contentsline {section}{\numberline {IV}Gregor -- The Twisting Bezier Spline Editor}{21}{}
-\contentsline {subsection}{\numberline {A}Introduction}{21}{}
-\contentsline {subsection}{\numberline {B}Requirements and Features}{21}{}
-\contentsline {subsection}{\numberline {C}Usage}{21}{}
-\contentsline {subsection}{\numberline {D}Interface}{21}{}
-\contentsline {subsection}{\numberline {E}Drawing and Modifying a Spline}{21}{}
-\contentsline {subsection}{\numberline {F}Save, Load, Export}{21}{}
-\contentsline {subsection}{\numberline {G}Short-keys}{21}{}
-\contentsline {subsection}{\numberline {H}Other useful features}{21}{}
-\contentsline {subsection}{\numberline {I}Analysis Tools}{21}{}
-\contentsline {subsection}{\numberline {J}Development}{21}{}
-\contentsline {subsubsection}{\numberline {1}Code Organization}{21}{}
-\contentsline {subsubsection}{\numberline {2}The BezierBoard Class}{21}{}
-\contentsline {subsubsection}{\numberline {3}RBSPoint}{21}{}
-\contentsline {subsubsection}{\numberline {4}Spline Elements}{21}{}
-\contentsline {subsubsection}{\numberline {5}Miscellaneous Helper classes and form}{21}{}
-\contentsline {subsubsection}{\numberline {6}Areas needing Improvement}{21}{}
-\contentsline {section}{\numberline {V}Drogon The Robot Simulator}{21}{}
-\contentsline {subsection}{\numberline {A}Introduction}{21}{}
-\contentsline {subsection}{\numberline {B}Simulation}{22}{}
-\contentsline {subsection}{\numberline {C}About the Tools}{23}{}
-\contentsline {subsection}{\numberline {D}Workspace Optimization}{23}{}
-\contentsline {subsection}{\numberline {E}Script Path Planner}{24}{}
-\contentsline {subsection}{\numberline {F}Script Motion Simulator}{24}{}
-\contentsline {subsection}{\numberline {G}Requirements and Features}{26}{}
-\contentsline {subsection}{\numberline {H}3D Visualizer}{26}{}
-\contentsline {subsection}{\numberline {I}Workspace Optimizer}{26}{}
-\contentsline {subsection}{\numberline {J}PID Tuner}{26}{}
-\contentsline {subsection}{\numberline {K}Rotating Spline Importer}{26}{}
-\contentsline {subsection}{\numberline {L}Usage}{26}{}
-\contentsline {subsection}{\numberline {M}Interface}{26}{}
-\contentsline {subsubsection}{\numberline {1}Manual Control}{26}{}
-\contentsline {subsubsection}{\numberline {2}Analysis Tools}{26}{}
-\contentsline {subsection}{\numberline {N}Development}{26}{}
-\contentsline {subsubsection}{\numberline {1}Code Organization}{26}{}
-\contentsline {subsubsection}{\numberline {2}The SphericalRobot Class}{26}{}
-\contentsline {subsection}{\numberline {O}Simulation}{26}{}
-\contentsline {subsubsection}{\numberline {1}Assumptions and Limitations}{26}{}
-\contentsline {subsubsection}{\numberline {2}Accuracy of simulated Quantities}{26}{}
-\contentsline {subsubsection}{\numberline {3}Forward Kinematics}{26}{}
-\contentsline {subsubsection}{\numberline {4}Rotating Bezier Spline Curves}{26}{}
-\contentsline {subsection}{\numberline {P}Sample Results}{26}{}
-\contentsline {subsubsection}{\numberline {1}Accuracy}{26}{}
-\contentsline {subsection}{\numberline {Q}Areas that Need Improvement}{26}{}
-\contentsline {section}{\numberline {VI}The Project}{26}{}
-\contentsline {subsection}{\numberline {A}Set Milestones}{26}{}
-\contentsline {subsection}{\numberline {B}Expected Outcomes}{26}{}
-\contentsline {subsection}{\numberline {C}Missed milestones}{26}{}
-\contentsline {section}{\numberline {VII}Conclusion}{26}{}
-\contentsline {section}{\numberline {}References}{26}{}
+\contentsline {subsection}{\numberline {H}Forward Kinematics}{20}{}
+\contentsline {section}{\numberline {IV}Gregor -- The Twisting Bezier Spline Editor}{20}{}
+\contentsline {subsection}{\numberline {A}Introduction}{20}{}
+\contentsline {subsection}{\numberline {B}Requirements and Features}{22}{}
+\contentsline {subsection}{\numberline {C}Usage}{23}{}
+\contentsline {subsection}{\numberline {D}Interface}{23}{}
+\contentsline {subsubsection}{\numberline {1}The Viewing Modes}{24}{}
+\contentsline {subsubsection}{\numberline {2}The Editing Modes}{24}{}
+\contentsline {subsection}{\numberline {E}Modifying A Spline Curve}{26}{}
+\contentsline {subsubsection}{\numberline {1}Starting a New Curve}{26}{}
+\contentsline {subsubsection}{\numberline {2}Appending to a Previously Active Curve}{26}{}
+\contentsline {subsubsection}{\numberline {3}Adding Anchors in the Middle}{26}{}
+\contentsline {subsubsection}{\numberline {4}Simultaneous Curve Editing While Adding New Anchors}{27}{}
+\contentsline {subsection}{\numberline {F}Modifying an Ink-mark}{27}{}
+\contentsline {subsubsection}{\numberline {1}Adding an Ink-Mark}{27}{}
+\contentsline {subsubsection}{\numberline {2}Modifying the twist/rotation}{27}{}
+\contentsline {subsection}{\numberline {G}Using Images}{28}{}
+\contentsline {subsection}{\numberline {H}Using the Document Explorer}{28}{}
+\contentsline {subsection}{\numberline {I}Save, Load, Export}{29}{}
+\contentsline {subsubsection}{\numberline {1}Exporting Images}{29}{}
+\contentsline {subsubsection}{\numberline {2}The File Format}{30}{}
+\contentsline {subsection}{\numberline {J}Short-keys}{30}{}
+\contentsline {subsection}{\numberline {K}Other useful features}{31}{}
+\contentsline {subsection}{\numberline {L}Analysis Tools}{31}{}
+\contentsline {subsection}{\numberline {M}Development}{31}{}
+\contentsline {subsubsection}{\numberline {1}Code Organization}{31}{}
+\contentsline {subsubsection}{\numberline {2}The BezierBoard Class}{31}{}
+\contentsline {subsubsection}{\numberline {3}RBSPoint}{31}{}
+\contentsline {subsubsection}{\numberline {4}Spline Elements}{31}{}
+\contentsline {subsubsection}{\numberline {5}Miscellaneous Helper classes and form}{31}{}
+\contentsline {subsubsection}{\numberline {6}Areas needing Improvement}{31}{}
+\contentsline {section}{\numberline {V}Drogon -- The Robot Simulator}{31}{}
+\contentsline {subsection}{\numberline {A}Introduction}{31}{}
+\contentsline {subsection}{\numberline {B}Simulation}{32}{}
+\contentsline {subsection}{\numberline {C}About the Tools}{32}{}
+\contentsline {subsection}{\numberline {D}Workspace Optimization}{33}{}
+\contentsline {subsection}{\numberline {E}Script Path Planner}{33}{}
+\contentsline {subsection}{\numberline {F}Script Motion Simulator}{33}{}
+\contentsline {subsection}{\numberline {G}Requirements and Features}{36}{}
+\contentsline {subsection}{\numberline {H}3D Visualizer}{36}{}
+\contentsline {subsection}{\numberline {I}Workspace Optimizer}{36}{}
+\contentsline {subsection}{\numberline {J}PID Tuner}{36}{}
+\contentsline {subsection}{\numberline {K}Rotating Spline Importer}{36}{}
+\contentsline {subsection}{\numberline {L}Usage}{36}{}
+\contentsline {subsection}{\numberline {M}Interface}{36}{}
+\contentsline {subsubsection}{\numberline {1}Manual Control}{36}{}
+\contentsline {subsubsection}{\numberline {2}Analysis Tools}{36}{}
+\contentsline {subsection}{\numberline {N}Development}{36}{}
+\contentsline {subsubsection}{\numberline {1}Code Organization}{36}{}
+\contentsline {subsubsection}{\numberline {2}The SphericalRobot Class}{36}{}
+\contentsline {subsection}{\numberline {O}Simulation}{36}{}
+\contentsline {subsubsection}{\numberline {1}Assumptions and Limitations}{36}{}
+\contentsline {subsubsection}{\numberline {2}Accuracy of simulated Quantities}{36}{}
+\contentsline {subsubsection}{\numberline {3}Forward Kinematics}{36}{}
+\contentsline {subsubsection}{\numberline {4}Rotating Bezier Spline Curves}{36}{}
+\contentsline {subsection}{\numberline {P}Sample Results}{36}{}
+\contentsline {subsubsection}{\numberline {1}Accuracy}{36}{}
+\contentsline {subsection}{\numberline {Q}Areas that Need Improvement}{36}{}
+\contentsline {section}{\numberline {VI}The Project}{36}{}
+\contentsline {subsection}{\numberline {A}Set Milestones}{36}{}
+\contentsline {subsection}{\numberline {B}Expected Outcomes}{36}{}
+\contentsline {subsection}{\numberline {C}Missed milestones}{36}{}
+\contentsline {section}{\numberline {VII}Conclusion}{36}{}
+\contentsline {section}{\numberline {}References}{36}{}
 \appendix 
-\contentsline {section}{\numberline {A}Code Snippetes}{28}{}
-\contentsline {section}{\numberline {B}Tables}{29}{}
+\contentsline {section}{\numberline {A}Code Snippetes}{38}{}
+\contentsline {section}{\numberline {B}Tables}{40}{}
+\contentsline {subsubsection}{\numberline {a}Gregor -- Keyboard Shorcuts}{40}{}

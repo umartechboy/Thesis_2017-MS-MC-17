@@ -1,4 +1,4 @@
-\section{Robotic Manipulator}
+\section{Robotic Manipulator}\label{chapter2}
 {
     \subsection{Functional Requirements of the Manipulator}
     {
@@ -57,7 +57,6 @@
     {
         Using the new representation, properties of homogenous transformation matrices and basic highschool trigonometry,  I was able to calculate the unique and redundant solutions for the spherical manipulator. The process will be described later, but, summarily, the robot has two primary solutions: different joint positions yield the same end effector position and orientation. Connected to both solutions, are $4$ more secondary solutions which effect only the motor angles not the link locations.
 
-
         Finding out the mathematical equations is one job, verification is another. While dealing with three dimensional realm on a two dimensional paper, one can the solution but making small human errors on the way. It is quite easy to confuse the directions of rotations in a reference frames, resulting in typical errors which can be mitigated by some hit-and-trial of a few operations; adding or subtracting integral multiples of $\frac{\pi}{2}$ from the angles, inverting the length signs, inverting the angle directions. This can be done easily only if a representation tool is build alongside the robot modeling.
     }
     \subsection{Simulation and Analysis Solutions}
@@ -87,4 +86,4 @@
         \end{figure}
 
     }
-\subsection{Forward Kinematics}
+\subsection{Forward Kinematics} 
