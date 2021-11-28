@@ -60,7 +60,7 @@ namespace Drogon3
             wpfPrevWindow = new MainWpfRobotPrevWindow();
             wpfPrevWindow.Intialize(robot, ink, workspace);
             ink.SetBoard(1, 1);
-            ink.Orientation = new EulerAngleOrientation(0, 0, 0, 1, 1, 1);
+            ink.InkOrientation = new EulerAngleOrientation(0, 0, 0, 1, 1, 1);
             formWpfPrev2 = new WindowToForm(wpfPrevWindow, robot, ink, workspace) { Text = "3D Animation" };
             formWpfPrev2.Width = 800;
             formWpfPrev2.Height = 500;
@@ -68,7 +68,7 @@ namespace Drogon3
             splinePainter = new SplinePainter(robot, ink);
             splinePainter.OnWritingPadOrientationChangeRequested += (s, orientation) =>
             {
-                ink.Orientation = (EulerAngleOrientation)orientation;
+                ink.InkOrientation = (EulerAngleOrientation)orientation;
             };
             //routePlanner = new RoutePlanner(robot) { Text = "Path Planner" };
             endEffectorControl = new EndEffectorControl(robot) { Text = "End Effector Control" };
@@ -152,7 +152,7 @@ namespace Drogon3
         {
             if (!robot.RealTimeTickEnabled)
                 return;
-            for (double t = 0; t < .03; t += SimStep)
+            for (double t = 0; t < .00001; t += SimStep)
             {
                 robot.ThreadStep(SimStep);
                 pidPerformance.timeQ.cache = (float)(robot.SimLifeinMillis / 1000);
@@ -162,8 +162,8 @@ namespace Drogon3
                     pidPerformance.motorRefQs[i].cache = (float)(robot.Actuators[i].Reference);
                 }
                 pidPerformance.pidPerformanceXYP.FeedData(did++);
-            }
             robot.sync3DView();
+            }
         }
 
         private void MainForm_Load(object sender, EventArgs e)

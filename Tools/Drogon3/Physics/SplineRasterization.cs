@@ -10,6 +10,7 @@ namespace RoboSim
 {
     public class RasterizedRotatingBezierSpline
     {
+        public double ToolWidth { get; set; }
 
         public RotatingBezierSpline Spline { get; private set; }
         public List<RasterizedSplineCell> RasterizedCells { get; set; }
@@ -32,16 +33,19 @@ namespace RoboSim
             RasterizedRotatingBezierSpline rCurve = new RasterizedRotatingBezierSpline();
             rCurve.RasterizedCells = new List<RasterizedSplineCell>();
             rCurve.Spline = spline;
+            rCurve.ToolWidth = spline.FlatTipWidth * scale;
             for (int i = 0; i < spline.Anchors.Count - 1; i++)
             {
                 List<RasterizedPoint> rps = new List<RasterizedPoint>();
                 var cell = new BezierCurveCellWithRotation(spline.Anchors[i], spline.Anchors[i + 1]);
                 RasterizeCell(cell, resolution, scale, rps, spline.FlatTipWidth, Progress);
+                rps.Reverse();
                 var rasterizedCurvePart = new RasterizedSplineCell()
                 {
                     RasterizedData = rps
                 };
-                rCurve.RasterizedCells.Add(rasterizedCurvePart);
+                if (rasterizedCurvePart.RasterizedData.Count > 0)
+                    rCurve.RasterizedCells.Add(rasterizedCurvePart);
                 ind++;
             }
             return rCurve;
@@ -63,7 +67,7 @@ namespace RoboSim
                     X = XY.X * scale,
                     Y = XY.Y * scale,
                     T = T,
-                    Orientaation = new EulerAngleOrientation(T, 0, 0, XY.X * scale, XY.Y * scale, 0),
+                    Orientation = new EulerAngleOrientation(T, 0, 0, XY.X * scale, XY.Y * scale, 0),
             });
                 progressUpdate((float)f);
             }
@@ -145,6 +149,6 @@ namespace RoboSim
         public double X { get; set; }
         public double Y { get; set; }
         public double T { get; set; }
-        public EulerAngleOrientation Orientaation { get; set; }
+        public EulerAngleOrientation Orientation { get; set; }
     }
 }

@@ -25,15 +25,87 @@ namespace RoboSim
         public virtual void Initialize()
         { }
         public IServoMotor[] Actuators;
+        public RobotSolution LastAppliedSolution = null;
         public void ThreadStep(double dt)
         {
             BeforeThreadStep?.Invoke(this, new EventArgs());
+            // update target if in automatic path mode
+            if (ControlSource == RobotControlSource.BezierSpline && Program!= null)
+            {
+                // determine if we even need to do this 
+                if (Program.Index < Program.Codes.Count)
+                {
+                    if (Program.UnderWorking is GCode)
+                    {
+                        if (Program.UnderWorking is G90)
+                        {
+                            // determine if we are at a switching point
+                            bool targetAchieved = false;
+                            // positional error based check
+                            if ((CurrentEndEffectorPosition - ((G90)Program.UnderWorking).Target.Offset).Length < 0.0005)
+                                targetAchieved = true;
+
+                            // Actuator target based check
+                            targetAchieved = TargetAchieved();
+
+                            if (targetAchieved)
+                            {
+                                Program.Index++;
+                            }
+                            if (Program.UnderWorking is G90) // 
+                            // re assert the target
+                            {
+                                if (Program.UnderWorking != null) // end of program
+                                {
+                                    if (Program.UnderWorking is GCode)
+                                    {
+                                        if (Program.UnderWorking is G90)
+                                        {
+                                            if (Program.LastSolvedTarget != Program.UnderWorking)
+                                            {
+                                                //CurrentTarget = ((G90)Program.UnderWorking).Target;
+
+                                                Program.LastSolvedTarget = (GCode)Program.UnderWorking;
+                                                try
+                                                {
+                                                    var solution = SphericalRobotSolution.Solution(LastAppliedSolution, 0, this, ((G90)Program.UnderWorking).Target);
+                                                    var t = ((SphericalRobotSolution)solution).MotorAngles[5];
+                                                    solution.ApplyAsTarget(this);
+                                                }
+                                                catch { }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        else
+                            throw new NotImplementedException();
+                    }
+                    else if (Program.UnderWorking is ToolChangeCommand)
+                    {
+                        var tcc = (ToolChangeCommand)Program.UnderWorking;
+                        if (this is SphericalRobot)
+                            ((SphericalRobot)this).ToolWidth = tcc.ToolSize;
+
+                        Program.Index++;
+                    }
+                    else
+                        throw new NotImplementedException();
+                }
+            }
             // Set last State = current here and then make the step
             for (int i = 0; i < Actuators.Length; i++)
                 Actuators[i].ThreadStep(dt);
             AfterThreadStep?.Invoke(this, new EventArgs());
             SimLifeinMillis += dt * 1000;
         }
+
+        public virtual bool TargetAchieved()
+        {
+            throw new NotImplementedException();
+        }
+
         protected Model3DGroup gm = null;
         public Model3DGroup Model
         {
@@ -50,6 +122,8 @@ namespace RoboSim
             throw new NotImplementedException();
         }
         public virtual Point3D CurrentEndEffectorPosition { get; }
+        public virtual ChainTranformationMatrix CurrentEndEffectorTransformationMatrix { get; }
+        public MachineProgram Program { get; set; }
     }
     public class SphericalRobot : Robot
     {
@@ -75,6 +149,34 @@ namespace RoboSim
                 return H400T * new Point3D(0, 0, 0);
             }
         }
+        public override ChainTranformationMatrix CurrentEndEffectorTransformationMatrix 
+        {
+            get
+            {
+                var H400T = new ChainTranformationMatrix();
+                H400T.Children.Add(new TranslateTransformationMatrix(0, 0, L0));
+                H400T.Children.Add(new RotateTransformationMatrix(Actuators[0].Current, Axis.Z));
+                H400T.Children.Add(new RotateTransformationMatrix(Actuators[1].Current, Axis.X));
+                H400T.Children.Add(new TranslateTransformationMatrix(0, 0, L1));
+                H400T.Children.Add(new RotateTransformationMatrix(Actuators[2].Current, Axis.X));
+                H400T.Children.Add(new TranslateTransformationMatrix(0, 0, L2));
+                H400T.Children.Add(new RotateTransformationMatrix(Actuators[3].Current, Axis.Z));
+                H400T.Children.Add(new RotateTransformationMatrix(Actuators[4].Current, Axis.X));
+                H400T.Children.Add(new TranslateTransformationMatrix(0, 0, L3));
+                H400T.Children.Add(new TranslateTransformationMatrix(0, 0, L4));
+                H400T.Children.Add(new RotateTransformationMatrix(Actuators[5].Current, Axis.Z));
+                return H400T;
+            }
+        }
+        public override bool TargetAchieved()
+        {
+            foreach (var motor in Actuators)
+            {
+                if (!motor.TargetAchieved())
+                    return false;
+            }
+            return true;
+        }
         public void Debug(Point3D p, int ind)
         {
             OnDebugPoint?.Invoke(p, ind);
@@ -85,16 +187,18 @@ namespace RoboSim
         public double L3 { get { return armModelsTT[4].OffsetZ; } set { armModelsTT[4].OffsetZ = value; resetModel(); OnLengthChanged?.Invoke(3, value); } }
         // the pen
         public double L4 { get { return armModelsTT[5].OffsetZ; } set { armModelsTT[5].OffsetZ = value; resetModel(); OnLengthChanged?.Invoke(3, value); } }
+        double _tw = 0.005;
+        public double ToolWidth { get { return _tw; } set { _tw = value; resetModel(); OnLengthChanged?.Invoke(3, value); } }
 
         public SphericalRobot()
         {
             double l0 = 0.4, l1 = 1.2, l2 = 1, l3 = 0.1, l4 = 0.4;
 
             Actuators = new IServoMotor[6];
-            Actuators[0] = new StepperMotor(0, 500 * 50, 0.0005, -Math.PI, 2 * Math.PI, -Math.PI/4, Axis.Z);
-            Actuators[1] = new StepperMotor(1, 500 * 50, 0.0005, -Math.PI / 2, Math.PI, 0, Axis.X);
-            Actuators[2] = new StepperMotor(2, 500 * 50, 0.0005, -2 * Math.PI / 3, 4 * Math.PI / 3, 0, Axis.X);
-            Actuators[3] = new StepperMotor(3, 500 * 50, 0.0005, -Math.PI, 2 * Math.PI, 0, Axis.Z);
+            Actuators[0] = new StepperMotor(0, 1000 * 50, 0.0002, -Math.PI, 2 * Math.PI, -Math.PI/4, Axis.Z);
+            Actuators[1] = new StepperMotor(1, 1000 * 50, 0.0002, -Math.PI / 2, Math.PI, 0, Axis.X);
+            Actuators[2] = new StepperMotor(2, 1000 * 50, 0.0003, -2 * Math.PI / 3, 4 * Math.PI / 3, 0, Axis.X);
+            Actuators[3] = new StepperMotor(3, 800 * 50, 0.0005, -Math.PI, 2 * Math.PI, 0, Axis.Z);
             Actuators[4] = new StepperMotor(4, 500 * 50, 0.0005, -2 * Math.PI / 3, 4 * Math.PI / 3, 0, Axis.X);
             Actuators[5] = new StepperMotor(5, 2000, 0.0005, -2 * Math.PI, 4 * Math.PI, 0, Axis.Z);
             //Actuators[0] = new ServoMotor(0, this, -Math.PI, 2 * Math.PI, 0, 4000, 0, 3200, 70, 70, Axis.Z);
@@ -145,7 +249,7 @@ namespace RoboSim
                 new Size3D(0.4, 0.4, L1),
                 new Size3D(0.3, 0.28, L2),
                 new Size3D(0.24, 0.23, L3),
-                new Size3D(0.08, 0.005, L4),
+                new Size3D(ToolWidth, ToolWidth * 0.1, L4),
             };
             _LinkPoints = new HollowBlock[4];
             double pointSize = 0.02;
@@ -711,6 +815,11 @@ namespace RoboSim
     {
         public virtual RobotSolution Clone()
         { throw new NotImplementedException(); }
+
+        public virtual void ApplyAsTarget(Robot robot)
+        {
+            throw new NotImplementedException();
+        }
     }
     public class SphericalRobotSolution : RobotSolution
     {
@@ -719,8 +828,15 @@ namespace RoboSim
         {
             return new SphericalRobotSolution() { MotorAngles = MotorAngles.ToArray() };
         }
-        public static SphericalRobotSolution Solution(SphericalRobotSolution previousSolution,int ind, SphericalRobot robot, EulerAngleOrientation target)
+        public override void ApplyAsTarget(Robot robot)
         {
+            for (int i = 0; i < 6; i++)
+                ((SphericalRobot)robot).Actuators[i].Reference = MotorAngles[i];
+        }
+        public static RobotSolution Solution(RobotSolution previousSolution_, int ind, Robot robot_, EulerAngleOrientation target)
+        {
+            var robot = (SphericalRobot)robot_;
+            var previousSolution = (SphericalRobotSolution)previousSolution_;
             var newSolution = SolutionX(ind, robot, target);
             if (previousSolution != null)
             {
@@ -948,6 +1064,7 @@ namespace RoboSim
             // we need to check the solutions for range check yet. Also, add step-by-step checks for singularity and target being out of workspace
             return solutions;   
         }
+
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
@@ -959,6 +1076,16 @@ namespace RoboSim
                 sb.Append(str);
             }
             return sb.ToString().Trim(new char[] { ',' });
+        }
+
+        public bool IsValid()
+        {
+            for (int i = 0; i < 6; i++)
+            {
+                if (double.IsNaN(MotorAngles[i]) || double.IsInfinity(MotorAngles[i]))
+                    return false;
+            }
+            return true;
         }
     }
 

@@ -39,7 +39,7 @@ namespace Drogon3
                 Target.G += gEEJS.DY / 20;
 
                 var solBkp = (SphericalRobotSolution)Solution?.Clone();
-                Solution = SphericalRobotSolution.Solution(Solution, 0, Robot, Target);
+                Solution = (SphericalRobotSolution)SphericalRobotSolution.Solution(Solution, 0, Robot, Target);
 
                 for (int i = 0; i < Robot.Actuators.Length; i++)
                     if (

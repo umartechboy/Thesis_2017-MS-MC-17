@@ -163,7 +163,7 @@ namespace Drogon3
             {
                 try
                 {
-                    solutions[j] = SphericalRobotSolution.Solution(lastSolutions[j], j, robot, SetTarget);
+                    solutions[j] = (SphericalRobotSolution)SphericalRobotSolution.Solution(lastSolutions[j], j, robot, SetTarget);
                     lastSolutions[j] = solutions[j];
                     for (int i = 0; i < solutions[j].MotorAngles.Length; i++)
                     {

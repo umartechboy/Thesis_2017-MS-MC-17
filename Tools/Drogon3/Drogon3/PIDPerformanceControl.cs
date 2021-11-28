@@ -203,7 +203,11 @@ namespace Drogon3
                     int r = 255 - (int)Math.Max(Math.Min(ci, 255), 0);
                     int g = 255 - (int)Math.Max(Math.Min(-ci, 255), 0);
                     int b = Math.Max(255 - (255 - r) - (255 - g), 0);
-                    BackColor = Color.FromArgb(r, g, b);
+                    try
+                    {
+                        BackColor = Color.FromArgb(r, g, b);
+                    }
+                    catch { }
                 }
                 else
                     BackColor = Color.White;

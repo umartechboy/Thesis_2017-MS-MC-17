@@ -24,7 +24,16 @@ namespace RoboSim
         public System.Windows.Media.Color TraceColor { get; set; }
         public Model3DGroup WrittingPad = new Model3DGroup();
         EulerAngleOrientation _o;
-        public EulerAngleOrientation Orientation { get { return _o; } set { _o = value; gm.Transform = _o; } }
+        public EulerAngleOrientation InkOrientation
+        {
+            get { return _o; }
+            set
+            {
+                _o = value;
+                WrittingPad.Children[0].Transform = _o;
+                WrittingPad.Children[1].Transform = _o;
+            }
+        }
         public Ink()
         {
             //Thickness = thickness;
@@ -32,15 +41,15 @@ namespace RoboSim
             TraceColor = System.Windows.Media.Colors.LightGray;
             gm = new Model3DGroup();                                                
             gm.Children.Add(WrittingPad);
-            Orientation = new EulerAngleOrientation();
             WrittingPad.Children.Add(new Model3DGroup()); // board
             WrittingPad.Children.Add(new Model3DGroup()); // ink
             WrittingPad.Children.Add(new Model3DGroup()); // trace
+            InkOrientation = new EulerAngleOrientation();
         }
         public void SetBoard(double width, double height)
         {
             var m = new ChainTranformationMatrix(); ;
-            m.Children.Add(new TranslateTransformationMatrix(0, 0, -0.002));
+            m.Children.Add(new TranslateTransformationMatrix(0, 0, -0.0002));
             var p1 = m * new Point3D(-width / 2, height / 2, 0);
             var p2 = m * new Point3D(width / 2, height / 2, 0);
             var p3 = m * new Point3D(width / 2, -height / 2, 0);
@@ -70,7 +79,7 @@ namespace RoboSim
             NewTraceChar();
         }
         EulerAngleOrientation LastOrientation = null;
-        EulerAngleOrientation LastTraceOrientation = null;
+        TransformationMatrix LastTraceOrientation = null;
         public void NewCharCell()
         {
             ((Model3DGroup)WrittingPad.Children[1]).Children.Add(new Model3DGroup());
@@ -111,22 +120,31 @@ namespace RoboSim
         }
         private void AppendTracePoint(EulerAngleOrientation o, double Thickness)
         {
+            AppendTracePoint((ChainTranformationMatrix)o, Thickness);
+        }
+        public void AppendTracePoint(TransformationMatrix o, double Thickness)
+        {
             if (o == LastTraceOrientation)
             {
                 if (o != null)
-                    LastTraceOrientation = o.Clone();
+                    LastTraceOrientation = o;
                 return;
             }
             if (o == null || LastTraceOrientation == null)
             {
                 if (o != null)
-                    LastTraceOrientation = o.Clone();
+                    LastTraceOrientation = o;
                 return;
             }
             AddFlatTipStroke(LastTraceOrientation, o, Thickness, false);
-            LastTraceOrientation = o.Clone();
+            LastTraceOrientation = o;
         }
         private void AddFlatTipStroke(EulerAngleOrientation o1, EulerAngleOrientation o2, double thicknes, bool isInk)
+        {
+            AddFlatTipStroke((ChainTranformationMatrix)o1, (ChainTranformationMatrix)o2, thicknes, isInk);
+        }
+
+        private void AddFlatTipStroke(TransformationMatrix o1, TransformationMatrix o2, double thicknes, bool isInk)
         {
             //if (InkParts.Last().Targets.Count == 0)
             //    InkParts.Last().Targets.Add(o1);
@@ -135,14 +153,12 @@ namespace RoboSim
             if (!isInk)
                 color = TraceColor;
             var m = new ChainTranformationMatrix();
-            var H1 = new TransformationMatrix(m * (Matrix<double>)((ChainTranformationMatrix)o1));
-            var H2 = new TransformationMatrix(m * (Matrix<double>)((ChainTranformationMatrix)o2));
-            var p1 = H1 * new Point3D(thicknes / 2, 0, -.001);
-            var p2 = H1 * new Point3D(-thicknes / 2, 0, -.001);
-            var p3 = H2 * new Point3D(-thicknes / 2, 0, -.001);
-            var p4 = H2 * new Point3D(thicknes / 2, 0, -.001);
-            if ((p1 - p3).Length > 0.1)
-                ;
+            var H1 = new TransformationMatrix(m * (Matrix<double>)(o1));
+            var H2 = new TransformationMatrix(m * (Matrix<double>)(o2));
+            var p1 = H1 * new Point3D(thicknes / 2, 0, -.0001);
+            var p2 = H1 * new Point3D(-thicknes / 2, 0, -.0001);
+            var p3 = H2 * new Point3D(-thicknes / 2, 0, -.0001);
+            var p4 = H2 * new Point3D(thicknes / 2, 0, -.0001);
             MeshGeometry3D mesh = new MeshGeometry3D();
             simCalc.addTriangleToMesh(mesh, p1, p2, p3);
             simCalc.addTriangleToMesh(mesh, p1, p3, p4);
@@ -174,13 +190,15 @@ namespace RoboSim
             if (spline.Anchors.Count <= 1)
                 return null;
             var rSplines = RasterizedRotatingBezierSpline.Rasterize(spline, 1, scale, progressUpdate);
+            if (rSplines.RasterizedCells.Count == 0)
+                return null;
             rSplines.CurveMenuItem = new CurveMenuItem(spline, true);
 
             foreach (var cell in rSplines.RasterizedCells)
             {
                 NewCharCell();
                 for (int i = 0; i < cell.RasterizedData.Count; i++)
-                    AppendFlatTipPoint(cell.RasterizedData[i].Orientaation, spline.FlatTipWidth * scale);
+                    AppendFlatTipPoint(cell.RasterizedData[i].Orientation, spline.FlatTipWidth * scale);
                 cell.Model = ((Model3DGroup)WrittingPad.Children[1]).Children.Last();
             }
             return rSplines;

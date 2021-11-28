@@ -21,6 +21,8 @@ namespace Physics
         double Minimum { get; }
         double Range { get; set; }
         System.Windows.Media.Media3D.AxisAngleRotation3D VisualRotation { get; }
+
+        bool TargetAchieved();
     }
 
     public class StepperMotor : IServoMotor
@@ -165,6 +167,26 @@ namespace Physics
             }
         }
 
+        public bool TargetAchieved()
+        {
+            var TotalSteps = this.TotalSteps;
+            // emulate a sim step to see it it would have moved the motor.
+            if (Reference < TotalSteps / (double)Resolution * 2 * Math.PI)
+            {
+                TotalSteps--;
+                if (Reference > TotalSteps / (double)Resolution * 2 * Math.PI)
+                    TotalSteps++; // undo
+            }
+            else if (Reference > TotalSteps / (double)Resolution * 2 * Math.PI)
+            {
+                TotalSteps++;
+                if (Reference < TotalSteps / (double)Resolution * 2 * Math.PI)
+                    TotalSteps--; // undo
+            }
+            if (TotalSteps == this.TotalSteps)
+                return true;
+            return false;
+        }
     }
     public class ServoMotor : IServoMotor
     {
@@ -355,6 +377,11 @@ namespace Physics
             OmegaHistory[OmegaHistory.Length - 1] = thisOmega;
             Omega = OmegaHistory.Average();
             OnMovement(this, Current);
+        }
+
+        public bool TargetAchieved()
+        {
+            throw new NotImplementedException();
         }
     }
 }
