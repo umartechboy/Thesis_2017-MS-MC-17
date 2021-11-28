@@ -24,9 +24,10 @@ namespace Drogon3
         WindowToForm formWpfPrev2;
         RobotEditor RobotEditor;
         PIDPerformanceControl pidPerformance;
+        SplinePainter splinePainter;
         InverseKinematicsSolver inverseKinematicsSolver;
         MainWpfRobotPrevWindow wpfPrevWindow;
-        Ink ink = new Ink(.01);
+        Ink ink = new Ink();
         WorkSpace workspace = new WorkSpace();
         //RoutePlanner routePlanner;
         EndEffectorControl endEffectorControl;
@@ -40,6 +41,7 @@ namespace Drogon3
             realTimeTickT.SetImage(Properties.Resources.time, 60);
             inverseKinematicsT.SetImage(Properties.Resources.kinematics, 60);
             pidPerformanceT.SetImage(Properties.Resources.pid, 60);
+            splinePainterT.SetImage(Properties.Resources.greg, 60);
             //routePlannerT.SetImage(Properties.Resources.PathPlanning, 60);
             endEffectorControlT.SetImage(Properties.Resources.joystick, 60);
 
@@ -59,21 +61,17 @@ namespace Drogon3
             wpfPrevWindow.Intialize(robot, ink, workspace);
             ink.SetBoard(1, 1);
             ink.Orientation = new EulerAngleOrientation(0, 0, 0, 1, 1, 1);
-            ink.Thickness = 0.02;
-            ink.AppendFlatTipPoint(0, 0, 0);
-            ink.AppendFlatTipPoint(0, .05, 0);
-            ink.AppendFlatTipPoint(.1, .05, 0);
-            ink.AppendFlatTipPoint(.1, .15, 0);
             formWpfPrev2 = new WindowToForm(wpfPrevWindow, robot, ink, workspace) { Text = "3D Animation" };
             formWpfPrev2.Width = 800;
             formWpfPrev2.Height = 500;
             pidPerformance = new PIDPerformanceControl();
-            //routePlanner = new RoutePlanner(robot) { Text = "Path Planner" };
-            endEffectorControl = new EndEffectorControl(robot) { Text = "End Effector Control" };
-            endEffectorControl.OnWritingPadOrientationChangeRequested += (s, orientation) =>
+            splinePainter = new SplinePainter(robot, ink);
+            splinePainter.OnWritingPadOrientationChangeRequested += (s, orientation) =>
             {
                 ink.Orientation = (EulerAngleOrientation)orientation;
             };
+            //routePlanner = new RoutePlanner(robot) { Text = "Path Planner" };
+            endEffectorControl = new EndEffectorControl(robot) { Text = "End Effector Control" };
             endEffectorControl.OnTargetPreviewRequested += (s, target) =>
             {
                 if (CurrentControlInFocus == endEffectorControl)
@@ -83,7 +81,7 @@ namespace Drogon3
             initAnalysisFormControls(inverseKinematicsSolver, inverseKinematicsT, dSimulationToolStripMenuItem);
             initAnalysisFormControls(RobotEditor, editRobotT, inverseKinematicsSolverToolStripMenuItem);
             initAnalysisFormControls(pidPerformance, pidPerformanceT, pIDPerformanceToolStripMenuItem);
-            //initAnalysisFormControls(routePlanner, routePlannerT, routePlannerToolStripMenuItem);
+            initAnalysisFormControls(splinePainter, splinePainterT, splinePainterToolStripMenuItem);
             initAnalysisFormControls(endEffectorControl, endEffectorControlT, routePlannerToolStripMenuItem);
             //LocationChanged += (s, e) => lastFormLocation = Location;
         }
@@ -175,23 +173,27 @@ namespace Drogon3
 
         private void importSplineToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var splines = RotatingBezierSplineEditor.MainForm.GetSpline();
-            int ind = 0;
-            var progress = new SplineRasterizationProgress();
-            progress.UnitsCount = splines.Length;
-            var t = new Thread(() => { progress.ShowDialog(); });
-            t.Start();
-            bool UpdateProgress(float f)
-            {
-                progress.Update(ind, f);
-                return true;
-            }
-            foreach (var spline in splines)
-            {
-                ink.ImportInk(spline, 0.001, (f) => UpdateProgress(f));
-                ind++;
-            }
-            progress.Invoke(new MethodInvoker(() => { progress.Close(); }));
+            //var splines = RotatingBezierSplineEditor.MainForm.GetSpline();
+            //int ind = 0;
+            //var progress = new SplineRasterizationProgress();
+            //progress.UnitsCount = splines.Length;
+            //var t = new Thread(() => { progress.ShowDialog(); });
+            //t.Start();
+            //bool UpdateProgress(float f)
+            //{
+            //    progress.Update(ind, f);
+            //    return true;
+            //}
+            //foreach (var spline in splines)
+            //{
+            //    ink.ImportInk(spline, 0.001, (f) => UpdateProgress(f));
+            //    ind++;
+            //}
+            //try
+            //{
+            //    progress.Invoke(new MethodInvoker(() => { progress.Close(); }));
+            //}
+            //catch { }
         }
     }
 }

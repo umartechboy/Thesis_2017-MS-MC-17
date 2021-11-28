@@ -83,6 +83,16 @@ namespace Drogon3.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap greg {
+            get {
+                object obj = ResourceManager.GetObject("greg", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap joystick {
             get {
                 object obj = ResourceManager.GetObject("joystick", resourceCulture);

@@ -1,18 +1,20 @@
-\section{Rotating/Twisting Bezier Splines}
+\section{Rotating/Twisting Bezier Splines}\label{Chapter:Twisting Splines}
 
     \subsection{Introduction}
-    The first part of the main problem is extracting digital machine data from the existing calligraphy specimens.  Conventionally, image processing is being used [cite?] to extract data that can be used to create machine data. We, however, propose a difference; no matter how strong and robust image processing gets, we propose that there is no alternative to the minor details only a real artist can observe and recreate. Image processing may even quite perfectly extract the exact tool movement the artisit We bring one little tweak in the conventional Bezier splines that enable them to not only quite accurately mimic a broad edge writing/drawing tool but also stores direct machine movement information. For the idea to be fully tested, we wrote a fully featured graphical spline editor and analyzer called “Gregor”. The tool was tested and tuned with the help of multiple real-world calligraphers.
+    The first part of the main problem is extracting digital machine data from the existing calligraphy specimens.  Conventionally, image processing is being used [cite?] to extract data that can be used to create machine data. We, however, propose a difference; no matter how strong and robust image processing gets, we propose that there is no alternative to the minor details only a real artist can observe and recreate. So a solution is needed that fulfils the technical needs as well as the artistic demands.
+    
 
-    \subsection{The Necessity}
-    One potential way to solve the modeling issue of calligraphy involves using the existing digital calligraphy fonts. There are, however, two critical issues involved with this scheme; one is the need of an algorithm that will convert the font data to robot movement data and the other is the lack of a font variety. Additionally, working with fonts leaves a narrow space of modifying the scripts to look like artistic scriptures. This is the primary reason we must not use the existing digital fonts.
+    \subsection{Digital Script Data}
+
+    An important question while the modeling the calligraphy scripts is the choice of a digital data format that will hold the extracted script data. One potential answer to this question involves using the existing digital calligraphy fonts. There are, however, two critical issues involved with this scheme; one is the need of an algorithm that will convert the font data to robot movement data and the other is the lack of a font variety. Additionally, working with fonts leaves a narrow space of modifying the scripts to look like artistic scriptures. This is the primary reason we must not use the existing digital fonts.
 
     Keeping in mind the gaps left by the digital font, another solution to this problem is in the discovery of a new way to unify ink-mark information of digital Islamic script and tool movement performed by the artist. Making a mathematical model to learn the drawing tool information just from the printed text is quite a complex job. Instead, only if we could form a way an artist can give digital input, this problem can be overcome.
 
-    This is where the twisting Bezier splines come into play. We add a twist/rotation handle in the conventional Bezier spline curves and that is it. The, however, remains unanswered, what is a Bezier spline curve in the first place.
+    This is where the twisting Bezier splines come into play. We add a twist/rotation handle in the conventional Bezier spline [ref] curves and that is it. Another question however arises: Let alone a Twisting Bezier spline, what is a (conventional) Bezier spline curve in the first place?
 
     \subsection{Mathematical Model of a Rotating Bezier Spline}
     \subsubsection{The Conventional Bezier Spline}
-        In order to describe how twisting splines work, lets first look into the working principle of a conventional Bezier spline. Figure 1 shows an illustration of a spline path made up of several sub curves. Each curve section is only partly independent of the other. Figure \ref{Fig:RotatingBezierSplines}  (a) shows the final shape of the curve without any construction elements. In Figure \ref{Fig:RotatingBezierSplines} (b), we explode different sections of the curve into smaller elements and show how they fit together to form the complete spline. There five sections in this curve labeled $1$ through $5$. Figure \ref{Fig:RotatingBezierSplines} (c) shows an assembled form of these five sections. It also shows, what are called, anchors and construction handles. The anchor is the point that sits at the terminals of two adjacent curve sections. For instance, Anchor point $A$  is connecting the sections $1$ and $2$. Like all the other anchors, this angle also has two handles, $H_1$ and $H_2$, connected through a straight line passing through the anchor. The length of each handles, $\overline{AH_1}$  and $\overline{AH_2}$ on both sides of the anchor define the shape of the curve section on their respective side where as the orientation of line connecting both handles contributes to the shape on both the curve sections. This is how both section become partly independent. For instance, handle $\overline{AH_1}$ contributes to the shape of curve segment $1$ and $\overline{AH_1}$ to section $2$.
+        To describe how twisting splines work, lets first look into the working principle of a conventional Bezier spline. Figure \ref{Fig:RotatingBezierSplines} shows an illustration of a spline path made up of several sub curves. Each curve section is only partly independent of the other. Figure \ref{Fig:RotatingBezierSplines}  (a) shows the final shape of the curve without any construction elements. In Figure \ref{Fig:RotatingBezierSplines} (b), we explode different sections of the curve into smaller elements and show how they fit together to form the complete spline. There five sections in this curve labeled $1$ through $5$. Figure \ref{Fig:RotatingBezierSplines} (c) shows an assembled form of these five sections. It also shows, what are called, anchors and construction handles. The anchor is the point that sits at the terminals of two adjacent curve sections. For instance, Anchor point $A$  is connecting the sections $1$ and $2$. Like all the other anchors, this angle also has two handles, $H_1$ and $H_2$, connected through a straight line passing through the anchor. The length of each handles, $\overline{AH_1}$  and $\overline{AH_2}$ on both sides of the anchor define the shape of the curve section on their respective side where as the orientation of line connecting both handles contributes to the shape on both the curve sections. This is how both section become partly independent. For instance, handle $\overline{AH_1}$ contributes to the shape of curve segment $1$ and $\overline{AH_1}$ to section $2$.
 
 
         \begin{figure}
@@ -77,7 +79,7 @@ Keeping in view these requirements we created “Gregor”, the first tool to ed
 \subsection{Machine Data Generation}
 The rotating spline curves are themselves an emulated ink-mark of a broad edge marking tool. This is the reason extracting machine data and even G-codes from them becomes natural. If the flat side of the tool is assumed to be entirely touching the writing surface, the minimum information required to draw a stroke trickles down to the line on which the pen must move and the twist of the pen in world coordinates. This is exactly the rotation Bezier splines can contain once an artist has drawn them on the computer screen. In other words, to call the rotation Bezier splines the machine data, the following assumptions must be made:
 \begin{itemize}
-	\item The flat tip of the pen is always completely touching the drawing area.
+	\item The flat tip of a broad edge tool is always completely touching the drawing area.
 	\item The inclination of the pen with respect to the drawing area or with respect to the direction of the drawing is either normal or always fixed at an angle and is set by the machine.
 	\item To produce thinner strokes, another spline will be used. This means that the machine would have to use multiple tools for such splines.
 	\item The axial pressure the pen inserts on the drawing board while drawing is also fixed and the is set by the machine.
@@ -98,29 +100,79 @@ The mainline scripts are not necessarily as mathematical as the model of the rot
 \end{itemize}
 With these assumptions in mind, the “Gregor” was coded.
 \subsubsection{Coverage}
-\begin{tabular}{|c|c|}
+To benchmark the performance and accuracy  of rotating bezier splines, some test results are presented here. These values are produced by comparing high resolution binary images of actual scripts, extracted with Adobe Photoshop and rasterized images produced by the twisting bezier splines produced by tracing the processed images. One-to-one pixel comparison was made using computer scripts to measure the fraction of ink that maps exactly on the original script, lies outside it or is completely missing. Table \ref{Table_Accuracy} presents some values that give some idea of efficacy of the proposed bezier splines.
+\begin{table}[ht]
+\centering
+\resizebox{\textwidth}{!}{\begin{tabular}{| p{0.35\linewidth} | p{0.6\linewidth} |}
   \hline
-Metrics & Results \\
+\textbf{Metrics} & \textbf{Results} \\
   \hline
-Percentage of area outside the original bounds & Less than 2 \\
-Percentage of area covered&Better than 94 \\
+Percentage of area outside the original bounds & Less than 2\% \\
+  \hline
+Percentage of area covered&Better than $94\%$ \\
+  \hline
 Maximum lateral deviation of the Bezier path from the pitch line & N.A. (This list was planned in the synopsis but is no longer valid given the nature of fabricated splines.) \\
+  \hline
 Total number of compatible scripts & Broad edge scripts of all languages \\
   \hline
-\end{tabular}
-
-Please note that the third metrics in this list was planned to be used but is no longer valid given the nature of fabricated splines.
-There are also some other metrices that were not measured because of lack of resources and because they required testing the tool with a large group of actual artists.
-\begin{tabular}{|c|c|}
+Total number of splines measured & $>100$ \\
   \hline
-  Metrics & How can it be measured \\
+Total pixels compared & $9.9$~million \\
+  \hline
+Tested scripts & Nastaleeq, Thuluth \\
+  \hline
+\end{tabular}}
+\caption{Benchmark of the mathematical accuracy of the twisting bezier spline curves}
+\label{Table:Accuracy}
+\end{table} 
+
+This metrics is comprehensive but still not complete. Some additional metrices are still needed to give a verdict about how good the proposed solution is. Table \ref{Table:AdvancedMetrices} presents a couple of those metrices that may also be desired by the researchers.
+
+\begin{table}[ht]
+\centering
+\resizebox{\textwidth}{!}{\begin{tabular}{| p{0.35\linewidth} | p{0.6\linewidth} |}
+  \hline
+  \textbf{Metrics} & \textbf{How can it be measured} \\
   \hline
 Easy of usage & A survey based on Likert scale \\
+  \hline
 Time efficiency of tracing an existing specimen. & Comparison of the time taken by the same artists tracing with conventional and rotating Bezier splines \\
+  \hline
 The artistic quality of the specimens produces. & A survey based on Likert scale and filled by a wide range of artists \\
-\end{tabular}
+  \hline
+\end{tabular}}
+\caption{Advanced metrices to gauge the effectiveness of twisting bezier splines.}
+\label{Table:AdvancedMetrices}
+\end{table} 
 
+Please note that the third metrics in Table \ref{Table:AdvancedMetrices} was planned to be used but is no longer valid given the nature of fabricated splines.
+There are also some other metrices that were not measured because of lack of resources and because they required testing the tool with a large group of actual artists.
+the 
 \subsubsection{Sample Results}
-As a test and a tribute, two scripts by the famous teacher, artist and author of 18 calligraphy books, late Khursheed Gohar Qalam of the National College of Arts (NCA) cite ??? were borrowed; one in Nastaleeq and other in Thuluth.
+As a test and a tribute, two scripts by the famous teacher, artist and author of $18$ calligraphy books, late Khursheed Gohar Qalam of the National College of Arts (NCA) cite ??? were borrowed; one in Nastaleeq and other in Thuluth. Figure \ref{Fig:InkComparison} shows a detailed comparison of a part of a famous script produced by Gohar with the version traced with twisting bezier splines. Strictly speaking, figure \ref{Fig:InkComparison}(d) and (e) which show the areas that is not marked or is marked extra by the twisting spline, do not show the true picture of the error that curves produced. It is the the difference of the ink marks produced by the spline curves and the processed scan images of the original script. The image processing in Photoshop may also contributed by quantization noise and discretization. However, it gives a pretty good idea about the trace effectiveness.
 
-\subsubsection{Performance with Different Scripts} 
+\begin{figure}
+  \centering
+  \includegraphics[width=1\textwidth]{InkComparison.jpg}
+  \caption{A test comparison of the original specimen of Gohar's script and the one traced with twisting bezier splines. Each image includes magnified version of two typical areas of the script for better visibility. Also, in (d) and (e) a light shadow is added for better understanding and is not a part of the scripts. (a) Photo of the original script. (b) Inkmarks extracted using photoshop from the original image. (c) Rasterized inkmarks generated by twisting bezier spline curve. (d) Area of the original ink missing in the twisting splines. (e) Area of the ink marked outside the original ink.
+  } 
+  
+\end{figure}
+        
+Figure \ref{Fig:Nastaleeq} and \ref{Fig:Thuluth} show sample outputs produced by tracing two of famous Gohar's articles in ``Nastaleeq'' and ``Thuluth'' scripts. The twisting splines do contain vector data and have no resolution but for the sake of presentation, the images have been rasterized by ``Gregor''.
+\begin{figure}
+  \centering
+  \includegraphics[width=0.6\textwidth]{NastaleeqSample.pdf}
+  \caption{A specimen produced in ``Nastaleeq'' script. (a) Original photograph of the specimen (b) Rasterized binary image of the twisting spline curves. (c) Rasteriezd shaded image of the twisting spline curves highlighting individual curve parts.} 
+  \label{Fig:Nastaleeq}
+\end{figure}     
+
+\begin{figure}
+  \centering
+  \includegraphics[width=1\textwidth]{ThuluthSample.pdf}
+  \caption{A specimen produced in ``Thuluth'' script. (a) Original photograph of the specimen (b) Rasterized binary image of the twisting spline curves. (c) Rasteriezd shaded image of the twisting spline curves highlighting individual curve parts.
+  }
+  \label{Fig:Thuluth}
+\end{figure}     
+
+\clearpage        

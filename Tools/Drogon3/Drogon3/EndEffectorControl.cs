@@ -15,7 +15,6 @@ namespace Drogon3
     public partial class EndEffectorControl : UserControl
     {
         public event ObjectShareHandler OnTargetPreviewRequested;
-        public event ObjectShareHandler OnWritingPadOrientationChangeRequested;
         public EndEffectorControl()
         {
             InitializeComponent();
@@ -27,11 +26,10 @@ namespace Drogon3
         }
 
         public EulerAngleOrientation Target = new EulerAngleOrientation(0, 0, 0, 1, 1, 0);
-        public EulerAngleOrientation WritingPadOrientation = new EulerAngleOrientation(0, 0, 0, 1, 1, 0);
         SphericalRobotSolution Solution;
         private void joyStickReader_Tick(object sender, EventArgs e)
         {
-            if (manualControlRB.Checked)
+            if (Robot.ControlSource == RobotControlSource.JoyStick)
             {
                 Target.X += xyEEJS.DX / 100;
                 Target.Y += xyEEJS.DY / 100;
@@ -39,23 +37,46 @@ namespace Drogon3
                 Target.A += aEEJS.DY / 100;
                 Target.B += bEEJS.DY / 100;
                 Target.G += gEEJS.DY / 20;
-                OnTargetPreviewRequested(this, Target);
+
+                var solBkp = (SphericalRobotSolution)Solution?.Clone();
                 Solution = SphericalRobotSolution.Solution(Solution, 0, Robot, Target);
+
+                for (int i = 0; i < Robot.Actuators.Length; i++)
+                    if (
+                        Solution.MotorAngles[i] > 100 ||
+                        Solution.MotorAngles[i] < -100 ||
+                        double.IsNaN(Solution.MotorAngles[i]) ||
+                        double.IsNegativeInfinity(Solution.MotorAngles[i]) || 
+                        double.IsPositiveInfinity(Solution.MotorAngles[i]))
+                    {
+                        Target.X -= xyEEJS.DX / 100;
+                        Target.Y -= xyEEJS.DY / 100;
+                        Target.Z -= zEEJS.DY / 100;
+                        Target.A -= aEEJS.DY / 100;
+                        Target.B -= bEEJS.DY / 100;
+                        Target.G -= gEEJS.DY / 20;
+                        Solution = solBkp;
+                        return;
+                    }
+                OnTargetPreviewRequested(this, Target);
                 for (int i = 0; i < Robot.Actuators.Length; i++)
                     Robot.Actuators[i].Reference = Solution.MotorAngles[i];
-                WritingPadOrientation.X += xyWPJS.DX / 100;
-                WritingPadOrientation.Y += xyWPJS.DY / 100;
-                WritingPadOrientation.Z += zJPJS.DY / 100;
-                WritingPadOrientation.A += aGPJS.DY / 100;
-                WritingPadOrientation.B += bGPJS.DY / 100;
-                WritingPadOrientation.G += gGPJS.DY / 20;
-                OnWritingPadOrientationChangeRequested(this, WritingPadOrientation);
-                xyWPL.Text = WritingPadOrientation.X.ToString() + ", " + WritingPadOrientation.Y;
-                zWPL.Text = WritingPadOrientation.Z.ToString();
-                aWPL.Text = WritingPadOrientation.A.ToString();
-                gWPL.Text = WritingPadOrientation.G.ToString();
-                bWPL.Text = WritingPadOrientation.B.ToString();
             }
+            else
+            {
+                if (Robot.CurrentTarget != null)
+                    Target = Robot.CurrentTarget?.Clone();
+            }
+        }
+
+        private void controlTypeRB_CheckedChanged(object sender, EventArgs e)
+        {
+            if (calligraphyRB.Checked)
+                Robot.ControlSource = RobotControlSource.BezierSpline;
+            else if (joystickControlRB.Checked)
+                Robot.ControlSource = RobotControlSource.JoyStick;
+            else
+                Robot.ControlSource = RobotControlSource.SolutionTester;
         }
     }
 }

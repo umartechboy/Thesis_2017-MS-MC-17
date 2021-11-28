@@ -370,6 +370,11 @@ namespace RotatingBezierSplineEditor
 
         internal void ImportObjects(string fileName)
         {
+            LoadFile(fileName, this);
+        }
+        static List<BezierBoardItem> LoadFile(string fileName, BezierBoard board)
+        {
+            List<BezierBoardItem> objects = new List<BezierBoardItem>();
             string fileToDelete = "";
             if (fileName.ToLower().EndsWith(".rbs"))
             {
@@ -384,31 +389,51 @@ namespace RotatingBezierSplineEditor
             int index = 1;
             foreach (XmlElement obj in doc.GetElementsByTagName("image"))
             {
-                var ii = ImageItem.Parse(this, obj);
-                AddItem(ii);
+                var ii = ImageItem.Parse(board, obj);
+                board?.AddItem(ii);
+                objects.Add(ii);
                 ii.Index = index++;
             }
             var emptys = new List<RotatingBezierSpline>();
             int unnamedIndex = 1;
             foreach (XmlElement obj in doc.GetElementsByTagName("spline"))
             {
-                var sp = (RotatingBezierSpline)RotatingBezierSpline.Parse(obj, this);
+                var sp = (RotatingBezierSpline)RotatingBezierSpline.Parse(obj, board);
                 if (sp.Label == "")
                     sp.Label = "Spline " + (unnamedIndex++);
                 sp.Index = index++;
                 if (sp.Anchors.Count <= 1)
                     emptys.Add(sp);
                 else
-                    AddItem(sp);
+                {
+                    board?.AddItem(sp);
+                    objects.Add(sp);
+                }
             }
             if (emptys.Count > 0)
             {
-                    if (MessageBox.Show("There are " + emptys.Count +" splines with 1 or fewer anchor points. Do you want to import them too?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
-                    foreach(var sp in emptys)
-                        AddItem(sp);
+                if (MessageBox.Show("There are " + emptys.Count + " splines with 1 or fewer anchor points. Do you want to import them too?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
+                    foreach (var sp in emptys)
+                    {
+                        board?.AddItem(sp);
+                        objects.Add(sp);
+                    }
             }
             if (fileToDelete != "")
                 File.Delete(fileToDelete);
+            return objects;
+        }
+        public static List<BezierBoardItem> LoadFile(string fileName)
+        {
+            return LoadFile(fileName, null);
+        }
+        public static List<BezierBoardItem> LoadFile()
+        {
+            var ofd = new OpenFileDialog();
+            ofd.Filter = "Rotating Bezier Spline Files (*.rbs)|*.rbs|XML documents (*.xml)|*.xml";
+            if (ofd.ShowDialog() != DialogResult.OK)
+                return null;
+            return LoadFile(ofd.FileName);
         }
 
         internal void ClearObjects()

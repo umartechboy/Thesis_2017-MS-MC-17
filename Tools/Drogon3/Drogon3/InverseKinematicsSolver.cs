@@ -22,7 +22,7 @@ namespace Drogon3
         {
             InitializeComponent();
         }
-
+        
         SphericalRobotSolution []solutions;
         TextBox[][] actuatorOutputs;
         Button[] solveBs;
@@ -122,14 +122,17 @@ namespace Drogon3
                 prevB.Top = yo + 50;
                 int finalJ = j;
                 prevB.Click += (s, e) => {
-                    for (int i = 0; i < robot.Actuators.Length; i++)
-                        try
-                        {
-                            solutions[finalJ].MotorAngles[i] = double.Parse(Controls.Find("tb" + finalJ + i, false)[0].Text);
-                        }
-                        catch { return; }
-                    for (int k = 0; k < robot.Actuators.Length; k++)
-                        robot.Actuators[k].Reference = solutions[finalJ].MotorAngles[k];
+                    if (robot.ControlSource == RobotControlSource.SolutionTester)
+                    {
+                        for (int i = 0; i < robot.Actuators.Length; i++)
+                            try
+                            {
+                                solutions[finalJ].MotorAngles[i] = double.Parse(Controls.Find("tb" + finalJ + i, false)[0].Text);
+                            }
+                            catch { return; }
+                        for (int k = 0; k < robot.Actuators.Length; k++)
+                            robot.Actuators[k].Reference = solutions[finalJ].MotorAngles[k];
+                    }
                 };
                 Controls.Add(prevB);
                 //var applyB = new Button();

@@ -12,12 +12,6 @@ using static RotatingBezierSplineEditor.BezierBoard;
 
 namespace RotatingBezierSplineEditor
 {
-    public class RasterizedRotatingBezierSpline
-    {
-        public double[] X;
-        public double[] Y;
-        public double[] T;
-    }
     public delegate void IncrementLocationHandler(float x, float y);
     public enum MouseState
     {
@@ -730,6 +724,7 @@ namespace RotatingBezierSplineEditor
 
         public RotatingBezierSplineAnchor A1 { get; private set; }
         public RotatingBezierSplineAnchor A2 { get; private set; }
+        public object RasterizedData { get; internal set; }
 
         public BezierCurveCellWithRotation(RotatingBezierSplineAnchor a1, RotatingBezierSplineAnchor a2)
         {
@@ -766,7 +761,7 @@ namespace RotatingBezierSplineEditor
             }
             return result;
         }
-        static RBSPoint BezierInterpolate(double f, RotatingBezierSplineAnchor A1, RotatingBezierSplineAnchor A2)
+        public static RBSPoint BezierInterpolate(double f, RotatingBezierSplineAnchor A1, RotatingBezierSplineAnchor A2)
         {
             RBSPoint pl1_1 = RBSPoint.Intermediate(A1.P, A1.C2, f, false);
             RBSPoint pl1_2 = RBSPoint.Intermediate(A1.C2, A2.C1, f, false);
@@ -778,115 +773,33 @@ namespace RotatingBezierSplineEditor
             RBSPoint P = RBSPoint.Intermediate(pl2_1, pl2_2, f, false);
             return P;
         }
-        static RBSPoint moveOn(ref double f, double distance, double scale, double tol, RotatingBezierSplineAnchor A1, RotatingBezierSplineAnchor A2)
-        {
-            var p = BezierInterpolate(f, A1, A2);
+        //public RectangleF BoundingRectangle(int resterPointCount, float width, Func<float, bool> progressUpdate)
+        //{
+        //    var rSpline = Rasterize(resterPointCount, width, progressUpdate);
+        //    var maxX = (float)rSpline.X.Max();
+        //    var minX = (float)rSpline.X.Min();
+        //    var maxY = (float)rSpline.Y.Max();
+        //    var minY = (float)rSpline.Y.Min();
+        //    return new RectangleF(minX, minY, maxX - minX, maxY - minY);
+        //}
+        //public RasterizedRotatingBezierSpline Rasterize(int count, float thickness, Func<float, bool> progressUpdate)
+        //{
+        //    List<double> x = new List<double>();
+        //    List<double> y = new List<double>();
+        //    List<double> t = new List<double>();
+        //    double r1 = this.A1.R;
+        //    double r2 = this.A2.R;
+        //    double f = 0;
 
-            double f0 = f;
-            double f1 = f + .01;
-            var p0 = BezierInterpolate(f0, A1, A2);
-            var p1 = BezierInterpolate(f1, A1, A2);
-            double d0 = p0.DistanceFrom(p0);
-            double d1 = p1.DistanceFrom(p0);
-            double m = (f1 - f0) / (d1 - d0);
-            double c = f0;
-            double testF = distance * m + c;
-            var pTest = BezierInterpolate(testF, A1, A2); ;
-            var dTest = pTest.DistanceFrom(p0);
-            f = testF;
-            return pTest;
-
-
-            //while (f < 1)
-            //{
-            //    double testF = f + inc;
-            //    while (testF > 1)
-            //    {
-            //        inc /= 2;
-            //        testF = f + inc;
-            //    } 
-            //    p2 = BezierInterpolate(f, A1, A2);
-            //    d = (float)(p1.DistanceFrom(p2) * scale);
-            //    if (d < distance - tol) // f is still too small. lets finalize this f
-            //    {
-            //        if (testF > 1)
-            //            return p2;
-            //    }
-            //    {
-            //        if (dir > 0)
-            //            inc /= 2;
-            //        dir = -1;
-            //        f += inc;
-            //        if (f > 1)
-            //        {
-            //            f = 1;
-            //            inc /= 2;
-            //        }
-            //    }
-            //    else if (d > distance + tol) // f is too big
-            //    {
-            //        if (dir < 0)
-            //            inc /= 2;
-            //        dir = 1;
-            //        f -= inc;
-            //        if (f < startF)
-            //        {
-            //            f = startF;
-            //            inc /= 2;
-            //        }
-            //    }
-            //    else
-            //        break; // never gonna hapen
-            //}
-            //lastInc = Math.Min(inc * 4, 0.5);
-            //return p2;
-        }
-        public RectangleF BoundingRectangle(int resterPointCount, float width, Func<float, bool> progressUpdate)
-        {
-            var rSpline = Rasterize(resterPointCount, width, progressUpdate);
-            var maxX = (float)rSpline.X.Max();
-            var minX = (float)rSpline.X.Min();
-            var maxY = (float)rSpline.Y.Max();
-            var minY = (float)rSpline.Y.Min();
-            return new RectangleF(minX, minY, maxX - minX, maxY - minY);
-        }
-        public RasterizedRotatingBezierSpline Rasterize(int count, float thickness, Func<float, bool> progressUpdate)
-        {
-            List<double> x = new List<double>();
-            List<double> y = new List<double>();
-            List<double> t = new List<double>();
-            double r1 = this.A1.R;
-            double r2 = this.A2.R;
-            double f = 0;
-
-            for (int i =0; i <= count -1;i++)
-            {
-                var XY = BezierInterpolate((i / (double)(count - 1)), A1, A2);
-                x.Add(XY.X);
-                y.Add(XY.Y);
-                t.Add(r1 * f + r2 * (1 - f));
-            }
-            return new RasterizedRotatingBezierSpline() { X = x.ToArray(), Y = y.ToArray(), T = t.ToArray() };
-        }
-        public RasterizedRotatingBezierSpline Rasterize(double resolution, double scale, List<double> x, List<double> y, List<double> t, float thickness, Func<float, bool> progressUpdate)
-        {
-            double r1 = this.A1.R;
-            double r2 = this.A2.R;
-            double f = 0;
-            while (f <= 1 - resolution)
-            {
-                double bkpf = f;
-                var XY = moveOn(ref f, resolution, scale, resolution * 0.05, A1, A2);
-                if (f <= bkpf)
-                    ;
-                var T = r1 * f + r2 * (1 - f);
-                x.Add(XY.X * scale);
-                y.Add(XY.Y * scale);
-                t.Add(T);
-                progressUpdate((float)f);
-            }
-            return new RasterizedRotatingBezierSpline() { X = x.ToArray(), Y = y.ToArray(), T = t.ToArray() };
-        }
+        //    for (int i =0; i <= count -1;i++)
+        //    {
+        //        var XY = BezierInterpolate((i / (double)(count - 1)), A1, A2);
+        //        x.Add(XY.X);
+        //        y.Add(XY.Y);
+        //        t.Add(r1 * f + r2 * (1 - f));
+        //    }
+        //    return new RasterizedRotatingBezierSpline() { X = x.ToArray(), Y = y.ToArray(), T = t.ToArray() };
+        //}
         PointF[] psInk;
         PointF[] psSpline;
         public void Draw(Graphics g, PointF offsetG, float scale, float thickness, Color normalColor, MouseState mouseState, InkDrawMode inkDrawMode, AnchorDrawMode anchorDrawMode, BezierBoardItem Parent, Control ParentControl)
@@ -1087,33 +1000,6 @@ namespace RotatingBezierSplineEditor
                     col = BezierBoard.ForcedInkColor;
                 cell.Draw(g, offsetG, scale, FlatTipWidth, col, MouseState, inkDrawMode, Locked ? AnchorDrawMode.None : anchorDrawMode, this, ParentControl);
             }
-        }
-        public RasterizedRotatingBezierSpline Rasterize(double resolution, double scale, Func<float, bool> progressUpdate)
-        {
-            List<double> X = new List<double>();
-            List<double> Y = new List<double>();
-            List<double> T = new List<double>();
-
-            int ind = 0;
-            bool Progress(float f)
-            {
-                f /= (Anchors.Count - 1);
-                f += ind / (float)(Anchors.Count - 1);
-                progressUpdate(f);
-                if (f > 1)
-                    f = 1;
-                return true;
-            }
-            for (int i = 0; i < Anchors.Count - 1; i++)
-            {
-                var cell = new BezierCurveCellWithRotation(Anchors[i], Anchors[i + 1]);
-                var rast = cell.Rasterize(resolution, scale, X, Y, T, FlatTipWidth, Progress);
-                X.AddRange(rast.X);
-                Y.AddRange(rast.Y);
-                T.AddRange(rast.T);
-                ind++;
-            }
-            return new RasterizedRotatingBezierSpline() { X = X.ToArray(), Y = Y.ToArray(), T = T.ToArray() };
         }
         public override bool TopParentBoundsContains(PointF p, PointF offsetG, float scale)
         {

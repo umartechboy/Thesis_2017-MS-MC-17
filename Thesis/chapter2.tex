@@ -1,20 +1,18 @@
-\section{Robotic Manipulator}\label{chapter2}
+\section{Robotic Manipulator}\label{Chapter:RoboticManipulator}
 {
     \subsection{Functional Requirements of the Manipulator}
     {
-        The robot is required to perform precise maneuvers with complete $6$ degrees of freedom of the end effector in both planar and cured planes. It is also required to provide at least one extra actuator to reduce singularities. In addition to position, the robot is also required to perform precise velocity and force controlled maneuvers.
+        Typically, the robot is required to perform precise maneuvers with complete $6$ degrees of freedom of the end effector in both planar and curved planes. It is also required to provide at least one extra actuator to reduce singularities. In addition to position, the robot is also required to perform precise velocity and force controlled maneuvers. However, to use the test case of twisting bezier spline curves, not all of these functional requirements are forced. The manipulator has only six degrees of freedom and incorporates only a position control mechanism.
     }
-    \subsection{Robot Representation}
+    \subsection{Manipulator Representation}
     {
-        Before going on to the selection of a robot, one unexpected issue arose when I wanted to represent my robot. Conventionally, the robot can be represented on a piece of paper using simple symbols and links as shown in Fig. \ref{FigConventionalRep}
-        \begin{figure}
+        Conventionally, the robot can be represented on a piece of paper using simple symbols and links as shown in Fig. \ref{FigConventionalRep}
+        \begin{figure}[hb]
           \centering
           \includegraphics[width=0.5\textwidth]{RobotRep1.pdf}
           \caption{Conventional way of representing a manipulator. The circles show a rotation between the interconnected links on the plane of the paper. The cross symbol shows rotation on the link line. The square symbol is for prismatic joint. It represents change in length along the link line.}\label{FigConventionalRep}
         \end{figure}
-        This kind of representation is clean and simple but doesn't give a complete view of the robot. Specially, with virtually zero link lengths, the visual representation can confuse someone new to the realm of robotic.
-
-        Based on repeated experiments and to answer the weakness of contentional representation, let us define a new representation that encapsulates the basic idea of representation with some features of $D-H$ table. See Fig. \ref{FigMyRep}
+        This kind of representation is clean and simple but doesn't give a complete view of the robot. Specially, with virtually zero link lengths, the visual representation can confuse someone new to the realm of robotic. Based on repeated experiments and to answer the weakness of contentional representation, we propose a new kind of representation that encapsulates the basic idea of representation with some features of a $D-H$ table. See Fig. \ref{FigMyRep}
         \begin{figure}
           \centering
           \includegraphics[width=0.8\textwidth]{MyRep.pdf}
@@ -35,7 +33,7 @@
 
         \begin{figure}
           \centering
-          \includegraphics[width=0.9\textwidth]{CompleteRep.pdf}
+          \includegraphics[width=0.8\textwidth]{CompleteRep.pdf}
           \caption{A manipulator along with a target represented in \texttt{transformation frames} representation. $F0$ corresponds to the base frame, $F0, F1, F2 ...$ represent the forward direction of the manipulator and $Ft0, Ft1, Ft2 ...$ represent the forward direction of the target. Both chains of transformations lead to a common reference frame eventually, the target frame of reference, or the end-effector frame of reference, $Ft$.
           } \label{FigCompleteRep}
         \end{figure}
@@ -49,9 +47,7 @@
     {
         The configuration selected for this project is widely used by other engineers but the main inspiration behind choosing this configuration was a B.Sc. final year project of the \emph{Mechanical Engineering Department of U.E.T} of the batch $12$' with title, 'Design and Implementation of a $6$DoF Spot Welding Robot'. The project report presents a solution and describes all the forward and inverse kinematics. And all this, without using a regular transformation matrix! The effort in the current project takes some inspiration from the previous one and also elaborates not only the faults and issues with the previous but also the effectiveness of using transformation matrices.
 
-        See Fig. \ref{FigCompleteRep} which represents this manipulator.
-
-        In addition to these six degrees of freedom, we have attached a linear force control actuator along the end effector, since this actuator is responsible to keep the normal force under control, effectively, the robot solution remains the same as for six degrees. This scheme will be described later.
+        See Fig. \ref{FigCompleteRep} which represents this manipulator. In addition to these six degrees of freedom, we have attached a linear force control actuator along the end effector, since this actuator is responsible to keep the normal force under control, effectively, the robot solution remains the same as for six degrees. This scheme will be described later.
     }
     \subsection{Mathematical Modelling}
     {
@@ -70,9 +66,9 @@
 
 \subsection{The Calligraphy Job}
 {
-        Calligraphy is kind of art that finds its links in the, so called, technical areas. The write and discover new fonts on the way but one thing remains the same. Whatever the idea an artist has in his mind, has finally to be represented as Ink marks which, usually, are made flat head pens and rectangular paint brushes. The tool doesn't know what actually drives it, it only knows how it should react to the specific surface and specific kind of input.
+        Calligraphy is a kind of art that finds its links in the, so called, technical areas. They write and discover new fonts on the way but one thing remains the same. Whatever the idea an artist has in his mind, has finally to be represented as Ink marks which, usually, are made flat head pens and rectangular paint brushes. The tool doesn't know what actually drives it, it only knows how it should react to the specific surface and specific kind of input.
 
-        This is where we innovate: replace the hand of the artist with the robot. The mind that imagins/creates/discovers the art, however, cannot be replaced by the robot. Or even if it can be, it would be out of scope of this project. So, now we need to create two more interfaces: between the human and the robot and second, between the robot and the writing tool.
+        This is where we innovate: replace the hand of the artist with a robot. The mind that imagins/creates/discovers the art, however, cannot be replaced by the robot. Or even if it can be, it would be out of scope of this project. So, now we need to create two more interfaces: between the human and the robot and second, between the robot and the writing tool.
 
         For the first interface, we discovered a modified form of bezier curve, "the rotation supported bezier". Bezier curves were first reported in use by a French physicist, \texttt{Paul de Casteljau} using \texttt{de Casteljau's algorithm}. He used bezier splines to model the bodies of \texttt{Renault} cars in 1959. We, after all those years, have discovered how asymmetric pen rotation can be incorporated in the bezier curves to define language scripts that require an asymmetric pen tip.
 
@@ -86,4 +82,6 @@
         \end{figure}
 
     }
-\subsection{Forward Kinematics} 
+\subsection{Forward Kinematics}
+
+\clearpage

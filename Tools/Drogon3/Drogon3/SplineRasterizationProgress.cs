@@ -33,13 +33,17 @@ namespace Drogon3
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            Invoke(new MethodInvoker(() =>
+            try
             {
-                pm.Value = mV;
-                pcm.Text = pm.Value.ToString();
-                pu.Value = uV;
-                pcu.Text = pu.Value.ToString();
-            }));
+                Invoke(new MethodInvoker(() =>
+                {
+                    pm.Value = mV;
+                    pcm.Text = pm.Value.ToString();
+                    pu.Value = uV;
+                    pcu.Text = pu.Value.ToString();
+                }));
+            }
+            catch { }
         }
 
         private void SplineRasterizationProgress_FormClosing(object sender, FormClosingEventArgs e)

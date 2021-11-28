@@ -8,6 +8,7 @@ using System.Windows.Navigation;
 using System.Drawing;
 using MathNet.Numerics.LinearAlgebra;
 using Physics;
+using RotatingBezierSplineEditor;
 
 namespace RoboSim
 {
@@ -18,15 +19,15 @@ namespace RoboSim
         {
             get { return gm; }
         }
-        public double Thickness { get; set; }
+        //public double Thickness { get; set; }
         public System.Windows.Media.Color PenColor { get; set; }
         public System.Windows.Media.Color TraceColor { get; set; }
         public Model3DGroup WrittingPad = new Model3DGroup();
         EulerAngleOrientation _o;
         public EulerAngleOrientation Orientation { get { return _o; } set { _o = value; gm.Transform = _o; } }
-        public Ink(double thickness)
+        public Ink()
         {
-            Thickness = thickness;
+            //Thickness = thickness;
             PenColor = System.Windows.Media.Colors.Black;
             TraceColor = System.Windows.Media.Colors.LightGray;
             gm = new Model3DGroup();                                                
@@ -55,10 +56,12 @@ namespace RoboSim
             ClearInk();
             ClearTrace();
         }
+
+
         public void ClearInk()
         {
             ((Model3DGroup)WrittingPad.Children[1]).Children.Clear();
-            NewChar();
+            NewCharCell();
         }
         public void ClearTrace()
         {
@@ -68,7 +71,7 @@ namespace RoboSim
         }
         EulerAngleOrientation LastOrientation = null;
         EulerAngleOrientation LastTraceOrientation = null;
-        public void NewChar()
+        public void NewCharCell()
         {
             ((Model3DGroup)WrittingPad.Children[1]).Children.Add(new Model3DGroup());
             LastOrientation = null;
@@ -79,17 +82,17 @@ namespace RoboSim
             LastTraceOrientation = null;
         }
 
-        public void AppendFlatTipPoint(double x, double y, double twist)
+        public void AppendFlatTipPoint(double x, double y, double twist, double Thickness)
         {
             var o = new EulerAngleOrientation(twist, 0, 0, x, y, 0);
-            AppendFlatTipPoint(o);
+            AppendFlatTipPoint(o, Thickness);
         }
-        public void AppendTracePoint(double x, double y, double twist)
+        public void AppendTracePoint(double x, double y, double twist, double Thickness)
         {
             var o = new EulerAngleOrientation(twist, 0, 0, x, y, 0);
-            AppendTracePoint(o);
+            AppendTracePoint(o, Thickness);
         }
-        private void AppendFlatTipPoint(EulerAngleOrientation o)
+        private void AppendFlatTipPoint(EulerAngleOrientation o, double Thickness)
         {             
             if (o == LastOrientation)
             {
@@ -106,7 +109,7 @@ namespace RoboSim
             AddFlatTipStroke(LastOrientation, o, Thickness, true);
             LastOrientation = o.Clone();
         }
-        private void AppendTracePoint(EulerAngleOrientation o)
+        private void AppendTracePoint(EulerAngleOrientation o, double Thickness)
         {
             if (o == LastTraceOrientation)
             {
@@ -125,6 +128,9 @@ namespace RoboSim
         }
         private void AddFlatTipStroke(EulerAngleOrientation o1, EulerAngleOrientation o2, double thicknes, bool isInk)
         {
+            //if (InkParts.Last().Targets.Count == 0)
+            //    InkParts.Last().Targets.Add(o1);
+            //InkParts.Last().Targets.Add(o2);
             System.Windows.Media.Color color = PenColor;
             if (!isInk)
                 color = TraceColor;
@@ -156,15 +162,28 @@ namespace RoboSim
             //((Model3DGroup)WrittingPad.Children.Last()).Children.Add(simCalc.meshToGeometry(mesh, color));
         }
 
-        public void ImportInk(RotatingBezierSplineEditor.RotatingBezierSpline spline, double scale, Func<float, bool> progressUpdate)
+        public void RemoveSpline(RasterizedRotatingBezierSpline rasterizedSpline)
         {
-            var rSpline = spline.Rasterize(1, scale, progressUpdate);
-            NewChar();
-            for (int i = 0; i < rSpline.T.Length; i++)
+            foreach (var model in rasterizedSpline.RasterizedCells.Select(rc => rc.Model))
             {
-                var orientation = new EulerAngleOrientation(rSpline.T[i], 0, 0, rSpline.X[i], rSpline.Y[i], 0);
-                AppendFlatTipPoint(orientation);
+                ((Model3DGroup)WrittingPad.Children[1]).Children.Remove(model);
             }
+        }
+        public RasterizedRotatingBezierSpline ImportSplines(RotatingBezierSpline spline, double scale, Func<float, bool> progressUpdate)
+        {
+            if (spline.Anchors.Count <= 1)
+                return null;
+            var rSplines = RasterizedRotatingBezierSpline.Rasterize(spline, 1, scale, progressUpdate);
+            rSplines.CurveMenuItem = new CurveMenuItem(spline, true);
+
+            foreach (var cell in rSplines.RasterizedCells)
+            {
+                NewCharCell();
+                for (int i = 0; i < cell.RasterizedData.Count; i++)
+                    AppendFlatTipPoint(cell.RasterizedData[i].Orientaation, spline.FlatTipWidth * scale);
+                cell.Model = ((Model3DGroup)WrittingPad.Children[1]).Children.Last();
+            }
+            return rSplines;
         }
     }
 }

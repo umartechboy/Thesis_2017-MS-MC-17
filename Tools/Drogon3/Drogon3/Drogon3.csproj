@@ -93,6 +93,12 @@
     <Compile Include="ShowCloseForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="SplinePainter.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="SplinePainter.Designer.cs">
+      <DependentUpon>SplinePainter.cs</DependentUpon>
+    </Compile>
     <Compile Include="SplineRasterizationProgress.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -138,6 +144,9 @@
     </Compile>
     <EmbeddedResource Include="RobotEditor.resx">
       <DependentUpon>RobotEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SplinePainter.resx">
+      <DependentUpon>SplinePainter.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SplineRasterizationProgress.resx">
       <DependentUpon>SplineRasterizationProgress.cs</DependentUpon>
@@ -200,6 +209,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\joystick.JPG" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\greg.JPG" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

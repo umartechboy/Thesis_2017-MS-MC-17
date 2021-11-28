@@ -71,6 +71,7 @@
       <DependentUpon>ServoMotorEdtor.cs</DependentUpon>
     </Compile>
     <Compile Include="simCalc.cs" />
+    <Compile Include="SplineRasterization.cs" />
     <Compile Include="StepperMotorEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>

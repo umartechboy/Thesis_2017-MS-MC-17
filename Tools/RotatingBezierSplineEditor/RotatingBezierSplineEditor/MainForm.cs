@@ -158,6 +158,13 @@ namespace RotatingBezierSplineEditor
             }
         }
 
+        private void Con_OnRequestToUnlockAll(object sender, EventArgs e)
+        {
+            foreach (var cmi in documentLayoutFP.Controls.OfType<CurveMenuItem>())
+                cmi.SplineEnabled.Active = true;
+        }
+
+
         private void Con_OnRequestShowOnly(object sender, EventArgs e)
         {
             foreach (var cmi in documentLayoutFP.Controls.OfType<CurveMenuItem>())
@@ -166,13 +173,6 @@ namespace RotatingBezierSplineEditor
                     cmi.SplineVisible.Active = false;
             }
         }
-
-        private void Con_OnRequestToUnlockAll(object sender, EventArgs e)
-        {
-            foreach (var cmi in documentLayoutFP.Controls.OfType<CurveMenuItem>())
-                cmi.SplineEnabled.Active = true;
-        }
-
         private void Con_OnRequestToShowAll(object sender, EventArgs e)
         {
             foreach (var cmi in documentLayoutFP.Controls.OfType<CurveMenuItem>())
@@ -353,7 +353,7 @@ Uou can save, open and import rotating bezier splines using the File menu
             Text = "Gregor";
         }
 
-        public static RotatingBezierSpline[] GetSpline()
+        public static RotatingBezierSpline[] Import()
         {
             var form = new MainForm();
             form.StartPosition = FormStartPosition.CenterParent;

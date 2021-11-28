@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<objects>
+  <spline>
+    <FlatTipWidth>150</FlatTipWidth>
+    <Color>-5658199</Color>
+    <anchor>
+      <rotationoffset>0</rotationoffset>
+      <P>-198.3791, 452.6993</P>
+      <C1>-131.6351, 572.4461</C1>
+      <C2>-265.1234, 332.9534</C2>
+      <R1>-148.3791, 452.6993</R1>
+    </anchor>
+    <anchor>
+      <rotationoffset>0</rotationoffset>
+      <P>-296.5323, 156.2775</P>
+      <C1>-439.8357, 254.4304</C1>
+      <C2>-119.5302, 35.04326</C2>
+      <R1>-246.5322, 156.2775</R1>
+    </anchor>
+    <anchor>
+      <rotationoffset>0</rotationoffset>
+      <P>25.40986, 374.1774</P>
+      <C1>-47.22344, 262.2825</C1>
+      <C2>98.04301, 486.0714</C2>
+      <R1>75.40986, 374.1774</R1>
+    </anchor>
+    <anchor>
+      <rotationoffset>0</rotationoffset>
+      <P>-233.7143, -183.332</P>
+      <C1>-208.1945, -28.25013</C1>
+      <C2>-274.7982, -432.9961</C2>
+      <R1>-183.7143, -183.332</R1>
+    </anchor>
+    <anchor>
+      <rotationoffset>0</rotationoffset>
+      <P>315.9428, -517.0526</P>
+      <C1>95.77186, -679.5702</C1>
+      <C2>435.6645, -428.6809</C2>
+      <R1>365.9427, -517.0526</R1>
+    </anchor>
+    <anchor>
+      <rotationoffset>0</rotationoffset>
+      <P>441.5787, -144.0708</P>
+      <C1>388.576, -277.5591</C1>
+      <C2>494.5813, -10.58265</C2>
+      <R1>491.5787, -144.0708</R1>
+    </anchor>
+  </spline>
+</objects>

@@ -39,7 +39,7 @@
             this.delP = new System.Windows.Forms.Panel();
             this.SplineEnabled = new RotatingBezierSplineEditor.ToolControl();
             this.SplineVisible = new RotatingBezierSplineEditor.ToolControl();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.SplineLabel = new System.Windows.Forms.TextBox();
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.cms.SuspendLayout();
@@ -146,14 +146,14 @@
             // 
             // textBox1
             // 
-            this.textBox1.BackColor = System.Drawing.SystemColors.Control;
-            this.textBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.textBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBox1.Location = new System.Drawing.Point(105, 3);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(140, 27);
-            this.textBox1.TabIndex = 0;
-            this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
+            this.SplineLabel.BackColor = System.Drawing.SystemColors.Control;
+            this.SplineLabel.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.SplineLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.SplineLabel.Location = new System.Drawing.Point(105, 3);
+            this.SplineLabel.Name = "textBox1";
+            this.SplineLabel.Size = new System.Drawing.Size(140, 27);
+            this.SplineLabel.TabIndex = 0;
+            this.SplineLabel.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
             // button1
             // 
@@ -181,7 +181,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
-            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.SplineLabel);
             this.Controls.Add(this.appearnceP);
             this.Controls.Add(this.delP);
             this.Controls.Add(this.SplineEnabled);
@@ -210,7 +210,7 @@
         private System.Windows.Forms.ToolStripMenuItem lockAllButThisToolStripMenuItem;
         public ToolControl SplineVisible;
         public ToolControl SplineEnabled;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox SplineLabel;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button2;
     }

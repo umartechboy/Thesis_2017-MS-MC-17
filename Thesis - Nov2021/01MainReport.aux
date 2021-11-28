@@ -1,0 +1,164 @@
+\relax 
+\providecommand{\transparent@use}[1]{}
+\newlabel{FirstPage}{{}{1}{}{}{}}
+\@writefile{toc}{\tocdepth@munge}
+\@writefile{toc}{\contentsline {section}{\numberline {}Contents}{2}{}}
+\gdef \tocmax@section{28.87502pt}
+\gdef \tocmax@subsection{18.53041pt}
+\gdef \tocmax@subsubsection{13.6388pt}
+\gdef \tocmax@paragraph{5.0pt}
+\gdef \tocmax@appendix{5.0pt}
+\gdef \tocmax@pagenum{5.0pt}
+\citation{bib01,bib02}
+\citation{bib02,bib03}
+\citation{bib04}
+\citation{bib05,bib06,bib07,bib08}
+\citation{bib09,bib10,bib11,bib12}
+\citation{bib13}
+\citation{bib03}
+\@writefile{toc}{\tocdepth@restore}
+\@writefile{toc}{\contentsline {section}{\numberline {I}Introduction}{5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {II}Rotating/Twisting Bezier Splines}{6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {A}Introduction}{6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {B}The Necessity}{6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {C}Mathematical Model of a Rotating Bezier Spline}{7}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {1}The Conventional Bezier Spline}{7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces An illustration showing the construction of Bezier Spline Curve. (a) A sample of a Bezier spline path (b) an exploded view of inner curves of the Bezier spline path (c) Handles that control the shape of the two adjacent sub curves (d) and (e) Construction polygon of the sub curve. }}{8}{}}
+\newlabel{Fig:RotatingBezierSplines}{{1}{8}{}{}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2}Twist/Rotation Handle}{9}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {D}Conversion of Existing Calligraphy Artwork}{10}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {E}Machine Data Generation}{11}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {F}Characterization}{12}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {G}Supported Scripts}{12}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {1}Coverage}{13}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2}Sample Results}{13}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Conventional way of representing a manipulator. The circles show a rotation between the interconnected links on the plane of the paper. The cross symbol shows rotation on the link line. The square symbol is for prismatic joint. It represents change in length along the link line.}}{14}{}}
+\newlabel{FigConventionalRep}{{2}{14}{}{}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3}Performance with Different Scripts}{14}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {III}Robotic Manipulator}{14}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {A}Functional Requirements of the Manipulator}{14}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {B}Robot Representation}{14}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {C}Selecting a Configuration}{15}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces An example of \texttt  {transformation frames} representation. This representation shows how a reference frame is linked to the previous using two basic transformation functions, $T_n$ and $R_n$ where n is the axis along or about which the transformation is performed. The schematic is drawn in the direction of $F0$ to $F_N$ ($N$ being the last frame) but can also be interpreted in reverse direction. One can easily see which transformations are required to convert one frame of reference to the other. One only needs to take one thing in account. When going in forward direction, all the transformations are applied as they are but while going back, each successive transformation is taken as inverse. For example, frame $F5$ can be achieved from frame $F3$ by applying two successive transformations: translation along $x$ of magnitude $L1$ and rotation about $x$ of magnitude $\theta _3$. However, to go to frame $F3$ from frame $F5$, one needs to apply two successive transformations: rotation about $x$ of magnitude $-\theta _3$ and translation along \texttt  {x} of magnitude $-L1$. It should be noted that if a transformation changes the origin of the frame, the next frame has a different point shown at the center. This point is defined in the base frame. }}{16}{}}
+\newlabel{FigMyRep}{{3}{16}{}{}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Three successive rotation $z-x-z$ and similar orders are call \texttt  {Euler Angles Transformations}. A base Frame $F0$ is transformed though three translations and three euler rotations. This way, one can easily represent a target point to the robot which would have three extra components than $x$, $y$ and $z$; $\alpha $, $\beta $a and $\gamma $. }}{17}{}}
+\newlabel{FigEulerRep}{{4}{17}{}{}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {D}Mathematical Modelling}{17}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces A manipulator along with a target represented in \texttt  {transformation frames} representation. $F0$ corresponds to the base frame, $F0, F1, F2 ...$ represent the forward direction of the manipulator and $Ft0, Ft1, Ft2 ...$ represent the forward direction of the target. Both chains of transformations lead to a common reference frame eventually, the target frame of reference, or the end-effector frame of reference, $Ft$. }}{18}{}}
+\newlabel{FigCompleteRep}{{5}{18}{}{}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {E}Simulation and Analysis Solutions}{19}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {F}Inverse and Forward Kinematics}{19}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {G}The Calligraphy Job}{19}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces A usual bezier spline has only two interlinked handles on a each anchor point which can control the shape of the curve before and after the anchor (shown blue). We have added a second (green) handle to each anchor which controls the rotation of the pen. Since the rotation handles act similar to the shapre handles, one can, in-effect, control change in rotation very accurately and smoothly. }}{20}{}}
+\newlabel{FigBezier}{{6}{20}{}{}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {H}Forward Kinematics}{20}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {IV}Gregor -- The Twisting Bezier Spline Editor}{20}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {A}Introduction}{20}{}}
+\citation{bib19}
+\citation{bib20}
+\@writefile{toc}{\contentsline {subsection}{\numberline {B}Requirements and Features}{22}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {C}Usage}{23}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {D}Interface}{23}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {1}The Viewing Modes}{24}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2}The Editing Modes}{24}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces (a1-a4) The main menu options: (a1) Contains the options to open, save, import, export and clear splines and background images, (a2) enlists some viewing options; the ink viewing modes, visibility different elements of the workspace, visibility of background images, opacity of the ink-marks and rendering algorithm (a3) contains options related to editing on the workspace. It has the option to change the spline editing modes, the behaviour of left click on the workspace, and whether the splines can be dragged or not. (a4) has some analysis tools. (b) is the name of the currently open document. (c) is the main view of each spline in the document, (c2) and (c3) are the name of each spline element and its thumbnail respectively. (d1) and (d2) change the vertical order (z order) of the elements. While hovering the cursor over overlapping splines, the spline with higher position in the list will receive mouse event earlier. (e1), (e2), (e3) and (e4) are used to toggle editability, change visibility, modify color and thickness and delete the respective spline curve respectively. (f1) and (f2) are x and y axis of the workspace. (f3) is the main viewport. (f4) is the list of all the splines and images in the document. (g1) switches the view mode to both spline and inkmark, (g2) changes the viewing mode to ink only. (g3) changes the viewing mode to spline only. (h1), (h2) and (h3) toggle the visibility of center of anchor, curvature handle and the twist handle of the splines. }}{25}{}}
+\newlabel{Fig:GregorInterface}{{7}{25}{}{}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {E}Modifying A Spline Curve}{26}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {1}Starting a New Curve}{26}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2}Appending to a Previously Active Curve}{26}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3}Adding Anchors in the Middle}{26}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces The curve appearance editor lets the user modify the color and broad edge thickness of the simulated pen}}{27}{}}
+\newlabel{Fig:AppearanceEditor}{{8}{27}{}{}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4}Simultaneous Curve Editing While Adding New Anchors}{27}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {F}Modifying an Ink-mark}{27}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {1}Adding an Ink-Mark}{27}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2}Modifying the twist/rotation}{27}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {G}Using Images}{28}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {H}Using the Document Explorer}{28}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {I}Save, Load, Export}{29}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {1}Exporting Images}{29}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces The curve appearance editor lets the user modify the color and broad edge thickness of the simulated pen}}{30}{}}
+\newlabel{Fig:ExportMenu}{{9}{30}{}{}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2}The File Format}{30}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {J}Short-keys}{30}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {K}Other useful features}{31}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {L}Analysis Tools}{31}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {M}Development}{31}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {1}Code Organization}{31}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2}The BezierBoard Class}{31}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3}RBSPoint}{31}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4}Spline Elements}{31}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5}Miscellaneous Helper classes and form}{31}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {6}Areas needing Improvement}{31}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {V}Drogon -- The Robot Simulator}{31}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {A}Introduction}{31}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {B}Simulation}{32}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {C}About the Tools}{32}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces A screenshot of the $3$D representation tool. The blue sphere under the end effector shows the target given to the robot. }}{33}{}}
+\newlabel{Fig3D}{{10}{33}{}{}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {D}Workspace Optimization}{33}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {E}Script Path Planner}{33}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {F}Script Motion Simulator}{33}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces The workspace is coded in colors. Purely green blocks represent a point where the robot has all of the degrees of freedom and the slightly red blocks indicate the parts where robot starts to loose one or more degrees of freedom. }}{34}{}}
+\newlabel{FigWorkspace}{{11}{34}{}{}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces The script maker can manage multiple splines and render robot trajectory according to the user resolution requirement. }}{34}{}}
+\newlabel{FigWorkspace}{{12}{34}{}{}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Robot writting on a slanted plane. }}{35}{}}
+\newlabel{FigScriptMotion}{{13}{35}{}{}{}}
+\bibcite{bib01}{{1}{}{{}}{{}}}
+\bibcite{bib02}{{2}{}{{}}{{}}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {G}Requirements and Features}{36}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {H}3D Visualizer}{36}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {I}Workspace Optimizer}{36}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {J}PID Tuner}{36}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {K}Rotating Spline Importer}{36}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {L}Usage}{36}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {M}Interface}{36}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {1}Manual Control}{36}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2}Analysis Tools}{36}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {N}Development}{36}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {1}Code Organization}{36}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2}The SphericalRobot Class}{36}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {O}Simulation}{36}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {1}Assumptions and Limitations}{36}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2}Accuracy of simulated Quantities}{36}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3}Forward Kinematics}{36}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4}Rotating Bezier Spline Curves}{36}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {P}Sample Results}{36}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {1}Accuracy}{36}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {Q}Areas that Need Improvement}{36}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {VI}The Project}{36}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {A}Set Milestones}{36}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {B}Expected Outcomes}{36}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {C}Missed milestones}{36}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {VII}Conclusion}{36}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {}References}{36}{}}
+\bibcite{bib03}{{3}{}{{}}{{}}}
+\bibcite{bib04}{{4}{}{{}}{{}}}
+\bibcite{bib05}{{5}{}{{}}{{}}}
+\bibcite{bib06}{{6}{}{{}}{{}}}
+\bibcite{bib07}{{7}{}{{}}{{}}}
+\bibcite{bib08}{{8}{}{{}}{{}}}
+\bibcite{bib09}{{9}{}{{}}{{}}}
+\bibcite{bib10}{{10}{}{{}}{{}}}
+\bibcite{bib11}{{11}{}{{}}{{}}}
+\bibcite{bib12}{{12}{}{{}}{{}}}
+\bibcite{bib13}{{13}{}{{}}{{}}}
+\bibcite{bib14}{{14}{}{{}}{{}}}
+\bibcite{bib15}{{15}{}{{}}{{}}}
+\bibcite{bib16}{{16}{}{{}}{{}}}
+\bibcite{bib17}{{17}{}{{}}{{}}}
+\bibcite{bib18}{{18}{}{{}}{{}}}
+\bibcite{bib19}{{19}{}{{}}{{}}}
+\bibcite{bib20}{{20}{}{{}}{{}}}
+\global \chardef \firstnote@num20\relax 
+\newlabel{LastBibItem}{{20}{38}{}{}{}}
+\@writefile{toc}{\appendix }
+\@writefile{toc}{\contentsline {section}{\numberline {A}Code Snippetes}{38}{}}
+\providecommand\NAT@force@numbers{}\NAT@force@numbers
+\bibstyle{apsrev}
+\@writefile{toc}{\contentsline {section}{\numberline {B}Tables}{40}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {a}Gregor -- Keyboard Shorcuts}{40}{}}
+\newlabel{Table:Keyboardshortcuts}{{B\,0\,a}{40}{}{}{}}
+\gdef\svg@ink@ver@settings{{\m@ne }{inkscape}{\m@ne }}
+\newlabel{LastPage}{{}{40}}

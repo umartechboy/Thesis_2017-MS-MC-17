@@ -39,6 +39,7 @@ namespace Drogon3
             this.pIDPerformanceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.routePlannerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.importSplineToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editRobotT = new RotatingBezierSplineEditor.ToolControl();
             this.realTimeTickT = new RotatingBezierSplineEditor.ToolControl();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
@@ -47,7 +48,8 @@ namespace Drogon3
             this.panel1 = new System.Windows.Forms.Panel();
             this.endEffectorControlT = new RotatingBezierSplineEditor.ToolControl();
             this.pidPerformanceT = new RotatingBezierSplineEditor.ToolControl();
-            this.importSplineToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.splinePainterT = new RotatingBezierSplineEditor.ToolControl();
+            this.splinePainterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
@@ -81,7 +83,8 @@ namespace Drogon3
             this.dSimulationToolStripMenuItem,
             this.robotEditorToolStripMenuItem,
             this.inverseKinematicsSolverToolStripMenuItem,
-            this.pIDPerformanceToolStripMenuItem});
+            this.pIDPerformanceToolStripMenuItem,
+            this.splinePainterToolStripMenuItem});
             this.analysisToolStripMenuItem.Name = "analysisToolStripMenuItem";
             this.analysisToolStripMenuItem.Size = new System.Drawing.Size(76, 24);
             this.analysisToolStripMenuItem.Text = "Analysis";
@@ -122,8 +125,15 @@ namespace Drogon3
             // routePlannerToolStripMenuItem
             // 
             this.routePlannerToolStripMenuItem.Name = "routePlannerToolStripMenuItem";
-            this.routePlannerToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.routePlannerToolStripMenuItem.Size = new System.Drawing.Size(184, 26);
             this.routePlannerToolStripMenuItem.Text = "Route Planner";
+            // 
+            // importSplineToolStripMenuItem
+            // 
+            this.importSplineToolStripMenuItem.Name = "importSplineToolStripMenuItem";
+            this.importSplineToolStripMenuItem.Size = new System.Drawing.Size(184, 26);
+            this.importSplineToolStripMenuItem.Text = "Import Spline";
+            this.importSplineToolStripMenuItem.Click += new System.EventHandler(this.importSplineToolStripMenuItem_Click);
             // 
             // editRobotT
             // 
@@ -177,12 +187,13 @@ namespace Drogon3
             // panel1
             // 
             this.panel1.Controls.Add(this.editRobotT);
+            this.panel1.Controls.Add(this.splinePainterT);
             this.panel1.Controls.Add(this.endEffectorControlT);
             this.panel1.Controls.Add(this.pidPerformanceT);
             this.panel1.Controls.Add(this.inverseKinematicsT);
             this.panel1.Location = new System.Drawing.Point(0, 200);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(80, 343);
+            this.panel1.Size = new System.Drawing.Size(80, 421);
             this.panel1.TabIndex = 3;
             // 
             // endEffectorControlT
@@ -207,12 +218,22 @@ namespace Drogon3
             this.pidPerformanceT.TabIndex = 0;
             this.pidPerformanceT.OnActivated += new System.EventHandler(this._3dPrev_OnActivated);
             // 
-            // importSplineToolStripMenuItem
+            // splinePainterT
             // 
-            this.importSplineToolStripMenuItem.Name = "importSplineToolStripMenuItem";
-            this.importSplineToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
-            this.importSplineToolStripMenuItem.Text = "Import Spline";
-            this.importSplineToolStripMenuItem.Click += new System.EventHandler(this.importSplineToolStripMenuItem_Click);
+            this.splinePainterT.Active = false;
+            this.splinePainterT.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.splinePainterT.DistinctSelection = true;
+            this.splinePainterT.Location = new System.Drawing.Point(0, 333);
+            this.splinePainterT.Name = "splinePainterT";
+            this.splinePainterT.Size = new System.Drawing.Size(80, 80);
+            this.splinePainterT.TabIndex = 0;
+            this.splinePainterT.OnActivated += new System.EventHandler(this._3dPrev_OnActivated);
+            // 
+            // splinePainterToolStripMenuItem
+            // 
+            this.splinePainterToolStripMenuItem.Name = "splinePainterToolStripMenuItem";
+            this.splinePainterToolStripMenuItem.Size = new System.Drawing.Size(259, 26);
+            this.splinePainterToolStripMenuItem.Text = "Spline Painter";
             // 
             // MainForm
             // 
@@ -256,6 +277,8 @@ namespace Drogon3
         private System.Windows.Forms.ToolStripMenuItem routePlannerToolStripMenuItem;
         public RotatingBezierSplineEditor.ToolControl endEffectorControlT;
         private System.Windows.Forms.ToolStripMenuItem importSplineToolStripMenuItem;
+        public RotatingBezierSplineEditor.ToolControl splinePainterT;
+        private System.Windows.Forms.ToolStripMenuItem splinePainterToolStripMenuItem;
     }
 }
 

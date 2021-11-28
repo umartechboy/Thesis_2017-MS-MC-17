@@ -15,6 +15,8 @@ namespace RoboSim
     public delegate void DebugPoint(Point3D p, int ind);
     public class Robot
     {
+        public RobotControlSource ControlSource { get; set; } = RobotControlSource.SolutionTester;
+        public EulerAngleOrientation CurrentTarget { get; set; } = null;
         public event EventHandler AfterThreadStep, BeforeThreadStep;
         public double SimLifeinMillis { get; private set; }
         double gA = -9.817;
@@ -89,15 +91,15 @@ namespace RoboSim
             double l0 = 0.4, l1 = 1.2, l2 = 1, l3 = 0.1, l4 = 0.4;
 
             Actuators = new IServoMotor[6];
-            //Actuators[0] = new StepperMotor(0, 500 * 50, 0.0005, -Math.PI, 2 * Math.PI, -Math.PI/4, Axis.Z);
-            //Actuators[1] = new StepperMotor(1, 500 * 50, 0.0005, -Math.PI / 2, Math.PI, 0, Axis.X);
-            //Actuators[2] = new StepperMotor(2, 500 * 50, 0.0005, -2 * Math.PI / 3, 4 * Math.PI / 3, 0, Axis.X);
+            Actuators[0] = new StepperMotor(0, 500 * 50, 0.0005, -Math.PI, 2 * Math.PI, -Math.PI/4, Axis.Z);
+            Actuators[1] = new StepperMotor(1, 500 * 50, 0.0005, -Math.PI / 2, Math.PI, 0, Axis.X);
+            Actuators[2] = new StepperMotor(2, 500 * 50, 0.0005, -2 * Math.PI / 3, 4 * Math.PI / 3, 0, Axis.X);
             Actuators[3] = new StepperMotor(3, 500 * 50, 0.0005, -Math.PI, 2 * Math.PI, 0, Axis.Z);
             Actuators[4] = new StepperMotor(4, 500 * 50, 0.0005, -2 * Math.PI / 3, 4 * Math.PI / 3, 0, Axis.X);
             Actuators[5] = new StepperMotor(5, 2000, 0.0005, -2 * Math.PI, 4 * Math.PI, 0, Axis.Z);
-            Actuators[0] = new ServoMotor(0, this, -Math.PI, 2 * Math.PI, 0, 4000, 0, 3200, 70, 70, Axis.Z);
-            Actuators[1] = new ServoMotor(1, this, -Math.PI, 2 * Math.PI, 0, 2000, 0, 3500, 150, 170, Axis.X);
-            Actuators[2] = new ServoMotor(2, this, -Math.PI, 2 * Math.PI, -Math.PI / 4, 2000, 0, 2000, 100, 110, Axis.X);
+            //Actuators[0] = new ServoMotor(0, this, -Math.PI, 2 * Math.PI, 0, 4000, 0, 3200, 70, 70, Axis.Z);
+            //Actuators[1] = new ServoMotor(1, this, -Math.PI, 2 * Math.PI, 0, 2000, 0, 3500, 150, 170, Axis.X);
+            //Actuators[2] = new ServoMotor(2, this, -Math.PI, 2 * Math.PI, -Math.PI / 4, 2000, 0, 2000, 100, 110, Axis.X);
             ////Actuators[3] = new ServoMotor(3, this, -Math.PI, 2 * Math.PI, -Math.PI / 4, 500, 0, 500, 80, 8, Axis.Z);
             //Actuators[4] = new StepperMotor(4, 500 * 50, 0.0005, -2 * Math.PI / 3, 4 * Math.PI / 3, 0, Axis.X);
             //Actuators[5] = new StepperMotor(5, 500 * 50, 0.0005, -2 * Math.PI, 4 * Math.PI, 0, Axis.Z);
@@ -706,11 +708,17 @@ namespace RoboSim
         }
     }
     public class RobotSolution
-    {                       
+    {
+        public virtual RobotSolution Clone()
+        { throw new NotImplementedException(); }
     }
     public class SphericalRobotSolution : RobotSolution
     {
         public double[] MotorAngles { get; protected set; } = new double[6];
+        public override RobotSolution Clone()
+        {
+            return new SphericalRobotSolution() { MotorAngles = MotorAngles.ToArray() };
+        }
         public static SphericalRobotSolution Solution(SphericalRobotSolution previousSolution,int ind, SphericalRobot robot, EulerAngleOrientation target)
         {
             var newSolution = SolutionX(ind, robot, target);
@@ -954,4 +962,10 @@ namespace RoboSim
         }
     }
 
+    public enum RobotControlSource
+    {
+        SolutionTester,
+        JoyStick,
+        BezierSpline
+    }
 }

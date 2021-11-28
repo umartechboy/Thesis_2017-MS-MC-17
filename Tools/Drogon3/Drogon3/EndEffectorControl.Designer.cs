@@ -31,7 +31,7 @@ namespace Drogon3
         {
             this.components = new System.ComponentModel.Container();
             this.label1 = new System.Windows.Forms.Label();
-            this.manualControlRB = new System.Windows.Forms.RadioButton();
+            this.joystickControlRB = new System.Windows.Forms.RadioButton();
             this.calligraphyRB = new System.Windows.Forms.RadioButton();
             this.joustickReader = new System.Windows.Forms.Timer(this.components);
             this.label2 = new System.Windows.Forms.Label();
@@ -39,27 +39,13 @@ namespace Drogon3
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
-            this.label8 = new System.Windows.Forms.Label();
-            this.label9 = new System.Windows.Forms.Label();
-            this.label10 = new System.Windows.Forms.Label();
-            this.label11 = new System.Windows.Forms.Label();
-            this.aGPJS = new Drogon3.yJoyStick();
-            this.aEEJS = new Drogon3.yJoyStick();
-            this.bGPJS = new Drogon3.yJoyStick();
-            this.bEEJS = new Drogon3.yJoyStick();
-            this.gGPJS = new Drogon3.yJoyStick();
-            this.gEEJS = new Drogon3.yJoyStick();
-            this.zJPJS = new Drogon3.yJoyStick();
-            this.zEEJS = new Drogon3.yJoyStick();
-            this.xyWPJS = new Drogon3.xyJoyStick();
-            this.xyEEJS = new Drogon3.xyJoyStick();
             this.label12 = new System.Windows.Forms.Label();
-            this.xyWPL = new System.Windows.Forms.Label();
-            this.zWPL = new System.Windows.Forms.Label();
-            this.aWPL = new System.Windows.Forms.Label();
-            this.bWPL = new System.Windows.Forms.Label();
-            this.gWPL = new System.Windows.Forms.Label();
+            this.solutionTesterControlRB = new System.Windows.Forms.RadioButton();
+            this.aEEJS = new Drogon3.yJoyStick();
+            this.bEEJS = new Drogon3.yJoyStick();
+            this.gEEJS = new Drogon3.yJoyStick();
+            this.zEEJS = new Drogon3.yJoyStick();
+            this.xyEEJS = new Drogon3.xyJoyStick();
             this.SuspendLayout();
             // 
             // label1
@@ -71,27 +57,27 @@ namespace Drogon3
             this.label1.TabIndex = 0;
             this.label1.Text = "Target:";
             // 
-            // manualControlRB
+            // joystickControlRB
             // 
-            this.manualControlRB.AutoSize = true;
-            this.manualControlRB.Checked = true;
-            this.manualControlRB.Location = new System.Drawing.Point(93, 25);
-            this.manualControlRB.Name = "manualControlRB";
-            this.manualControlRB.Size = new System.Drawing.Size(124, 21);
-            this.manualControlRB.TabIndex = 1;
-            this.manualControlRB.TabStop = true;
-            this.manualControlRB.Text = "Manual Control";
-            this.manualControlRB.UseVisualStyleBackColor = true;
+            this.joystickControlRB.AutoSize = true;
+            this.joystickControlRB.Location = new System.Drawing.Point(259, 27);
+            this.joystickControlRB.Name = "joystickControlRB";
+            this.joystickControlRB.Size = new System.Drawing.Size(83, 21);
+            this.joystickControlRB.TabIndex = 1;
+            this.joystickControlRB.Text = "Joy stick";
+            this.joystickControlRB.UseVisualStyleBackColor = true;
+            this.joystickControlRB.CheckedChanged += new System.EventHandler(this.controlTypeRB_CheckedChanged);
             // 
             // calligraphyRB
             // 
             this.calligraphyRB.AutoSize = true;
-            this.calligraphyRB.Location = new System.Drawing.Point(244, 25);
+            this.calligraphyRB.Location = new System.Drawing.Point(359, 27);
             this.calligraphyRB.Name = "calligraphyRB";
             this.calligraphyRB.Size = new System.Drawing.Size(194, 21);
             this.calligraphyRB.TabIndex = 1;
             this.calligraphyRB.Text = "Calligraphy Route Plannar";
             this.calligraphyRB.UseVisualStyleBackColor = true;
+            this.calligraphyRB.CheckedChanged += new System.EventHandler(this.controlTypeRB_CheckedChanged);
             // 
             // joustickReader
             // 
@@ -144,121 +130,6 @@ namespace Drogon3
             this.label6.TabIndex = 0;
             this.label6.Text = "B";
             // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(106, 554);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(30, 17);
-            this.label7.TabIndex = 0;
-            this.label7.Text = "X,Y";
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(244, 554);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(17, 17);
-            this.label8.TabIndex = 0;
-            this.label8.Text = "Z";
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(461, 554);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(17, 17);
-            this.label9.TabIndex = 0;
-            this.label9.Text = "A";
-            // 
-            // label10
-            // 
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(520, 554);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(17, 17);
-            this.label10.TabIndex = 0;
-            this.label10.Text = "B";
-            // 
-            // label11
-            // 
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(577, 554);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(19, 17);
-            this.label11.TabIndex = 0;
-            this.label11.Text = "G";
-            // 
-            // aGPJS
-            // 
-            this.aGPJS.Location = new System.Drawing.Point(444, 351);
-            this.aGPJS.Name = "aGPJS";
-            this.aGPJS.Size = new System.Drawing.Size(53, 200);
-            this.aGPJS.TabIndex = 3;
-            // 
-            // aEEJS
-            // 
-            this.aEEJS.Location = new System.Drawing.Point(444, 86);
-            this.aEEJS.Name = "aEEJS";
-            this.aEEJS.Size = new System.Drawing.Size(53, 200);
-            this.aEEJS.TabIndex = 3;
-            // 
-            // bGPJS
-            // 
-            this.bGPJS.Location = new System.Drawing.Point(502, 351);
-            this.bGPJS.Name = "bGPJS";
-            this.bGPJS.Size = new System.Drawing.Size(53, 200);
-            this.bGPJS.TabIndex = 3;
-            // 
-            // bEEJS
-            // 
-            this.bEEJS.Location = new System.Drawing.Point(502, 86);
-            this.bEEJS.Name = "bEEJS";
-            this.bEEJS.Size = new System.Drawing.Size(53, 200);
-            this.bEEJS.TabIndex = 3;
-            // 
-            // gGPJS
-            // 
-            this.gGPJS.Location = new System.Drawing.Point(561, 351);
-            this.gGPJS.Name = "gGPJS";
-            this.gGPJS.Size = new System.Drawing.Size(53, 200);
-            this.gGPJS.TabIndex = 3;
-            // 
-            // gEEJS
-            // 
-            this.gEEJS.Location = new System.Drawing.Point(561, 86);
-            this.gEEJS.Name = "gEEJS";
-            this.gEEJS.Size = new System.Drawing.Size(53, 200);
-            this.gEEJS.TabIndex = 3;
-            // 
-            // zJPJS
-            // 
-            this.zJPJS.Location = new System.Drawing.Point(228, 351);
-            this.zJPJS.Name = "zJPJS";
-            this.zJPJS.Size = new System.Drawing.Size(53, 200);
-            this.zJPJS.TabIndex = 3;
-            // 
-            // zEEJS
-            // 
-            this.zEEJS.Location = new System.Drawing.Point(228, 86);
-            this.zEEJS.Name = "zEEJS";
-            this.zEEJS.Size = new System.Drawing.Size(53, 200);
-            this.zEEJS.TabIndex = 3;
-            // 
-            // xyWPJS
-            // 
-            this.xyWPJS.Location = new System.Drawing.Point(22, 351);
-            this.xyWPJS.Name = "xyWPJS";
-            this.xyWPJS.Size = new System.Drawing.Size(200, 200);
-            this.xyWPJS.TabIndex = 2;
-            // 
-            // xyEEJS
-            // 
-            this.xyEEJS.Location = new System.Drawing.Point(22, 86);
-            this.xyEEJS.Name = "xyEEJS";
-            this.xyEEJS.Size = new System.Drawing.Size(200, 200);
-            this.xyEEJS.TabIndex = 2;
-            // 
             // label12
             // 
             this.label12.AutoSize = true;
@@ -268,81 +139,70 @@ namespace Drogon3
             this.label12.TabIndex = 4;
             this.label12.Text = "label12";
             // 
-            // xyWPL
+            // solutionTesterControlRB
             // 
-            this.xyWPL.AutoSize = true;
-            this.xyWPL.Location = new System.Drawing.Point(19, 331);
-            this.xyWPL.Name = "xyWPL";
-            this.xyWPL.Size = new System.Drawing.Size(54, 17);
-            this.xyWPL.TabIndex = 5;
-            this.xyWPL.Text = "label13";
+            this.solutionTesterControlRB.AutoSize = true;
+            this.solutionTesterControlRB.Checked = true;
+            this.solutionTesterControlRB.Location = new System.Drawing.Point(109, 27);
+            this.solutionTesterControlRB.Name = "solutionTesterControlRB";
+            this.solutionTesterControlRB.Size = new System.Drawing.Size(125, 21);
+            this.solutionTesterControlRB.TabIndex = 1;
+            this.solutionTesterControlRB.TabStop = true;
+            this.solutionTesterControlRB.Text = "Solution Tester";
+            this.solutionTesterControlRB.UseVisualStyleBackColor = true;
+            this.solutionTesterControlRB.CheckedChanged += new System.EventHandler(this.controlTypeRB_CheckedChanged);
             // 
-            // zWPL
+            // aEEJS
             // 
-            this.zWPL.AutoSize = true;
-            this.zWPL.Location = new System.Drawing.Point(225, 331);
-            this.zWPL.Name = "zWPL";
-            this.zWPL.Size = new System.Drawing.Size(54, 17);
-            this.zWPL.TabIndex = 5;
-            this.zWPL.Text = "label13";
+            this.aEEJS.Location = new System.Drawing.Point(444, 86);
+            this.aEEJS.Name = "aEEJS";
+            this.aEEJS.Size = new System.Drawing.Size(53, 200);
+            this.aEEJS.TabIndex = 3;
             // 
-            // aWPL
+            // bEEJS
             // 
-            this.aWPL.AutoSize = true;
-            this.aWPL.Location = new System.Drawing.Point(439, 331);
-            this.aWPL.Name = "aWPL";
-            this.aWPL.Size = new System.Drawing.Size(54, 17);
-            this.aWPL.TabIndex = 5;
-            this.aWPL.Text = "label13";
+            this.bEEJS.Location = new System.Drawing.Point(502, 86);
+            this.bEEJS.Name = "bEEJS";
+            this.bEEJS.Size = new System.Drawing.Size(53, 200);
+            this.bEEJS.TabIndex = 3;
             // 
-            // bWPL
+            // gEEJS
             // 
-            this.bWPL.AutoSize = true;
-            this.bWPL.Location = new System.Drawing.Point(499, 331);
-            this.bWPL.Name = "bWPL";
-            this.bWPL.Size = new System.Drawing.Size(54, 17);
-            this.bWPL.TabIndex = 5;
-            this.bWPL.Text = "label13";
+            this.gEEJS.Location = new System.Drawing.Point(561, 86);
+            this.gEEJS.Name = "gEEJS";
+            this.gEEJS.Size = new System.Drawing.Size(53, 200);
+            this.gEEJS.TabIndex = 3;
             // 
-            // gWPL
+            // zEEJS
             // 
-            this.gWPL.AutoSize = true;
-            this.gWPL.Location = new System.Drawing.Point(560, 331);
-            this.gWPL.Name = "gWPL";
-            this.gWPL.Size = new System.Drawing.Size(54, 17);
-            this.gWPL.TabIndex = 5;
-            this.gWPL.Text = "label13";
+            this.zEEJS.Location = new System.Drawing.Point(228, 86);
+            this.zEEJS.Name = "zEEJS";
+            this.zEEJS.Size = new System.Drawing.Size(53, 200);
+            this.zEEJS.TabIndex = 3;
+            // 
+            // xyEEJS
+            // 
+            this.xyEEJS.Location = new System.Drawing.Point(22, 86);
+            this.xyEEJS.Name = "xyEEJS";
+            this.xyEEJS.Size = new System.Drawing.Size(200, 200);
+            this.xyEEJS.TabIndex = 2;
             // 
             // EndEffectorControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.gWPL);
-            this.Controls.Add(this.bWPL);
-            this.Controls.Add(this.aWPL);
-            this.Controls.Add(this.zWPL);
-            this.Controls.Add(this.xyWPL);
             this.Controls.Add(this.label12);
-            this.Controls.Add(this.aGPJS);
             this.Controls.Add(this.aEEJS);
-            this.Controls.Add(this.bGPJS);
             this.Controls.Add(this.bEEJS);
-            this.Controls.Add(this.gGPJS);
             this.Controls.Add(this.gEEJS);
-            this.Controls.Add(this.zJPJS);
             this.Controls.Add(this.zEEJS);
-            this.Controls.Add(this.xyWPJS);
             this.Controls.Add(this.xyEEJS);
             this.Controls.Add(this.calligraphyRB);
-            this.Controls.Add(this.label11);
-            this.Controls.Add(this.manualControlRB);
-            this.Controls.Add(this.label10);
+            this.Controls.Add(this.solutionTesterControlRB);
+            this.Controls.Add(this.joystickControlRB);
             this.Controls.Add(this.label5);
-            this.Controls.Add(this.label9);
             this.Controls.Add(this.label6);
-            this.Controls.Add(this.label8);
             this.Controls.Add(this.label4);
-            this.Controls.Add(this.label7);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
@@ -356,7 +216,7 @@ namespace Drogon3
         #endregion
 
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.RadioButton manualControlRB;
+        private System.Windows.Forms.RadioButton joystickControlRB;
         private System.Windows.Forms.RadioButton calligraphyRB;
         private xyJoyStick xyEEJS;
         private System.Windows.Forms.Timer joustickReader;
@@ -369,22 +229,8 @@ namespace Drogon3
         private yJoyStick bEEJS;
         private yJoyStick aEEJS;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.Label label10;
-        private System.Windows.Forms.Label label11;
-        private xyJoyStick xyWPJS;
-        private yJoyStick zJPJS;
-        private yJoyStick gGPJS;
-        private yJoyStick bGPJS;
-        private yJoyStick aGPJS;
         private System.Windows.Forms.Label label12;
-        private System.Windows.Forms.Label xyWPL;
-        private System.Windows.Forms.Label zWPL;
-        private System.Windows.Forms.Label aWPL;
-        private System.Windows.Forms.Label bWPL;
-        private System.Windows.Forms.Label gWPL;
+        private System.Windows.Forms.RadioButton solutionTesterControlRB;
     }
     public class DBPanel : System.Windows.Forms.Panel
     {

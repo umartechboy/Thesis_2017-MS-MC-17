@@ -32,7 +32,7 @@ namespace Drogon3
             var dxForm = PhysLogger2.Forms.DXForm.RunInControl(this);
             var ThemedResources = new PhysLogger2.ThemedResources(dxForm);
             pidPerformanceXYP = new PhysLogger2.Widgets.Plotting.XYPlot("pid", ThemedResources, 0, 20, 500, 500);
-            pidPerformanceXYP.Font = new PhysLogger2.Graphics.DXFont() { Height = 12 };
+            pidPerformanceXYP.Font = new PhysLogger2.Graphics.DXFont(ThemedResources);
             timeQ = new TimeSoftwareQuantity(ThemedResources, null);
             Color[] colors = { Color.Red, Color.DarkBlue, Color.DarkGreen, Color.Gray, Color.Black, Color.GreenYellow };
             motorPosQs = robot.Actuators.Select(a => new ConstantSoftwareQuantity(ThemedResources, UnitCollection.UnitTypesEnum.Angle) { Color = colors[a.ID] }).ToArray();

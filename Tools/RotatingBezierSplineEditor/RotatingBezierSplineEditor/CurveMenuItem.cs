@@ -12,11 +12,22 @@ namespace RotatingBezierSplineEditor
     public partial class CurveMenuItem : BezierBoardItemMenuItem
     {
         public new RotatingBezierSpline Item { get { return (RotatingBezierSpline)base.Item; } }
+        public event EventHandler OnRequestToHiglight;
+        public event EventHandler OnRequestToUndoHighlight;
 
-        public CurveMenuItem(BezierBoardItem item = null):base(item)
+        public CurveMenuItem(BezierBoardItem item = null, bool readOnly = false):base(item)
         {
             var st = DateTime.Now;
             InitializeComponent();
+            if (item is RotatingBezierSpline)
+            {
+                SplineLabel.Text = ((RotatingBezierSpline)item).Label;
+            }
+            if (readOnly)
+            {
+                appearnceP.Enabled = false;
+                SplineEnabled.Enabled = false;
+            }
             var s1 = DateTime.Now - st;
             try
             {
@@ -31,7 +42,7 @@ namespace RotatingBezierSplineEditor
         {
             SplineVisible.SetImage(visibleIcon, sz, visibleIconDull);
             SplineEnabled.SetImage(activeIcon, sz, activeIconDull);
-            this.textBox1.Text = spline.Label;
+            this.SplineLabel.Text = spline.Label;
             spline.OnAnchorAdded += Spline_OnAnchorAdded;
             spline.WidthChangeRequest += Spline_WidthChangeRequest;
             
@@ -61,7 +72,7 @@ namespace RotatingBezierSplineEditor
             NeedsToRedrawPreview = true;
         }
 
-        internal void RecomputePreview()
+        public void RecomputePreview()
         {
             if (Item.BoundingRectangle().Width == 0) return;
             if (Item.BoundingRectangle().Height == 0) return;
@@ -106,27 +117,29 @@ namespace RotatingBezierSplineEditor
         private void prevP_MouseEnter(object sender, EventArgs e)
         {
             Item.MouseState = MouseState.Hover;
-            Item.Board.Invalidate();
+            Item.Board?.Invalidate();
+            OnRequestToHiglight?.Invoke(this, new EventArgs());
         }
 
         private void CurveMenuItem_MouseEnter(object sender, EventArgs e)
         {
             Item.MouseState = MouseState.Hover;
-            Item.Board.Invalidate();
+            Item.Board?.Invalidate();
 
         }
 
         private void prevP_MouseLeave(object sender, EventArgs e)
         {
             Item.MouseState = MouseState.None;
-            Item.Board.Invalidate();
+            Item.Board?.Invalidate();
+            OnRequestToUndoHighlight?.Invoke(this, new EventArgs());
 
         }
 
         private void CurveMenuItem_MouseLeave(object sender, EventArgs e)
         {
             Item.MouseState = MouseState.None;
-            Item.Board.Invalidate();
+            Item.Board?.Invalidate();
 
         }
 
@@ -157,7 +170,7 @@ namespace RotatingBezierSplineEditor
 
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
-            Item.Label = textBox1.Text;
+            Item.Label = SplineLabel.Text;
         }
 
         private void button1_Click(object sender, EventArgs e)
