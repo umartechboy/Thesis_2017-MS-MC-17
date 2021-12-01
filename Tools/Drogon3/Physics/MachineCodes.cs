@@ -34,6 +34,10 @@ namespace RoboSim
         {
             this.ToolSize = toolSize;
         }
+        public override string ToString()
+        {
+            return "T" + (ToolSize * 1000).ToString("F1");
+        }
     }
     public class MachineCode
     {
@@ -49,7 +53,12 @@ namespace RoboSim
         //public double AllocatedTime { get; set; }
         public override string ToString()
         {
-            return "G90 X" + Target.X + " Y" + Target.Y + " Z" + Target.Z + " A" + Target.A + " B" + Target.B + " G" + Target.G;
+            return "G90 X" + Target.X +
+                " Y" + (Target.Y * 1000).ToString("F1") +
+                " Z" + (Target.Z * 1000).ToString("F1") +
+                " A" + (Target.A * 180 / Math.PI).ToString("F1") +
+                " B" + (Target.B * 180 / Math.PI).ToString("F1") +
+                " G" + (Target.G * 180 / Math.PI).ToString("F1");
         }
     }
 }

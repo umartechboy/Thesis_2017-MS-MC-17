@@ -174,6 +174,7 @@ namespace RotatingBezierSplineEditor
             this.inkFromScene.TabStop = true;
             this.inkFromScene.Text = "Current Scene";
             this.inkFromScene.UseVisualStyleBackColor = true;
+            this.inkFromScene.CheckedChanged += new System.EventHandler(this.inkFromScene_CheckedChanged);
             // 
             // loadInkFromFile
             // 
@@ -185,6 +186,7 @@ namespace RotatingBezierSplineEditor
             this.loadInkFromFile.TabIndex = 14;
             this.loadInkFromFile.Text = "Load from file";
             this.loadInkFromFile.UseVisualStyleBackColor = true;
+            this.loadInkFromFile.CheckedChanged += new System.EventHandler(this.loadInkFromFile_CheckedChanged);
             this.loadInkFromFile.MouseClick += new System.Windows.Forms.MouseEventHandler(this.loadInkFromFile_MouseClick);
             this.loadInkFromFile.MouseDown += new System.Windows.Forms.MouseEventHandler(this.loadInkFromFile_MouseDown);
             // 

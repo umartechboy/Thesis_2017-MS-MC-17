@@ -2,7 +2,11 @@
 {
     \subsection{Functional Requirements of the Manipulator}
     {
-        Typically, the robot is required to perform precise maneuvers with complete $6$ degrees of freedom of the end effector in both planar and curved planes. It is also required to provide at least one extra actuator to reduce singularities. In addition to position, the robot is also required to perform precise velocity and force controlled maneuvers. However, to use the test case of twisting bezier spline curves, not all of these functional requirements are forced. The manipulator has only six degrees of freedom and incorporates only a position control mechanism.
+        To fully test the twisting splines with a robot, a simple simulator was written as a desktop application. The following sections will now discuss a manipulator with six degrees of freedom used to test the splines. The details about working and design of the simulator are discussed in section \label{Chapter:Drogon} in Appendix 1. We now take a little diversion from the twisting splines to discuss the manipulator and then discuss their incorporation in the simulator in section \ref{Section:SimulatingRBS}.
+    }
+    \subsection{Functional Requirements of the Manipulator}
+    {
+        Typically, a robot is required to perform precise maneuvers with complete $6$ degrees of freedom of the end effector in both planar and curved planes. It is also required to provide at least one extra actuator to reduce singularities. In addition to position, the robot is also required to perform precise velocity and force controlled maneuvers. However, to use the test case of twisting bezier spline curves, not all of these functional requirements are forced. The manipulator has only six degrees of freedom and incorporates only a position control mechanism.
     }
     \subsection{Manipulator Representation}
     {
@@ -47,41 +51,52 @@
     {
         The configuration selected for this project is widely used by other engineers but the main inspiration behind choosing this configuration was a B.Sc. final year project of the \emph{Mechanical Engineering Department of U.E.T} of the batch $12$' with title, 'Design and Implementation of a $6$DoF Spot Welding Robot'. The project report presents a solution and describes all the forward and inverse kinematics. And all this, without using a regular transformation matrix! The effort in the current project takes some inspiration from the previous one and also elaborates not only the faults and issues with the previous but also the effectiveness of using transformation matrices.
 
-        See Fig. \ref{FigCompleteRep} which represents this manipulator. In addition to these six degrees of freedom, we have attached a linear force control actuator along the end effector, since this actuator is responsible to keep the normal force under control, effectively, the robot solution remains the same as for six degrees. This scheme will be described later.
+        See Fig. \ref{FigCompleteRep} which represents this manipulator. It has six rotating actuators linked together with four links.
     }
     \subsection{Mathematical Modelling}
     {
-        Using the new representation, properties of homogenous transformation matrices and basic highschool trigonometry,  I was able to calculate the unique and redundant solutions for the spherical manipulator. The process will be described later, but, summarily, the robot has two primary solutions: different joint positions yield the same end effector position and orientation. Connected to both solutions, are $4$ more secondary solutions which effect only the motor angles not the link locations.
+        Using the new representation, properties of homogenous transformation matrices and basic highschool trigonometry, I was able to calculate \cite{bib21} the unique and redundant solutions for the spherical manipulator. The manipulator has two primary solutions: different joint positions yield the same end effector position and orientation. Connected to both solutions, are $4$ more secondary solutions which effect only the motor angles not the link locations.
 
         Finding out the mathematical equations is one job, verification is another. While dealing with three dimensional realm on a two dimensional paper, one can the solution but making small human errors on the way. It is quite easy to confuse the directions of rotations in a reference frames, resulting in typical errors which can be mitigated by some hit-and-trial of a few operations; adding or subtracting integral multiples of $\frac{\pi}{2}$ from the angles, inverting the length signs, inverting the angle directions. This can be done easily only if a representation tool is build alongside the robot modeling.
     }
-    \subsection{Simulation and Analysis Solutions}
-    {
-        Even with a complete mathematical model, there are tasks which require the power of simulation either for design and planning or for the verification of the existing model. The tool used for this step is discussed in detail in the coming sections.
-    }
-}
 
     \subsection{Inverse and Forward Kinematics}
-    Some of the motor angles are quite obvious. See the series of hand-sketched figures labelled with mask Fig. \texttt{RDn} in the subsequent pages which demonstrate how an inverse kinematic solution was discovered for this robot.
-
-\subsection{The Calligraphy Job}
-{
-        Calligraphy is a kind of art that finds its links in the, so called, technical areas. They write and discover new fonts on the way but one thing remains the same. Whatever the idea an artist has in his mind, has finally to be represented as Ink marks which, usually, are made flat head pens and rectangular paint brushes. The tool doesn't know what actually drives it, it only knows how it should react to the specific surface and specific kind of input.
-
-        This is where we innovate: replace the hand of the artist with a robot. The mind that imagins/creates/discovers the art, however, cannot be replaced by the robot. Or even if it can be, it would be out of scope of this project. So, now we need to create two more interfaces: between the human and the robot and second, between the robot and the writing tool.
-
-        For the first interface, we discovered a modified form of bezier curve, "the rotation supported bezier". Bezier curves were first reported in use by a French physicist, \texttt{Paul de Casteljau} using \texttt{de Casteljau's algorithm}. He used bezier splines to model the bodies of \texttt{Renault} cars in 1959. We, after all those years, have discovered how asymmetric pen rotation can be incorporated in the bezier curves to define language scripts that require an asymmetric pen tip.
-
-        See Fig. \ref{FigBezier} which shows a screenshot of a bezier rotation curve constructed in \texttt{Drogon v2}.
-
-        \begin{figure}
-          \centering
-          \includegraphics[width=0.7\textwidth]{bezier.png}
-          \caption{A usual bezier spline has only two interlinked handles on a each anchor point which can control the shape of the curve before and after the anchor (shown blue). We have added a second (green) handle to each anchor which controls the rotation of the pen. Since the rotation handles act similar to the shapre handles, one can, in-effect, control change in rotation very accurately and smoothly.
-          } \label{FigBezier}
-        \end{figure}
-
+    {
+        Some of the motor angles are quite obvious. See the series of hand-sketched figures labelled with mask Fig. \texttt{RDn} in the subsequent pages which demonstrate how an inverse kinematic solution was discovered for this robot.
     }
-\subsection{Forward Kinematics}
 
-\clearpage
+    \subsection{Incorporating the twisting bezier splines} \label{Section:SimulatingRBS}
+    {
+        Using the same model of the spline model, the simulator first rasterizes the whole spline and then transforms the two dimensional points onto a plannar surface simulated on a user desired position in the workspace. Then it creates a pseudo machine code to mimic the tool changes required before each stroke and the transformed rasterized points are directly considered as G-Codes for the manipulator. Once computed it starts implementing the program.
+
+        For the sake of analysis, in parallel, the end effector orientation is captured continuously to construct an ink mark with each sweep of the tool. The reproduced image is then used for analysis. The results of such a comparison can be seen in Table \ref{Table:MachineDataMetrices}. The value indicate that the robot very closely reproduces the given spline thus verifying the thesis of the research.
+
+        \begin{table}[ht]
+        \centering
+        \resizebox{\textwidth}{!}{\begin{tabular}{| p{0.3\linewidth} | p{0.3\linewidth} |  p{0.2\linewidth} |  p{0.2\linewidth} |}
+          \hline
+          & \textbf{Reference} & \textbf{Coverage} & \textbf{Extra} \\
+          \hline
+          \multicolumn{4}{|l|}{\textbf{Nastaleeq}}\\
+          \hline
+          Rotating Bazier Spline & Original Image & 95.8\% & 5.4\% \\
+          \hline
+          Machined Output & Original Image & 96.7\% & 7.0\% \\
+          \hline
+          Machined Output & Rasterized Image & 96.7\% & 4.3\% \\
+          \hline
+          \multicolumn{4}{|l|}{\textbf{Thuluth}}\\
+          \hline
+          Rotating Bazier Spline & Original Image & 93.4\% & 2.8\% \\
+          \hline
+          Machined Output & Original Image & 95.0\% & 3.4\% \\
+          \hline
+          Machined Output & Rasterized Image & 97.8\% & 4.4\% \\
+          \hline
+        \label{Table:MachineDataMetrices}
+        \end{tabular}}
+        \caption{Benchmark of the mathematical accuracy of the twisting bezier spline curves with a simulated manipulator}
+        \end{table}
+    }
+}
+\clearpage 

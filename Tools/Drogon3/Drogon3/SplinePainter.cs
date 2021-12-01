@@ -44,9 +44,10 @@ namespace Drogon3
                 progress.Update(ind, f);
                 return true;
             }
+            var scale = double.Parse(scaleTB.Text);
             foreach (var splineSet in splineSets.OfType<RotatingBezierSpline>())
             {
-                var rasterizedSpline = ink.ImportSplines(splineSet, 0.0002, (f) => UpdateProgress(f));
+                var rasterizedSpline = ink.ImportSplines(splineSet, scale, (f) => UpdateProgress(f));
                 if (rasterizedSpline == null)
                         continue;
                 ImportedSplines.Add(rasterizedSpline);
@@ -86,6 +87,7 @@ namespace Drogon3
                 thisCmi.OnRequestToShowAll += (s_, e_) => ShowAll();
                 ind++;
                 documentLayoutFP.Controls.Add(thisCmi);
+                targetImageP.BackgroundImage = RenderImages(ImportedSplines);
             }
             try
             {
@@ -117,6 +119,12 @@ namespace Drogon3
             SphericalRobotSolution lastSol = null;
             Robot.Program = new MachineProgram();
             Robot.Program.Codes.Add(new ToolChangeCommand(0));
+            var progress = new SplineRasterizationProgress();
+            progress.UnitsCount = ImportedSplines.Count;
+            new Thread(() =>
+            {
+                progress.ShowDialog();
+            }).Start();
             foreach (var rSpline in ImportedSplines)
             {
                 var startPos = new ChainTranformationMatrix();
@@ -134,6 +142,8 @@ namespace Drogon3
 
                 foreach (var cell in rSpline.RasterizedCells)
                 {
+                    var f = rSpline.RasterizedCells.IndexOf(cell) / (float)rSpline.RasterizedCells.Count;
+                    progress.Update(ImportedSplines.IndexOf(rSpline), f);
                     if (cell.RasterizedData.Count <= 0)
                         continue;
                     foreach (var target in cell.RasterizedData)
@@ -178,10 +188,15 @@ namespace Drogon3
                 }
             }
             Robot.Program.Index = 0;
+            totalCodesL.Text = Robot.Program.Codes.Count.ToString();
+            currentCodeIndexL.Text = Robot.Program.Index.ToString();
+            progress.Invoke(new MethodInvoker(() => { progress.Close(); }));
         }
 
         private void simulateSplineB_Click(object sender, EventArgs e)
         {
+            Bitmap bmp = new Bitmap(targetImageP.BackgroundImage.Width, targetImageP.BackgroundImage.Height);
+            achievedImageP.BackgroundImage = bmp;
             List<List<TransformationMatrix>> SimulatedEndEffectorPostions = new List<List<TransformationMatrix>>();
             var SimulatedRasterizedDataTopProjection = new List<RasterizedRotatingBezierSpline>();
 
@@ -201,7 +216,7 @@ namespace Drogon3
                     if (lastSetToolSize != 0)
                     {
                         var rasterized = SimulatedRasterizedDataTopProjection.Last();
-                        rasterized.RasterizedCells = new List<RasterizedSplineCell>();
+                        rasterized.ToolWidth = lastSetToolSize;
                         Point3D p1 = new Point3D(-lastSetToolSize / 2, 0, 0);
                         Point3D p2 = new Point3D(+lastSetToolSize / 2, 0, 0);
                         p1 = Robot.CurrentEndEffectorTransformationMatrix * p1;
@@ -210,7 +225,7 @@ namespace Drogon3
                         {
                             X = (p1.X + p2.X) / 2,
                             Y = (p1.Y + p2.Y) / 2,
-                            T = Math.Atan2(p2.Y - p1.Y, p2.Y - p1.Y)
+                            T = Math.Atan2(p2.Y - p1.Y, p2.X - p1.X)
                         };
                         rasterized.RasterizedCells.Last().RasterizedData.Add(rp);
                         var ee = Robot.CurrentEndEffectorTransformationMatrix;
@@ -221,43 +236,120 @@ namespace Drogon3
                 else
                 {
                     if (Robot.Program.UnderWorking is ToolChangeCommand)
+                    {
+                        if (lastSetToolSize != ((ToolChangeCommand)Robot.Program.UnderWorking).ToolSize)
+                        {
+                            RenderImages(SimulatedRasterizedDataTopProjection, bmp);
+                            currentCodeIndexL.Text = Robot.Program.Index.ToString();
+                            achievedImageP.BackgroundImage = bmp;
+                            achievedImageP.Invalidate();
+                        }
                         lastSetToolSize = ((ToolChangeCommand)Robot.Program.UnderWorking).ToolSize;
+                    }
                     if (SimulatedEndEffectorPostions.Count == 0)
                     {
-                        SimulatedRasterizedDataTopProjection.Add(new RasterizedRotatingBezierSpline());
                         SimulatedEndEffectorPostions.Add(new List<TransformationMatrix>());
+                        SimulatedRasterizedDataTopProjection.Add(new RasterizedRotatingBezierSpline());
+                        SimulatedRasterizedDataTopProjection.Last().RasterizedCells = new List<RasterizedSplineCell>();
+                        SimulatedRasterizedDataTopProjection.Last().RasterizedCells.Add(new RasterizedSplineCell()
+                        {
+                            RasterizedData = new List<RasterizedPoint>()
+                        });
                         ink.NewTraceChar();
                     }
                     else if (SimulatedEndEffectorPostions.Last().Count > 0)
                     {
-                        SimulatedRasterizedDataTopProjection.Add(new RasterizedRotatingBezierSpline());
                         SimulatedEndEffectorPostions.Add(new List<TransformationMatrix>());
+                        SimulatedRasterizedDataTopProjection.Add(new RasterizedRotatingBezierSpline());
+                        SimulatedRasterizedDataTopProjection.Last().RasterizedCells = new List<RasterizedSplineCell>();
+                        SimulatedRasterizedDataTopProjection.Last().RasterizedCells.Add(new RasterizedSplineCell()
+                        {
+                            RasterizedData = new List<RasterizedPoint>()
+                        });
                         ink.NewTraceChar();
                     }
                 }
                 Robot.ThreadStep(.00001);
             }
             // we can now generate comparison images
-            var target = RenderImages(ImportedSplines);
-            var achievedd = RenderImages(SimulatedRasterizedDataTopProjection);
             progress.Invoke(new MethodInvoker(() => { progress.Close(); }));
         }
 
-        private object RenderImages(List<RasterizedRotatingBezierSpline> splines, double dpi = 300)
-        {
-            // get the image bounds
-            var minX = splines.Min(s => s.RasterizedCells.Min(rc => rc.RasterizedData.Min(rd => rd.X)));
-            var maxX = splines.Max(s => s.RasterizedCells.Max(rc => rc.RasterizedData.Max(rd => rd.X)));
-            var minY = splines.Min(s => s.RasterizedCells.Min(rc => rc.RasterizedData.Min(rd => rd.Y)));
-            var maxY = splines.Max(s => s.RasterizedCells.Max(rc => rc.RasterizedData.Max(rd => rd.Y)));
 
-            var bitmap = new Bitmap((int)((maxX - minX) * dpi), (int)((maxX - minX) * dpi));
+        private Bitmap RenderImages(List<RasterizedRotatingBezierSpline> splines, Bitmap bitmap = null, double dpi = 3000)
+        {
+            double minX = double.MaxValue, maxX = double.MinValue, minY = double.MaxValue, maxY = double.MinValue;
+            foreach (var s in splines)
+                foreach (var rc in s.RasterizedCells)
+                    foreach (var rd in rc.RasterizedData)
+                    {
+                        if (rd.X < minX) minX = rd.X;
+                        if (rd.X > maxX) maxX = rd.X;
+                        if (rd.Y < minY) minY = rd.Y;
+                        if (rd.Y > maxY) maxY = rd.Y;
+                    }
+            minX -= splines.Max(s => s.ToolWidth / 2);
+            maxX += splines.Max(s => s.ToolWidth / 2);
+            minY -= splines.Max(s => s.ToolWidth / 2);
+            maxY += splines.Max(s => s.ToolWidth / 2);
+            if (bitmap == null)
+                bitmap = new Bitmap((int)((maxX - minX) * dpi), (int)((maxY - minY) * dpi));
             var g = Graphics.FromImage(bitmap);
+            g.Clear(Color.Transparent);
+            g.ScaleTransform(1, -1);
+            g.TranslateTransform(0, -bitmap.Height);
+            var Rects = new List<PointF[]>();
             foreach (var spline in splines)
             {
-                
-            }
+                foreach (var cell in spline.RasterizedCells)
+                {
+                    for (int i = 0; i < cell.RasterizedData.Count - 1; i++)
+                    {
+                        var p1 = cell.RasterizedData[i];
+                        var p2 = cell.RasterizedData[i + 1];
 
+                        var p1_a = new PointF(
+                            (float)((p1.X - minX + spline.ToolWidth / 2 * Math.Cos(p1.T)) * dpi),
+                            (float)((p1.Y - minY + spline.ToolWidth / 2 * Math.Sin(p1.T)) * dpi));
+                        var p1_b = new PointF(
+                            (float)((p1.X - minX - spline.ToolWidth / 2 * Math.Cos(p1.T)) * dpi),
+                            (float)((p1.Y - minY - spline.ToolWidth / 2 * Math.Sin(p1.T)) * dpi));
+                        var p2_a = new PointF(
+                            (float)((p2.X - minX + spline.ToolWidth / 2 * Math.Cos(p2.T)) * dpi),
+                            (float)((p2.Y - minY + spline.ToolWidth / 2 * Math.Sin(p2.T)) * dpi));
+                        var p2_b = new PointF(
+                            (float)((p2.X - minX - spline.ToolWidth / 2 * Math.Cos(p2.T)) * dpi),
+                            (float)((p2.Y - minY - spline.ToolWidth / 2 * Math.Sin(p2.T)) * dpi));
+                        var path = new PointF[] { p1_a, p1_b, p2_b, p2_a };
+                        Rects.Add(path);
+                        g.FillPolygon(Brushes.Black, path);
+                        g.DrawPolygon(Pens.Black, path);
+                    }
+                }
+            }
+            return bitmap;
+        }
+
+        private void panel2_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void panel2_Click(object sender, EventArgs e)
+        {
+            var img = ((Panel)sender).BackgroundImage;
+            var isd = new SaveFileDialog();
+            if(isd.ShowDialog() == DialogResult.OK)
+            {
+                img.Save(isd.FileName);
+            }
+        }
+
+        private void analyzeB_Click(object sender, EventArgs e)
+        {
+            var ta = new RotatingBezierSplineEditor.TraceAnalyzer();
+
+            ta.Show();
         }
     }
 }

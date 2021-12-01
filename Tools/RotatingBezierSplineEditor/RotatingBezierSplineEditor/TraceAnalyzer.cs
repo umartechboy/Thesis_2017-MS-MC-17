@@ -22,6 +22,12 @@ namespace RotatingBezierSplineEditor
         {
             this.Board = board;
         }
+        public TraceAnalyzer(Image refImg, Image inkImg):this()
+        {
+            alternateSource = refImg;
+            alternateInk = inkImg;
+        }
+
 
         public event ExportRequestHandler OnExportRequest;
         Image RenderInk()
@@ -39,6 +45,8 @@ namespace RotatingBezierSplineEditor
         }
         Image RenderSource()
         {
+            if (alternateSource != null)
+                return alternateSource;
             var er = new ExportRequest();
             er.DrawMode = InkDrawMode.Images;
             er.RenderAllImages = false;
@@ -47,6 +55,12 @@ namespace RotatingBezierSplineEditor
             er.RenderAlgorithm = FlatTipRenderAlgorithm.Rectangle;
             er.DPI = (int)dpiNUD.Value;
             OnExportRequest?.Invoke(this, new ExportRequestEventArgs() { Request = er });
+            if (er.RenderOutput == null)
+            {
+                var bmp = new Bitmap(ReferenceImageItem.SourceImage);
+                bmp.RotateFlip(RotateFlipType.RotateNoneFlipY);
+                return bmp;
+            }
             return er.RenderOutput;
         }
 
@@ -133,7 +147,10 @@ namespace RotatingBezierSplineEditor
             ofd.Filter = "Image files (*.jpg, *.bmp, *.png)|*.png;*.jpg;*.bmp|All files (*.*)|*.*";
             if (ofd.ShowDialog() == DialogResult.OK)
             {
-                try { AddReferenceImage(ImageItem.FromFile(Board, ofd.FileName)); }
+                try
+                {
+                    AddReferenceImage(ImageItem.FromFile(Board, ofd.FileName));
+                }
                 catch { }
             }
         }
@@ -173,7 +190,12 @@ namespace RotatingBezierSplineEditor
             }
         }
 
-        private void loadInkFromFile_MouseDown(object sender, MouseEventArgs e)
+        private void inkFromScene_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void loadInkFromFile_CheckedChanged(object sender, EventArgs e)
         {
             if (loadInkFromFile.Checked)
             {
@@ -193,6 +215,10 @@ namespace RotatingBezierSplineEditor
             }
         }
 
+        private void loadInkFromFile_MouseDown(object sender, MouseEventArgs e)
+        {
+        }
+
         private void bWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             progLabel.Text = "";
@@ -208,6 +234,7 @@ namespace RotatingBezierSplineEditor
                 MissingPixels,
                 (ExtraPixels / (double)SourcePixels * 100).ToString("F2"),
                 ExtraPixels);
+            Clipboard.SetText(summaryL.Text);
         }
 
 

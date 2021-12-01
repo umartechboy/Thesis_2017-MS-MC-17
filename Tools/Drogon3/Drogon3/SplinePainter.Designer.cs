@@ -48,32 +48,37 @@ namespace Drogon3
             this.backgroundWorker2 = new System.ComponentModel.BackgroundWorker();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.documentLayoutFP = new System.Windows.Forms.FlowLayoutPanel();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.scaleTB = new System.Windows.Forms.TextBox();
             this.commandsLB = new System.Windows.Forms.ListBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.label6 = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
+            this.totalCodesL = new System.Windows.Forms.Label();
+            this.currentCodeIndexL = new System.Windows.Forms.Label();
+            this.simulateSplineB = new System.Windows.Forms.Button();
             this.genMachineCodeB = new System.Windows.Forms.Button();
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
+            this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.targetImageP = new System.Windows.Forms.Panel();
+            this.achievedImageP = new System.Windows.Forms.Panel();
             this.xyWPJS = new Drogon3.xyJoyStick();
             this.zJPJS = new Drogon3.yJoyStick();
             this.gGPJS = new Drogon3.yJoyStick();
             this.aGPJS = new Drogon3.yJoyStick();
             this.bGPJS = new Drogon3.yJoyStick();
-            this.simulateSplineB = new System.Windows.Forms.Button();
+            this.analyzeB = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
+            this.groupBox4.SuspendLayout();
+            this.achievedImageP.SuspendLayout();
             this.SuspendLayout();
             // 
             // importB
             // 
             this.importB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.importB.Location = new System.Drawing.Point(663, 167);
+            this.importB.Location = new System.Drawing.Point(413, 166);
             this.importB.Name = "importB";
-            this.importB.Size = new System.Drawing.Size(190, 94);
+            this.importB.Size = new System.Drawing.Size(102, 94);
             this.importB.TabIndex = 1;
             this.importB.Text = "Import";
             this.importB.UseVisualStyleBackColor = true;
@@ -83,7 +88,7 @@ namespace Drogon3
             // 
             this.gWPL.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.gWPL.AutoSize = true;
-            this.gWPL.Location = new System.Drawing.Point(415, 29);
+            this.gWPL.Location = new System.Drawing.Point(401, 29);
             this.gWPL.Name = "gWPL";
             this.gWPL.Size = new System.Drawing.Size(54, 17);
             this.gWPL.TabIndex = 16;
@@ -93,7 +98,7 @@ namespace Drogon3
             // 
             this.bWPL.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.bWPL.AutoSize = true;
-            this.bWPL.Location = new System.Drawing.Point(354, 29);
+            this.bWPL.Location = new System.Drawing.Point(340, 29);
             this.bWPL.Name = "bWPL";
             this.bWPL.Size = new System.Drawing.Size(54, 17);
             this.bWPL.TabIndex = 17;
@@ -103,7 +108,7 @@ namespace Drogon3
             // 
             this.aWPL.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.aWPL.AutoSize = true;
-            this.aWPL.Location = new System.Drawing.Point(294, 29);
+            this.aWPL.Location = new System.Drawing.Point(280, 29);
             this.aWPL.Name = "aWPL";
             this.aWPL.Size = new System.Drawing.Size(54, 17);
             this.aWPL.TabIndex = 18;
@@ -131,7 +136,7 @@ namespace Drogon3
             // 
             this.label11.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(432, 265);
+            this.label11.Location = new System.Drawing.Point(418, 281);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(19, 17);
             this.label11.TabIndex = 6;
@@ -141,7 +146,7 @@ namespace Drogon3
             // 
             this.label10.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(375, 265);
+            this.label10.Location = new System.Drawing.Point(361, 281);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(17, 17);
             this.label10.TabIndex = 7;
@@ -151,7 +156,7 @@ namespace Drogon3
             // 
             this.label9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(316, 265);
+            this.label9.Location = new System.Drawing.Point(302, 281);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(17, 17);
             this.label9.TabIndex = 8;
@@ -161,7 +166,7 @@ namespace Drogon3
             // 
             this.label8.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(237, 265);
+            this.label8.Location = new System.Drawing.Point(237, 281);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(17, 17);
             this.label8.TabIndex = 9;
@@ -186,7 +191,7 @@ namespace Drogon3
             // 
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(681, 142);
+            this.label1.Location = new System.Drawing.Point(410, 118);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(43, 17);
             this.label1.TabIndex = 22;
@@ -194,9 +199,8 @@ namespace Drogon3
             // 
             // groupBox1
             // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.groupBox1.Controls.Add(this.xyWPL);
             this.groupBox1.Controls.Add(this.label7);
             this.groupBox1.Controls.Add(this.label8);
@@ -214,22 +218,21 @@ namespace Drogon3
             this.groupBox1.Controls.Add(this.bGPJS);
             this.groupBox1.Location = new System.Drawing.Point(3, 3);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(484, 296);
+            this.groupBox1.Size = new System.Drawing.Size(470, 312);
             this.groupBox1.TabIndex = 23;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Artboard Position";
             // 
             // groupBox2
             // 
-            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.groupBox2.Controls.Add(this.documentLayoutFP);
-            this.groupBox2.Controls.Add(this.textBox1);
+            this.groupBox2.Controls.Add(this.scaleTB);
             this.groupBox2.Controls.Add(this.label1);
             this.groupBox2.Controls.Add(this.importB);
-            this.groupBox2.Location = new System.Drawing.Point(6, 305);
+            this.groupBox2.Location = new System.Drawing.Point(6, 321);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(859, 267);
+            this.groupBox2.Size = new System.Drawing.Size(521, 267);
             this.groupBox2.TabIndex = 23;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Import Splines";
@@ -244,73 +247,86 @@ namespace Drogon3
             this.documentLayoutFP.Location = new System.Drawing.Point(12, 22);
             this.documentLayoutFP.Margin = new System.Windows.Forms.Padding(4);
             this.documentLayoutFP.Name = "documentLayoutFP";
-            this.documentLayoutFP.Size = new System.Drawing.Size(644, 238);
+            this.documentLayoutFP.Size = new System.Drawing.Size(390, 238);
             this.documentLayoutFP.TabIndex = 24;
             // 
-            // textBox1
+            // scaleTB
             // 
-            this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox1.Location = new System.Drawing.Point(730, 139);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(123, 22);
-            this.textBox1.TabIndex = 23;
+            this.scaleTB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.scaleTB.Location = new System.Drawing.Point(413, 138);
+            this.scaleTB.Name = "scaleTB";
+            this.scaleTB.Size = new System.Drawing.Size(102, 22);
+            this.scaleTB.TabIndex = 23;
+            this.scaleTB.Text = "0.0002";
             // 
             // commandsLB
             // 
-            this.commandsLB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.commandsLB.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.commandsLB.FormattingEnabled = true;
             this.commandsLB.ItemHeight = 16;
-            this.commandsLB.Location = new System.Drawing.Point(24, 60);
+            this.commandsLB.Location = new System.Drawing.Point(6, 24);
             this.commandsLB.Name = "commandsLB";
-            this.commandsLB.Size = new System.Drawing.Size(179, 212);
+            this.commandsLB.Size = new System.Drawing.Size(452, 260);
             this.commandsLB.TabIndex = 25;
             // 
             // groupBox3
             // 
-            this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox3.Controls.Add(this.commandsLB);
-            this.groupBox3.Controls.Add(this.label6);
-            this.groupBox3.Controls.Add(this.label5);
+            this.groupBox3.Controls.Add(this.totalCodesL);
+            this.groupBox3.Controls.Add(this.currentCodeIndexL);
             this.groupBox3.Controls.Add(this.simulateSplineB);
             this.groupBox3.Controls.Add(this.genMachineCodeB);
             this.groupBox3.Controls.Add(this.label4);
             this.groupBox3.Controls.Add(this.label3);
-            this.groupBox3.Controls.Add(this.label2);
-            this.groupBox3.Location = new System.Drawing.Point(493, 12);
+            this.groupBox3.Location = new System.Drawing.Point(479, 12);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(372, 287);
+            this.groupBox3.Size = new System.Drawing.Size(583, 303);
             this.groupBox3.TabIndex = 24;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Machine Code";
             // 
-            // label6
+            // totalCodesL
             // 
-            this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(282, 110);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(18, 17);
-            this.label6.TabIndex = 22;
-            this.label6.Text = "--";
+            this.totalCodesL.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.totalCodesL.AutoSize = true;
+            this.totalCodesL.Location = new System.Drawing.Point(524, 126);
+            this.totalCodesL.Name = "totalCodesL";
+            this.totalCodesL.Size = new System.Drawing.Size(18, 17);
+            this.totalCodesL.TabIndex = 22;
+            this.totalCodesL.Text = "--";
             // 
-            // label5
+            // currentCodeIndexL
             // 
-            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(282, 77);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(18, 17);
-            this.label5.TabIndex = 22;
-            this.label5.Text = "--";
+            this.currentCodeIndexL.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.currentCodeIndexL.AutoSize = true;
+            this.currentCodeIndexL.Location = new System.Drawing.Point(524, 93);
+            this.currentCodeIndexL.Name = "currentCodeIndexL";
+            this.currentCodeIndexL.Size = new System.Drawing.Size(18, 17);
+            this.currentCodeIndexL.TabIndex = 22;
+            this.currentCodeIndexL.Text = "--";
+            // 
+            // simulateSplineB
+            // 
+            this.simulateSplineB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.simulateSplineB.Location = new System.Drawing.Point(464, 225);
+            this.simulateSplineB.Name = "simulateSplineB";
+            this.simulateSplineB.Size = new System.Drawing.Size(113, 64);
+            this.simulateSplineB.TabIndex = 1;
+            this.simulateSplineB.Text = "Show Simulated Path";
+            this.simulateSplineB.UseVisualStyleBackColor = true;
+            this.simulateSplineB.Click += new System.EventHandler(this.simulateSplineB_Click);
             // 
             // genMachineCodeB
             // 
             this.genMachineCodeB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.genMachineCodeB.Location = new System.Drawing.Point(209, 146);
+            this.genMachineCodeB.Location = new System.Drawing.Point(464, 146);
             this.genMachineCodeB.Name = "genMachineCodeB";
-            this.genMachineCodeB.Size = new System.Drawing.Size(157, 57);
+            this.genMachineCodeB.Size = new System.Drawing.Size(113, 73);
             this.genMachineCodeB.TabIndex = 1;
             this.genMachineCodeB.Text = "Generate Machine Code";
             this.genMachineCodeB.UseVisualStyleBackColor = true;
@@ -320,7 +336,7 @@ namespace Drogon3
             // 
             this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(235, 110);
+            this.label4.Location = new System.Drawing.Point(477, 126);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(44, 17);
             this.label4.TabIndex = 22;
@@ -330,21 +346,51 @@ namespace Drogon3
             // 
             this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(220, 77);
+            this.label3.Location = new System.Drawing.Point(462, 93);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(59, 17);
             this.label3.TabIndex = 22;
             this.label3.Text = "Current:";
             // 
-            // label2
+            // groupBox4
             // 
-            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(21, 29);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(98, 17);
-            this.label2.TabIndex = 22;
-            this.label2.Text = "Machine Code";
+            this.groupBox4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox4.Controls.Add(this.achievedImageP);
+            this.groupBox4.Controls.Add(this.targetImageP);
+            this.groupBox4.Location = new System.Drawing.Point(533, 321);
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.Size = new System.Drawing.Size(523, 260);
+            this.groupBox4.TabIndex = 25;
+            this.groupBox4.TabStop = false;
+            this.groupBox4.Text = "Rendered Outputs";
+            // 
+            // targetImageP
+            // 
+            this.targetImageP.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.targetImageP.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.targetImageP.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.targetImageP.Location = new System.Drawing.Point(6, 22);
+            this.targetImageP.Name = "targetImageP";
+            this.targetImageP.Size = new System.Drawing.Size(507, 118);
+            this.targetImageP.TabIndex = 0;
+            this.targetImageP.Click += new System.EventHandler(this.panel2_Click);
+            this.targetImageP.Paint += new System.Windows.Forms.PaintEventHandler(this.panel2_Paint);
+            // 
+            // achievedImageP
+            // 
+            this.achievedImageP.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.achievedImageP.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.achievedImageP.Controls.Add(this.analyzeB);
+            this.achievedImageP.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.achievedImageP.Location = new System.Drawing.Point(6, 146);
+            this.achievedImageP.Name = "achievedImageP";
+            this.achievedImageP.Size = new System.Drawing.Size(507, 108);
+            this.achievedImageP.TabIndex = 0;
+            this.achievedImageP.Click += new System.EventHandler(this.panel2_Click);
+            this.achievedImageP.Paint += new System.Windows.Forms.PaintEventHandler(this.panel2_Paint);
             // 
             // xyWPJS
             // 
@@ -359,62 +405,65 @@ namespace Drogon3
             | System.Windows.Forms.AnchorStyles.Left)));
             this.zJPJS.Location = new System.Drawing.Point(221, 49);
             this.zJPJS.Name = "zJPJS";
-            this.zJPJS.Size = new System.Drawing.Size(53, 213);
+            this.zJPJS.Size = new System.Drawing.Size(53, 229);
             this.zJPJS.TabIndex = 15;
             // 
             // gGPJS
             // 
             this.gGPJS.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.gGPJS.Location = new System.Drawing.Point(416, 49);
+            this.gGPJS.Location = new System.Drawing.Point(402, 49);
             this.gGPJS.Name = "gGPJS";
-            this.gGPJS.Size = new System.Drawing.Size(53, 213);
+            this.gGPJS.Size = new System.Drawing.Size(53, 229);
             this.gGPJS.TabIndex = 14;
             // 
             // aGPJS
             // 
             this.aGPJS.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.aGPJS.Location = new System.Drawing.Point(299, 49);
+            this.aGPJS.Location = new System.Drawing.Point(285, 49);
             this.aGPJS.Name = "aGPJS";
-            this.aGPJS.Size = new System.Drawing.Size(53, 213);
+            this.aGPJS.Size = new System.Drawing.Size(53, 229);
             this.aGPJS.TabIndex = 12;
             // 
             // bGPJS
             // 
             this.bGPJS.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.bGPJS.Location = new System.Drawing.Point(357, 49);
+            this.bGPJS.Location = new System.Drawing.Point(343, 49);
             this.bGPJS.Name = "bGPJS";
-            this.bGPJS.Size = new System.Drawing.Size(53, 213);
+            this.bGPJS.Size = new System.Drawing.Size(53, 229);
             this.bGPJS.TabIndex = 13;
             // 
-            // simulateSplineB
+            // analyzeB
             // 
-            this.simulateSplineB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.simulateSplineB.Location = new System.Drawing.Point(209, 209);
-            this.simulateSplineB.Name = "simulateSplineB";
-            this.simulateSplineB.Size = new System.Drawing.Size(157, 64);
-            this.simulateSplineB.TabIndex = 1;
-            this.simulateSplineB.Text = "Show Simulated Path";
-            this.simulateSplineB.UseVisualStyleBackColor = true;
-            this.simulateSplineB.Click += new System.EventHandler(this.simulateSplineB_Click);
+            this.analyzeB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.analyzeB.Location = new System.Drawing.Point(405, 81);
+            this.analyzeB.Name = "analyzeB";
+            this.analyzeB.Size = new System.Drawing.Size(99, 24);
+            this.analyzeB.TabIndex = 1;
+            this.analyzeB.Text = "Analyze";
+            this.analyzeB.UseVisualStyleBackColor = true;
+            this.analyzeB.Click += new System.EventHandler(this.analyzeB_Click);
             // 
             // SplinePainter
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Name = "SplinePainter";
-            this.Size = new System.Drawing.Size(868, 575);
+            this.Size = new System.Drawing.Size(1065, 591);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
+            this.groupBox4.ResumeLayout(false);
+            this.achievedImageP.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -442,16 +491,19 @@ namespace Drogon3
         private System.Windows.Forms.GroupBox groupBox1;
         private System.ComponentModel.BackgroundWorker backgroundWorker2;
         private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox scaleTB;
         private System.Windows.Forms.FlowLayoutPanel documentLayoutFP;
         private System.Windows.Forms.ListBox commandsLB;
         private System.Windows.Forms.GroupBox groupBox3;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label totalCodesL;
+        private System.Windows.Forms.Label currentCodeIndexL;
         private System.Windows.Forms.Button genMachineCodeB;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button simulateSplineB;
+        private System.Windows.Forms.GroupBox groupBox4;
+        private System.Windows.Forms.Panel targetImageP;
+        private System.Windows.Forms.Panel achievedImageP;
+        private System.Windows.Forms.Button analyzeB;
     }
 }

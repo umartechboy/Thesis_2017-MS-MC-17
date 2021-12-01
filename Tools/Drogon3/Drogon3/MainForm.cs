@@ -173,27 +173,12 @@ namespace Drogon3
 
         private void importSplineToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //var splines = RotatingBezierSplineEditor.MainForm.GetSpline();
-            //int ind = 0;
-            //var progress = new SplineRasterizationProgress();
-            //progress.UnitsCount = splines.Length;
-            //var t = new Thread(() => { progress.ShowDialog(); });
-            //t.Start();
-            //bool UpdateProgress(float f)
-            //{
-            //    progress.Update(ind, f);
-            //    return true;
-            //}
-            //foreach (var spline in splines)
-            //{
-            //    ink.ImportInk(spline, 0.001, (f) => UpdateProgress(f));
-            //    ind++;
-            //}
-            //try
-            //{
-            //    progress.Invoke(new MethodInvoker(() => { progress.Close(); }));
-            //}
-            //catch { }
+            new RotatingBezierSplineEditor.TraceAnalyzer().Show();   
+        }
+
+        private void routePlannerToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new RotatingBezierSplineEditor.MainForm().Show();
         }
     }
 }

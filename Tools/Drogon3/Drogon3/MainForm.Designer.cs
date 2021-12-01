@@ -30,40 +30,30 @@ namespace Drogon3
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this._3dPrevT = new RotatingBezierSplineEditor.ToolControl();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.analysisToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.dSimulationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.robotEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.inverseKinematicsSolverToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pIDPerformanceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.splinePainterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.routePlannerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.importSplineToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.editRobotT = new RotatingBezierSplineEditor.ToolControl();
-            this.realTimeTickT = new RotatingBezierSplineEditor.ToolControl();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.inverseKinematicsT = new RotatingBezierSplineEditor.ToolControl();
             this.tools = new System.Windows.Forms.Panel();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.editRobotT = new RotatingBezierSplineEditor.ToolControl();
+            this.splinePainterT = new RotatingBezierSplineEditor.ToolControl();
             this.endEffectorControlT = new RotatingBezierSplineEditor.ToolControl();
             this.pidPerformanceT = new RotatingBezierSplineEditor.ToolControl();
-            this.splinePainterT = new RotatingBezierSplineEditor.ToolControl();
-            this.splinePainterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.inverseKinematicsT = new RotatingBezierSplineEditor.ToolControl();
+            this.realTimeTickT = new RotatingBezierSplineEditor.ToolControl();
+            this._3dPrevT = new RotatingBezierSplineEditor.ToolControl();
             this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // _3dPrevT
-            // 
-            this._3dPrevT.Active = false;
-            this._3dPrevT.Cursor = System.Windows.Forms.Cursors.Hand;
-            this._3dPrevT.DistinctSelection = false;
-            this._3dPrevT.Location = new System.Drawing.Point(0, 114);
-            this._3dPrevT.Name = "_3dPrevT";
-            this._3dPrevT.Size = new System.Drawing.Size(80, 80);
-            this._3dPrevT.TabIndex = 0;
-            this._3dPrevT.OnActivated += new System.EventHandler(this._3dPrev_OnActivated);
             // 
             // menuStrip1
             // 
@@ -113,6 +103,12 @@ namespace Drogon3
             this.pIDPerformanceToolStripMenuItem.Size = new System.Drawing.Size(259, 26);
             this.pIDPerformanceToolStripMenuItem.Text = "PID performance";
             // 
+            // splinePainterToolStripMenuItem
+            // 
+            this.splinePainterToolStripMenuItem.Name = "splinePainterToolStripMenuItem";
+            this.splinePainterToolStripMenuItem.Size = new System.Drawing.Size(259, 26);
+            this.splinePainterToolStripMenuItem.Text = "Spline Painter";
+            // 
             // toolsToolStripMenuItem
             // 
             this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -125,54 +121,22 @@ namespace Drogon3
             // routePlannerToolStripMenuItem
             // 
             this.routePlannerToolStripMenuItem.Name = "routePlannerToolStripMenuItem";
-            this.routePlannerToolStripMenuItem.Size = new System.Drawing.Size(184, 26);
-            this.routePlannerToolStripMenuItem.Text = "Route Planner";
+            this.routePlannerToolStripMenuItem.Size = new System.Drawing.Size(238, 26);
+            this.routePlannerToolStripMenuItem.Text = "Rotating Spline Editor";
+            this.routePlannerToolStripMenuItem.Click += new System.EventHandler(this.routePlannerToolStripMenuItem_Click);
             // 
             // importSplineToolStripMenuItem
             // 
             this.importSplineToolStripMenuItem.Name = "importSplineToolStripMenuItem";
-            this.importSplineToolStripMenuItem.Size = new System.Drawing.Size(184, 26);
-            this.importSplineToolStripMenuItem.Text = "Import Spline";
+            this.importSplineToolStripMenuItem.Size = new System.Drawing.Size(238, 26);
+            this.importSplineToolStripMenuItem.Text = "Spline Analyzer";
             this.importSplineToolStripMenuItem.Click += new System.EventHandler(this.importSplineToolStripMenuItem_Click);
-            // 
-            // editRobotT
-            // 
-            this.editRobotT.Active = false;
-            this.editRobotT.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.editRobotT.DistinctSelection = true;
-            this.editRobotT.Location = new System.Drawing.Point(0, 1);
-            this.editRobotT.Name = "editRobotT";
-            this.editRobotT.Size = new System.Drawing.Size(80, 80);
-            this.editRobotT.TabIndex = 0;
-            this.editRobotT.OnActivated += new System.EventHandler(this._3dPrev_OnActivated);
-            // 
-            // realTimeTickT
-            // 
-            this.realTimeTickT.Active = false;
-            this.realTimeTickT.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.realTimeTickT.DistinctSelection = false;
-            this.realTimeTickT.Location = new System.Drawing.Point(0, 31);
-            this.realTimeTickT.Name = "realTimeTickT";
-            this.realTimeTickT.Size = new System.Drawing.Size(80, 80);
-            this.realTimeTickT.TabIndex = 0;
-            this.realTimeTickT.OnActivated += new System.EventHandler(this.realTimeTick_OnActivated);
             // 
             // timer1
             // 
             this.timer1.Enabled = true;
             this.timer1.Interval = 30;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
-            // 
-            // inverseKinematicsT
-            // 
-            this.inverseKinematicsT.Active = false;
-            this.inverseKinematicsT.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.inverseKinematicsT.DistinctSelection = true;
-            this.inverseKinematicsT.Location = new System.Drawing.Point(0, 84);
-            this.inverseKinematicsT.Name = "inverseKinematicsT";
-            this.inverseKinematicsT.Size = new System.Drawing.Size(80, 80);
-            this.inverseKinematicsT.TabIndex = 0;
-            this.inverseKinematicsT.OnActivated += new System.EventHandler(this._3dPrev_OnActivated);
             // 
             // tools
             // 
@@ -196,6 +160,28 @@ namespace Drogon3
             this.panel1.Size = new System.Drawing.Size(80, 421);
             this.panel1.TabIndex = 3;
             // 
+            // editRobotT
+            // 
+            this.editRobotT.Active = false;
+            this.editRobotT.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.editRobotT.DistinctSelection = true;
+            this.editRobotT.Location = new System.Drawing.Point(0, 1);
+            this.editRobotT.Name = "editRobotT";
+            this.editRobotT.Size = new System.Drawing.Size(80, 80);
+            this.editRobotT.TabIndex = 0;
+            this.editRobotT.OnActivated += new System.EventHandler(this._3dPrev_OnActivated);
+            // 
+            // splinePainterT
+            // 
+            this.splinePainterT.Active = false;
+            this.splinePainterT.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.splinePainterT.DistinctSelection = true;
+            this.splinePainterT.Location = new System.Drawing.Point(0, 333);
+            this.splinePainterT.Name = "splinePainterT";
+            this.splinePainterT.Size = new System.Drawing.Size(80, 80);
+            this.splinePainterT.TabIndex = 0;
+            this.splinePainterT.OnActivated += new System.EventHandler(this._3dPrev_OnActivated);
+            // 
             // endEffectorControlT
             // 
             this.endEffectorControlT.Active = false;
@@ -218,22 +204,38 @@ namespace Drogon3
             this.pidPerformanceT.TabIndex = 0;
             this.pidPerformanceT.OnActivated += new System.EventHandler(this._3dPrev_OnActivated);
             // 
-            // splinePainterT
+            // inverseKinematicsT
             // 
-            this.splinePainterT.Active = false;
-            this.splinePainterT.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.splinePainterT.DistinctSelection = true;
-            this.splinePainterT.Location = new System.Drawing.Point(0, 333);
-            this.splinePainterT.Name = "splinePainterT";
-            this.splinePainterT.Size = new System.Drawing.Size(80, 80);
-            this.splinePainterT.TabIndex = 0;
-            this.splinePainterT.OnActivated += new System.EventHandler(this._3dPrev_OnActivated);
+            this.inverseKinematicsT.Active = false;
+            this.inverseKinematicsT.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.inverseKinematicsT.DistinctSelection = true;
+            this.inverseKinematicsT.Location = new System.Drawing.Point(0, 84);
+            this.inverseKinematicsT.Name = "inverseKinematicsT";
+            this.inverseKinematicsT.Size = new System.Drawing.Size(80, 80);
+            this.inverseKinematicsT.TabIndex = 0;
+            this.inverseKinematicsT.OnActivated += new System.EventHandler(this._3dPrev_OnActivated);
             // 
-            // splinePainterToolStripMenuItem
+            // realTimeTickT
             // 
-            this.splinePainterToolStripMenuItem.Name = "splinePainterToolStripMenuItem";
-            this.splinePainterToolStripMenuItem.Size = new System.Drawing.Size(259, 26);
-            this.splinePainterToolStripMenuItem.Text = "Spline Painter";
+            this.realTimeTickT.Active = false;
+            this.realTimeTickT.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.realTimeTickT.DistinctSelection = false;
+            this.realTimeTickT.Location = new System.Drawing.Point(0, 31);
+            this.realTimeTickT.Name = "realTimeTickT";
+            this.realTimeTickT.Size = new System.Drawing.Size(80, 80);
+            this.realTimeTickT.TabIndex = 0;
+            this.realTimeTickT.OnActivated += new System.EventHandler(this.realTimeTick_OnActivated);
+            // 
+            // _3dPrevT
+            // 
+            this._3dPrevT.Active = false;
+            this._3dPrevT.Cursor = System.Windows.Forms.Cursors.Hand;
+            this._3dPrevT.DistinctSelection = false;
+            this._3dPrevT.Location = new System.Drawing.Point(0, 114);
+            this._3dPrevT.Name = "_3dPrevT";
+            this._3dPrevT.Size = new System.Drawing.Size(80, 80);
+            this._3dPrevT.TabIndex = 0;
+            this._3dPrevT.OnActivated += new System.EventHandler(this._3dPrev_OnActivated);
             // 
             // MainForm
             // 
@@ -245,6 +247,7 @@ namespace Drogon3
             this.Controls.Add(this.realTimeTickT);
             this.Controls.Add(this._3dPrevT);
             this.Controls.Add(this.menuStrip1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "MainForm";
             this.Text = "Drogon 3";
