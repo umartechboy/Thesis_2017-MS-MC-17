@@ -180,5 +180,11 @@ namespace Drogon3
         {
             new RotatingBezierSplineEditor.MainForm().Show();
         }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            robot.Terminate();
+            Environment.Exit(0);
+        }
     }
 }

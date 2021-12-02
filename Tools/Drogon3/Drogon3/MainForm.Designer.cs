@@ -251,6 +251,7 @@ namespace Drogon3
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "MainForm";
             this.Text = "Drogon 3";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();

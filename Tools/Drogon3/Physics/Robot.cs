@@ -15,6 +15,9 @@ namespace RoboSim
     public delegate void DebugPoint(Point3D p, int ind);
     public class Robot
     {
+        protected Thread graphicsUpdateThread;
+        public void Terminate()
+        { graphicsUpdateThread?.Abort(); }
         public RobotControlSource ControlSource { get; set; } = RobotControlSource.SolutionTester;
         public EulerAngleOrientation CurrentTarget { get; set; } = null;
         public event EventHandler AfterThreadStep, BeforeThreadStep;
@@ -396,13 +399,14 @@ namespace RoboSim
 
             // Make the link models now. Add motors represenations if needed                                                        
             gm.Children.Add(link0);
-            new Thread(() => {
+            graphicsUpdateThread = new Thread(() => {
                 while (true)
                 {
                     Thread.Sleep(30);
 
                 }
-            }).Start();
+            });
+            graphicsUpdateThread.Start();
         }
 
         public override bool TargetAchievable(RobotSolution solution)

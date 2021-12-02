@@ -1,0 +1,4 @@
+Total Pixels: 4355664
+Pixels in Ink: 873729
+Missing: -2.22% (19359)
+Extra: 4.38% (38258)
