@@ -3,6 +3,18 @@ This repo is an appendix to the original MS research thesis under the same title
  - Drogon 2.0 -- An open source robotic simulator, analyser and designer for 6 DOF robots
  - Rotating Bezier Spline Curve Editor -- A minimalistic GUI to demonstrate and create rotating Bezier Spline curves, exporting vector data to be used with the robot simulators and systems supporting the Rotating Bezier Spline Curve targets.
 
+# Data Organisation
+* Synopsis -- Contains the presentation and the data used to create it for the synopsis of the thesis
+* Thesis -- Latex source code for the final thesis
+* Thesis Nov2021 -- We created this thesis branch to be kept to ebbed data that could not be packed in the thesis like user manuals and code organisation
+* Gohar Qalam -- The Rorotaing splines files, reference photos and processing results for Gohar Qalam's manuscripts
+* Other Data -- Unorganised but relavant data used or referred to in the work
+* Tools -- Source code for the developed tools 
+* Tools > Drogon3 > Drogon3.sln Visual studio solution for the complete code project
+* Tools > RotatingBezierSplineEditor > RotatingBezierSplineEditor.sln Solution file for the bezier spline editor project alone
+* Binaries > Executables for Drogon 3 and Gregor. Includes the PhysLogger files required to run as well.
+* Videos > Apenddix videos
+
 # What is a Rotating Spline?
 Rotating (or twisting) Bezier Spline is a varient of the regular bezier splines that have such that it has a continuously changinging line thickness. Unlike the regular stroke thickness, this thickness can be considered as the ink-mark of a flat tip marker travelling on a bezier spline. I call them "rotating" splines because the spline contains information how the flat marker "rotates" about it's own axis as it moves on the spline.
 
