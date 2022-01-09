@@ -2,8 +2,8 @@
 \contentsline {section}{\numberline {}Contents}{2}{}
 \tocdepth@restore 
 \contentsline {section}{\numberline {I}Introduction}{4}{}
-\contentsline {section}{\numberline {II}Understanding the Research Problem}{6}{}
-\contentsline {subsection}{\numberline {A}The Problem Statement}{6}{}
+\contentsline {section}{\numberline {II}Understanding the Research Problem}{5}{}
+\contentsline {subsection}{\numberline {A}The Problem Statement}{5}{}
 \contentsline {subsection}{\numberline {B}The Proposed Solution}{6}{}
 \contentsline {section}{\numberline {III}Rotating/Twisting Bezier Splines}{7}{}
 \contentsline {subsection}{\numberline {A}Introduction}{7}{}
@@ -16,7 +16,7 @@
 \contentsline {subsection}{\numberline {F}Characterization}{13}{}
 \contentsline {subsection}{\numberline {G}Supported Scripts}{13}{}
 \contentsline {subsubsection}{\numberline {1}Coverage}{14}{}
-\contentsline {subsubsection}{\numberline {2}Sample Results}{14}{}
+\contentsline {subsubsection}{\numberline {2}Sample Results}{15}{}
 \contentsline {subsubsection}{\numberline {3}Machine Data Generation and Simulation}{17}{}
 \contentsline {section}{\numberline {IV}Robotic Manipulator}{19}{}
 \contentsline {subsection}{\numberline {A}Functional Requirements of the Manipulator}{19}{}
@@ -26,51 +26,45 @@
 \contentsline {subsection}{\numberline {E}Mathematical Modelling}{24}{}
 \contentsline {subsection}{\numberline {F}Inverse and Forward Kinematics}{24}{}
 \contentsline {subsection}{\numberline {G}Incorporating the twisting bezier splines}{24}{}
-\contentsline {section}{\numberline {V}Conclusion}{26}{}
-\contentsline {section}{\numberline {}References}{27}{}
+\contentsline {section}{\numberline {V}Gregor -- The Twisting Bezier Spline Editor}{26}{}
+\contentsline {subsection}{\numberline {A}Introduction}{26}{}
+\contentsline {subsection}{\numberline {B}Requirements}{27}{}
+\contentsline {subsection}{\numberline {C}Overview of the implementation}{27}{}
+\contentsline {section}{\numberline {VI}Drogon -- The Robot Simulator}{29}{}
+\contentsline {subsection}{\numberline {A}Introduction}{29}{}
+\contentsline {subsubsection}{\numberline {1}The Requirements}{29}{}
+\contentsline {subsection}{\numberline {B}The working principal}{31}{}
+\contentsline {subsubsection}{\numberline {1}Simulation}{31}{}
+\contentsline {subsubsection}{\numberline {2}Motor controller}{31}{}
+\contentsline {subsubsection}{\numberline {3}Workspace}{33}{}
+\contentsline {subsection}{\numberline {C}About the Tools}{33}{}
+\contentsline {subsection}{\numberline {D}Workspace Optimization}{34}{}
+\contentsline {subsection}{\numberline {E}Script Path Planner}{34}{}
+\contentsline {subsection}{\numberline {F}Script Motion Simulator}{34}{}
+\contentsline {section}{\numberline {VII}Conclusion}{37}{}
+\contentsline {section}{\numberline {}References}{39}{}
 \appendix 
-\contentsline {section}{\numberline {A}Tables}{28}{}
-\contentsline {subsubsection}{\numberline {a}Gregor -- Keyboard Shorcuts}{28}{}
-\contentsline {section}{\numberline {B}Source Code}{30}{}
-\contentsline {section}{\numberline {C}Code Snippets}{31}{}
-\contentsline {section}{\numberline {D}Images}{33}{}
-\contentsline {section}{\numberline {E}Gregor -- The Twisting Bezier Spline Editor}{37}{}
-\contentsline {subsection}{\numberline {1}Introduction}{37}{}
-\contentsline {subsection}{\numberline {2}Requirements and Features}{38}{}
-\contentsline {subsection}{\numberline {3}Usage}{39}{}
-\contentsline {subsection}{\numberline {4}Interface}{40}{}
-\contentsline {subsubsection}{\numberline {a}The Viewing Modes}{40}{}
-\contentsline {subsubsection}{\numberline {b}The Editing Modes}{40}{}
-\contentsline {subsection}{\numberline {5}Modifying A Spline Curve}{41}{}
-\contentsline {subsubsection}{\numberline {a}Starting a New Curve}{41}{}
-\contentsline {subsubsection}{\numberline {b}Appending to a Previously Active Curve}{41}{}
-\contentsline {subsubsection}{\numberline {c}Adding Anchors in the Middle}{41}{}
-\contentsline {subsubsection}{\numberline {d}Simultaneous Curve Editing While Adding New Anchors}{43}{}
-\contentsline {subsection}{\numberline {6}Modifying an Ink-mark}{43}{}
-\contentsline {subsubsection}{\numberline {a}Adding an Ink-Mark}{43}{}
-\contentsline {subsubsection}{\numberline {b}Modifying the twist/rotation}{43}{}
-\contentsline {subsection}{\numberline {7}Using Images}{44}{}
-\contentsline {subsection}{\numberline {8}Using the Document Explorer}{44}{}
-\contentsline {subsection}{\numberline {9}Save, Load, Export}{45}{}
-\contentsline {subsubsection}{\numberline {a}Exporting Images}{45}{}
-\contentsline {subsubsection}{\numberline {b}The File Format}{46}{}
-\contentsline {subsection}{\numberline {10}Short-keys}{46}{}
-\contentsline {subsection}{\numberline {11}Analysis Tools}{47}{}
-\contentsline {subsection}{\numberline {12}Development}{47}{}
-\contentsline {subsubsection}{\numberline {a}Code Organization}{47}{}
-\contentsline {subsubsection}{\numberline {b}The BezierBoard Class}{47}{}
-\contentsline {subsubsection}{\numberline {c}RBSPoint}{47}{}
-\contentsline {subsubsection}{\numberline {d}Spline Elements}{47}{}
-\contentsline {subsubsection}{\numberline {e}Miscellaneous Helper classes and form}{47}{}
-\contentsline {subsubsection}{\numberline {f}Areas needing Improvement}{47}{}
-\contentsline {section}{\numberline {F}Drogon -- The Robot Simulator}{48}{}
-\contentsline {subsection}{\numberline {1}Introduction}{48}{}
-\contentsline {subsubsection}{\numberline {a}The Requirements}{48}{}
-\contentsline {subsection}{\numberline {2}The working principal}{50}{}
-\contentsline {subsubsection}{\numberline {a}Simulation}{50}{}
-\contentsline {subsubsection}{\numberline {b}Motor controller}{50}{}
-\contentsline {subsubsection}{\numberline {c}Workspace}{52}{}
-\contentsline {subsection}{\numberline {3}About the Tools}{52}{}
-\contentsline {subsection}{\numberline {4}Workspace Optimization}{53}{}
-\contentsline {subsection}{\numberline {5}Script Path Planner}{53}{}
-\contentsline {subsection}{\numberline {6}Script Motion Simulator}{53}{}
+\contentsline {section}{\numberline {A}Tables}{40}{}
+\contentsline {subsubsection}{\numberline {a}Gregor -- Keyboard Shorcuts}{40}{}
+\contentsline {section}{\numberline {B}Source Code}{42}{}
+\contentsline {section}{\numberline {C}Code Snippets}{43}{}
+\contentsline {section}{\numberline {D}Images}{45}{}
+\contentsline {section}{\numberline {E}Gregor -- A short user manual}{49}{}
+\contentsline {subsection}{\numberline {1}Features}{49}{}
+\contentsline {subsection}{\numberline {2}Usage}{49}{}
+\contentsline {subsection}{\numberline {3}Interface}{50}{}
+\contentsline {subsubsection}{\numberline {a}The Viewing Modes}{50}{}
+\contentsline {subsubsection}{\numberline {b}The Editing Modes}{51}{}
+\contentsline {subsection}{\numberline {4}Modifying A Spline Curve}{51}{}
+\contentsline {subsubsection}{\numberline {a}Starting a New Curve}{51}{}
+\contentsline {subsubsection}{\numberline {b}Appending to a Previously Active Curve}{53}{}
+\contentsline {subsubsection}{\numberline {c}Adding Anchors in the Middle}{53}{}
+\contentsline {subsubsection}{\numberline {d}Simultaneous Curve Editing While Adding New Anchors}{53}{}
+\contentsline {subsection}{\numberline {5}Modifying an Ink-mark}{53}{}
+\contentsline {subsubsection}{\numberline {a}Adding an Ink-Mark}{53}{}
+\contentsline {subsubsection}{\numberline {b}Modifying the twist/rotation}{54}{}
+\contentsline {subsection}{\numberline {6}Using Images}{54}{}
+\contentsline {subsection}{\numberline {7}Using the Document Explorer}{54}{}
+\contentsline {subsection}{\numberline {8}Save, Load, Export}{55}{}
+\contentsline {subsubsection}{\numberline {a}Exporting Images}{55}{}
+\contentsline {subsubsection}{\numberline {b}The File Format}{56}{}

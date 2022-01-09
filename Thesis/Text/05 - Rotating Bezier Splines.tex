@@ -2,7 +2,7 @@
 \label{Chapter:Twisting Splines}
 
     \subsection{Introduction}
-    As discussed in section \ref{Chapter:Problem Statement}, the first part of the main problem is extracting digital machine data from the existing calligraphy specimens.  Conventionally, image processing is being used [cite?] to extract data that can be used to create machine data. We, however, propose a difference; no matter how strong and robust image processing gets, we maintain that there is no alternative to the minor details only a real artist can observe and recreate. So a solution is needed that fulfils the technical needs as well as the artistic demands.
+    As discussed in section \ref{Chapter:Problem Statement}, the first part of the main problem is extracting digital machine data from the existing calligraphy specimens.  Conventionally, image processing is being used to extract data that can be used to create machine data. We, however, propose a difference; no matter how strong and robust image processing gets, we maintain that there is no alternative to the minor details only a real artist can observe and recreate. So a solution is needed that fulfils the technical needs as well as the artistic demands.
 
 
     \subsection{Digital Script Data}
@@ -11,7 +11,7 @@
 
     Keeping in mind the gaps left by the digital font, another solution to this problem is in the discovery of a new way to unify ink-mark information of digital Islamic script and tool movement performed by the artist. Making a mathematical model to learn the drawing tool information just from the printed text is quite a complex job. Instead, only if we could form a way an artist can give digital input, this problem can be overcome.
 
-    This is where the ``Twisting Bezier Splines'' come into play. We add a twist/rotation handle in the conventional Bezier spline [ref] curves and that is it. Another question however arises: Let alone a Twisting Bezier spline, what is a (conventional) Bezier spline curve in the first place? The following sections now answer this question in detail.
+    This is where the ``Twisting Bezier Splines'' come into play. We add a twist/rotation handle in the conventional Bezier spline curves and that is it. Another question however arises: Let alone a Twisting Bezier spline, what is a (conventional) Bezier spline curve in the first place? The following sections now answer this question in detail.
 
     \subsection{Mathematical Model of a Rotating Bezier Spline}
     \subsubsection{The Conventional Bezier Spline}
@@ -69,7 +69,7 @@ It can also be proved that the side segments of the polygon $\overline{P_1 P_2}$
 
     It must also be noted that the angle of rotation handle cannot be constrained in a $2\pi$ domain. Instead, it is completely unbounded, and the sweeping pen may actually take multiple turns both clockwise and anticlockwise while moving on a single curve section as well as the whole curve. When the idea of the twisting splines was first conceived, it wasn’t envisaged that the angle had to be taken like in this scheme. Special care had to be taken in order to graphically read a continuous angle from the user.
 
-    See Appendix \ref{Appendix:CodeSnippets} which compiles the rectangular coordinates of all the anchors of the rotating bezier spline shown formatted in a manner that Gregor can interpret. In Appendix \ref{Chapter:Gregor}, we discuss in detail ``Gregor'', the tool that uses this data to save the created splines.
+    See Appendix \ref{Appendix:CodeSnippets} which compiles the rectangular coordinates of all the anchors of the rotating bezier spline shown formatted in a manner that Gregor can interpret. In chapter \ref{Chapter:Gregor}, we discuss in detail ``Gregor'', the tool that uses this data to save the created splines.
 
 \subsection{Conversion of Existing Calligraphy Artwork}
 Instead of using image processing to try to extract data from existing scans and photographs of the artworks, using rotating Bezier splines we can now include the artists in the process. Just like any other computer-based graphics design application, either we can write a rotating Bezier splines curve editor plugin for an existing open-source application like GIMP [14] or Inkscape [15]. Unfortunately, the later is not a suitable option because the support for the plugins and extensions for both of these poplar software only lets the developer work with the image saving and processing, they don’t let us play with the behavior of the workspace which would be needed to convert the conventional spline tool into a rotating Bezier spline editor. It can still be done by modifying the source code and building the applications from the scratch which is way out of the scope of this thesis.
@@ -82,7 +82,7 @@ With the second option not viable anymore, we are left with only one option. Wri
 \item generating machine data that encapsulates the pen rotation information along with other positional and speed information.
 \end{itemize}
 
-Keeping in view these requirements we created ``Gregor'', the first tool to edit, modify and create rotating Bezier splines. See Appendix \ref{Chapter:Gregor} which discusses in detail about this tool.
+Keeping in view these requirements we created ``Gregor'', the first tool to edit, modify and create rotating Bezier splines. See chapter Also see Appendix \ref{Appendix:Gregor} and Appendix \ref{Appendix:Gregor} which discusses in detail about this tool.
 
 \subsection{Machine Data Generation}
 \label{ExplorationPoints1}
@@ -156,7 +156,7 @@ Please note that the third metrics in Table \ref{Table:AdvancedMetrices} was pla
 There are also some other metrices that were not measured because of lack of resources and because they required testing the tool with a large group of actual artists.
 
 \subsubsection{Sample Results}
-As a test and a tribute, two scripts by the famous teacher, artist and author of $18$ calligraphy books, late Khursheed Gohar Qalam of the National College of Arts (NCA) cite ??? were borrowed; one in Nastaleeq and other in Thuluth. Figure \ref{Fig:InkComparison} shows a detailed comparison of a part of a famous script produced by Gohar with the version traced with twisting bezier splines. The comparison unveils how accurately the bezier splines appear to be tracing the original script. The original appearing in Figure \ref{Fig:InkComparison}(a) image is first processed to be used with the spline editor and then converted to a binary image which is shown in Figure \ref{Fig:InkComparison}(b). Figure appearing in Figure \ref{Fig:InkComparison}(c), (d) and (e) are then produced by rasterizing the traced spline and a one-to-one pixel comparison of both images. See Table \ref{Table:AdvancedMetrices} which shows a quantitative measure of the trace accuracy. With these values, it is fair to assert that the twisting splines are very accurately mimicking the original sample.
+As a test and a tribute, two scripts by the famous teacher, artist and author of $18$ calligraphy books, late Khursheed Gohar Qalam \cite{bib23} of the National College of Arts (NCA) were borrowed; one in Nastaleeq and other in Thuluth. Figure \ref{Fig:InkComparison} shows a detailed comparison of a part of a famous script produced by Gohar with the version traced with twisting bezier splines. The comparison unveils how accurately the bezier splines appear to be tracing the original script. The original appearing in Figure \ref{Fig:InkComparison}(a) image is first processed to be used with the spline editor and then converted to a binary image which is shown in Figure \ref{Fig:InkComparison}(b). Figure appearing in Figure \ref{Fig:InkComparison}(c), (d) and (e) are then produced by rasterizing the traced spline and a one-to-one pixel comparison of both images. See Table \ref{Table:AdvancedMetrices} which shows a quantitative measure of the trace accuracy. With these values, it is fair to assert that the twisting splines are very accurately mimicking the original sample.
 
 However no matter how accurate they look, it must also be noted that since the original image is not available in a sufficiently high digital resolution, strictly speaking, Figure \ref{Fig:InkComparison}(d) and (e) do not do not show the true picture of the error that the curves produce but only a reasonably good estimate. The final verdict about the accuracy can only be given in form of the appeal this technique gets when actually presented in the community.
 
