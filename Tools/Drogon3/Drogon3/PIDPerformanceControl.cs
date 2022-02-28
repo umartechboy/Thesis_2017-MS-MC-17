@@ -30,7 +30,7 @@ namespace Drogon3
         {
             Robot = robot;
             var dxForm = PhysLogger2.Forms.DXForm.RunInControl(this);
-            var ThemedResources = new PhysLogger2.ThemedResources(dxForm);
+            var ThemedResources = new PhysLogger2.SharedResources(dxForm);
             pidPerformanceXYP = new PhysLogger2.Widgets.Plotting.XYPlot("pid", ThemedResources, 0, 20, 500, 500);
             pidPerformanceXYP.Font = new PhysLogger2.Graphics.DXFont(ThemedResources);
             timeQ = new TimeSoftwareQuantity(ThemedResources, null);
@@ -152,7 +152,7 @@ namespace Drogon3
     }
     public class ConstantSoftwareQuantity : SoftLoggerTerminalQuantity
     {
-        public ConstantSoftwareQuantity(ThemedResources themedResources, UnitCollection.UnitTypesEnum unit) : base(themedResources, null)
+        public ConstantSoftwareQuantity(SharedResources themedResources, UnitCollection.UnitTypesEnum unit) : base(themedResources, null)
         {
             Unit = UnitCollection.Create(unit);
         }
@@ -167,7 +167,7 @@ namespace Drogon3
     }
     public class TimeSoftwareQuantity : SoftLoggerTerminalQuantity
     {
-        public TimeSoftwareQuantity(ThemedResources themedResources, PhysLoggerHW HW) : base(themedResources, HW)
+        public TimeSoftwareQuantity(SharedResources themedResources, PhysLoggerHW HW) : base(themedResources, HW)
         {
             Unit = UnitCollection.Create(UnitCollection.UnitTypesEnum.Time);
         }

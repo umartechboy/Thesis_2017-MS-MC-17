@@ -203,7 +203,9 @@ namespace Drogon3
             ink.ClearTrace();
             var progress = new SplineRasterizationProgress();
             progress.UnitsCount = Robot.Program.Codes.Count;
-            var t = new Thread(() => { progress.ShowDialog(); });
+            var t = new Thread(() => { 
+                progress.ShowDialog(); 
+            });
             t.Start();
             Robot.ControlSource = RobotControlSource.BezierSpline;
             double lastSetToolSize = 0;
@@ -288,6 +290,7 @@ namespace Drogon3
                         if (rd.Y < minY) minY = rd.Y;
                         if (rd.Y > maxY) maxY = rd.Y;
                     }
+            
             minX -= splines.Max(s => s.ToolWidth / 2);
             maxX += splines.Max(s => s.ToolWidth / 2);
             minY -= splines.Max(s => s.ToolWidth / 2);
