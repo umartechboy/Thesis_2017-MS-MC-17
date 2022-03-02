@@ -329,7 +329,16 @@ namespace RotatingBezierSplineEditor
     public class RotationHandlePoint : RBSPoint
     {
         Cursor _c;
-        public override Cursor Cursor { get { if (_c == null) _c = new Cursor(Path.Combine(Application.StartupPath, "resources\\rotation_icon.ico")); return _c; } }
+        public override Cursor Cursor
+        {
+            get
+            {
+                //if (_c == null)
+                //    _c = new Cursor(Path.Combine(Application.StartupPath, "resources\\rotation_icon.ico"));
+                //return _c;
+                return Cursors.Default;
+            }
+        }
         float _hl = 50;
         public float HandleLength
         {

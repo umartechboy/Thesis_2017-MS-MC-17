@@ -290,7 +290,9 @@ namespace Drogon3
                         if (rd.Y < minY) minY = rd.Y;
                         if (rd.Y > maxY) maxY = rd.Y;
                     }
-            
+
+            if (splines.Count == 0)
+                return new Bitmap(1,1);
             minX -= splines.Max(s => s.ToolWidth / 2);
             maxX += splines.Max(s => s.ToolWidth / 2);
             minY -= splines.Max(s => s.ToolWidth / 2);
