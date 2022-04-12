@@ -1,8 +1,9 @@
-%\RequirePackage[2020-02-02]{latexrelease}
+\RequirePackage[2020-02-02]{latexrelease}
 \documentclass[12pt,onecolumn,aps,prb,preprint]{revtex4}   % style for Physical Review B and AJP are similar
 \usepackage{amsmath}    % need for subequations
 \usepackage{amssymb}
 \usepackage{graphicx}
+\usepackage[final]{pdfpages}
 \usepackage{float}
 \usepackage{svg}
 \usepackage{listings}
@@ -15,12 +16,15 @@
 
 \begin{document}
 
-\title{Robotic Reconstruction of Islamic Calligraphy with Rotating Bezier Splines}
-\author{Muhammad Umar Hassan, 2017-MS-MC-17}
-%\includepdf{UETFormattedTitlePage.pdf}
+%\title{Robotic Reconstruction of Islamic Calligraphy with Rotating Bezier Splines}
+%\author{Muhammad Umar Hassan, 2017-MS-MC-17}
+\includepdf[fitpaper= true, pages=1]{UETFormattedTitlePage.pdf}
+\includepdf{Copyrights.pdf}
 \input{02 - Abstract.tex}
 \maketitle
+\includepdf{Ack_SOO.pdf}
 \tableofcontents
+\clearpage
 \input{03 - Introduction.tex}
 \input{04 - ProblemStatement.tex}
 \input{05 - Rotating Bezier Splines.tex}        % Twisting Bezier Splines
@@ -30,4 +34,5 @@
 \input{09 - Conclusion.tex}
 \input{10 - Bibliography.tex}
 \input{11 - Appendix.tex}
+\includepdf{Vita.pdf}
 \end{document} 
