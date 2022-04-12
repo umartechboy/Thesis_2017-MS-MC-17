@@ -1,0 +1,52 @@
+\section{Gregor -- The Twisting Bezier Spline Editor}\label{Chapter:Gregor}
+\subsection{Introduction}
+{
+    The twisting Bezier splines may well mathematically be able to quite accurately contain most of the information required to replicate a calligraphy artwork but will hardly be practically useful without a tool strong enough to enable an artist to effectively trace an existing or create a new calligraphy specimen. Now, making such a tool was in itself an entire software engineering project and could not easily fit in the scope of the on going work. However with this link missing, in would have been impossible to quantitatively test and benchmark the performance of the other tools. So the least that could actually be done would be to layout the bare minimum user requirements and start writing the tool. The coding work was only as linear as any other software project which relies on ambiguous and equivocal requirements. Meaning that once the first version of the software had been built, the software had to be taken back to development many times after tests with real artists. Some features were added later to fulfil the necessity that was felt during the trial while others which were initially considered to be cardinal to working of the application.
+
+    The name ``Gregor'' is taken from a character of George R. R. Martin's legendary novel\cite{bib19} series Game of thrones. He is one of his kind; not the fastest fighter there is but is strong and every blow of his sword is effective.
+
+    Once the application had been developed, came another step which is often forgotten and considered dispensable usually by most developers; documenting the code and the usage. Documentation of the code and a user manual is the only thing that turns an application into a software. As said earlier, keeping in view the scope of the project, the documentation too had to be limited to contain only the most critical parts. This chapter may serve as the user manual of the software. The user guide includes:
+    \begin{itemize}
+      \item describing how the application should be used normally,
+      \item the user interface,
+      \item keyboard shortcuts,
+      \item saving and loading data, and
+      \item introduction to analysis tools.
+    \end{itemize}
+    While the coding manual includes:
+    \begin{itemize}
+      \item general code organization,
+      \item architecture and functionality of the most important parts of the code, and
+      \item the relationships between most significant entities.
+    \end{itemize}
+    Additionally, some snippets of the code are also included in the printed appendix and in addition to uploading the whole code as a GitHub repository \cite{bib20}, it can be found in Appendix \ref{Appendix:sourceCode} which is a digital copy that can be accessed by most computers and smart-phones.
+}
+\subsection{Requirements}
+{
+    The most fundamental user requirements are very simple.
+    \begin{itemize}
+      \item
+      {
+        The most fundamental requirement was that the tool be able to let the user graphically draw a rotating bezier spline. It was not only convenient but also logical to make the editing sequence similar to other vector editing software. This will make the transfer easier for people who already have some experience in other applications.
+      }
+      \item
+      {
+        The application must be able to save and load the edited work using a data file.
+      }
+      \item
+      {
+        The user should be able to drag and zoom the view port using the mouse cursor and keyboard shortcuts.
+      }
+      \item
+      {
+        There should be a provision to load images into the workspace so that they can be traced.
+      }
+    \end{itemize}
+}
+\subsection{Overview of the implementation}
+{
+    Gregor provides the minimal functionality to work with twisting bezier splines. Additionally, many of the secondary features were implemented to fulfil the needs of actual artists who found the basic interface too wanting. Microsoft .Net framework was chosen to construct the GUI application mainly because it supports writing code in Microsoft Visual C Sharp (C\#) and because all the intended features like mouse and keyboard interactions and graphics are easy to implement in it. Gregor can create, modify, import and save twisting splines. it mainly consists of a single \emph{Windows Form} that hosts the basic editing and viewing controls and an interactive workspace. The workspace is a virtual page that can be zoomed into and panned around using the cursor and keyboard shortcuts. One can change the viewing modes of the workspace to better suite the editing needs. One can choose to display or hide certain anchors, ink-marks, curvature spline, and change the appearance of a twisting spline. To assist the user, Gregor also allows to import and scale images that can be used to trace twisting bezier splines.
+    
+    See Appendix \ref{Appendix:Gregor} that describes the interface, enlists the features and describes the usage of most important parts of the application.
+}
+\clearpage

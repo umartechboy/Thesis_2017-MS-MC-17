@@ -1,0 +1,32 @@
+\RequirePackage[2020-02-02]{latexrelease}
+\documentclass[12pt,onecolumn,aps,prb,preprint]{revtex4}   % style for Physical Review B and AJP are similar
+\usepackage{amsmath}    % need for subequations
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{svg}
+\usepackage{listings}
+\usepackage{subcaption}
+\newcommand{\dprime}{{\prime \prime}}
+\newcommand{\beao}{\begin{eqnarray}}
+\newcommand{\eeao}{\end{eqnarray}}
+\newcommand{\mypm}{\mathbin{\mathpalette\@mypm\relax}}
+
+\begin{document}
+
+\title{Robotic Reconstruction of Islamic Calligraphy with Rotating Bezier Splines}
+\author{Muhammad Umar Hassan, 2017-MS-MC-17}
+\includepdf{UETFormattedTitlePage.pdf}
+\input{02 - Abstract.tex}
+\maketitle
+\tableofcontents
+\input{03 - Introduction.tex}
+\input{04 - ProblemStatement.tex}
+\input{05 - Rotating Bezier Splines.tex}        % Twisting Bezier Splines
+\input{06 - Robotic Manipulator.tex}        % Robotic Manipulatorv
+\input{07 - Gregor.tex}
+\input{08 - Drogon.tex}
+\input{09 - Conclusion.tex}
+\input{10 - Bibliography.tex}
+\input{11 - Appendix.tex}
+\end{document} 
