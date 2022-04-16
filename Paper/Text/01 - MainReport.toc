@@ -2,32 +2,31 @@
 \contentsline {section}{\numberline {}Contents}{2}{}
 \tocdepth@restore 
 \contentsline {section}{\numberline {I}Introduction}{3}{}
-\contentsline {section}{\numberline {II}Rotating/Twisting Bezier Splines}{5}{}
-\contentsline {subsection}{\numberline {A}Introduction}{5}{}
-\contentsline {subsection}{\numberline {B}Digital Script Data}{5}{}
-\contentsline {subsection}{\numberline {C}Mathematical Model of a Rotating Bezier Spline}{6}{}
-\contentsline {subsubsection}{\numberline {1}The Conventional Bezier Spline}{6}{}
-\contentsline {subsubsection}{\numberline {2}Twist/Rotation Handle}{8}{}
-\contentsline {subsection}{\numberline {D}Conversion of Existing Calligraphy Artwork}{9}{}
+\contentsline {section}{\numberline {II}Rotating/Twisting Bezier Splines}{4}{}
+\contentsline {subsection}{\numberline {A}The need of a Twisting Bezier splines}{4}{}
+\contentsline {subsection}{\numberline {B}Introduction}{6}{}
+\contentsline {subsection}{\numberline {C}Mathematical Model of a Rotating Bezier Spline}{7}{}
+\contentsline {subsubsection}{\numberline {1}The Conventional Bezier Spline}{7}{}
+\contentsline {subsubsection}{\numberline {2}Twist/Rotation Handle}{9}{}
+\contentsline {subsection}{\numberline {D}Conversion of Existing Calligraphy Artwork}{10}{}
 \contentsline {subsection}{\numberline {E}Machine Data Generation}{10}{}
 \contentsline {section}{\numberline {III}Performance and Bechmarking}{11}{}
 \contentsline {subsection}{\numberline {A}Characterization}{11}{}
-\contentsline {subsection}{\numberline {B}Supported Scripts}{11}{}
+\contentsline {subsection}{\numberline {B}Supported Scripts}{12}{}
 \contentsline {subsubsection}{\numberline {1}Coverage}{12}{}
-\contentsline {subsubsection}{\numberline {2}Sample Results}{13}{}
+\contentsline {subsubsection}{\numberline {2}Sample Results}{14}{}
 \contentsline {subsubsection}{\numberline {3}Machine Data Generation and Simulation}{14}{}
-\contentsline {subsection}{\numberline {C}Simulation}{14}{}
-\contentsline {section}{\numberline {IV}Conclusion}{18}{}
-\contentsline {section}{\numberline {}References}{20}{}
+\contentsline {section}{\numberline {IV}Conclusion}{17}{}
+\contentsline {section}{\numberline {}References}{19}{}
 \appendix 
-\contentsline {section}{\numberline {A}Gregor -- The Twisting Bezier Spline Editor}{21}{}
-\contentsline {subsection}{\numberline {1}Introduction}{21}{}
-\contentsline {subsection}{\numberline {2}Overview of the implementation}{21}{}
-\contentsline {subsection}{\numberline {3}Interface}{22}{}
-\contentsline {subsubsection}{\numberline {a}The Viewing Modes}{22}{}
-\contentsline {subsubsection}{\numberline {b}The Editing Modes}{23}{}
-\contentsline {section}{\numberline {B}Tables}{25}{}
-\contentsline {subsubsection}{\numberline {a}Gregor -- Keyboard Shorcuts}{25}{}
-\contentsline {section}{\numberline {C}Source Code}{27}{}
-\contentsline {section}{\numberline {D}Code Snippets}{28}{}
-\contentsline {section}{\numberline {E}Images}{30}{}
+\contentsline {section}{\numberline {A}Gregor -- The Twisting Bezier Spline Editor}{20}{}
+\contentsline {subsection}{\numberline {1}Introduction}{20}{}
+\contentsline {subsection}{\numberline {2}Overview of the implementation}{20}{}
+\contentsline {subsection}{\numberline {3}Interface}{21}{}
+\contentsline {subsubsection}{\numberline {a}The Viewing Modes}{21}{}
+\contentsline {subsubsection}{\numberline {b}The Editing Modes}{22}{}
+\contentsline {section}{\numberline {B}Tables}{24}{}
+\contentsline {subsubsection}{\numberline {a}Gregor -- Keyboard Shorcuts}{24}{}
+\contentsline {section}{\numberline {C}Source Code}{26}{}
+\contentsline {section}{\numberline {D}Code Snippets}{27}{}
+\contentsline {section}{\numberline {E}Images}{29}{}
