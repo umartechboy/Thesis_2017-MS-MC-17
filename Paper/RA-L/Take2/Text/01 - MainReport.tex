@@ -1,4 +1,7 @@
-\documentclass[lettersize,journal]{IEEEtran}
+% switch the class for review format
+\documentclass[lettersize,journal,onecolumn]{IEEEtran}
+%\documentclass[lettersize,journal]{IEEEtran}
+
 \usepackage{amsmath,amsfonts}
 \usepackage{algorithmic}
 \usepackage{array}
@@ -8,6 +11,7 @@
 \usepackage{url}
 \usepackage{verbatim}
 \usepackage{graphicx}
+\usepackage{paracol}
 \hyphenation{op-tical net-works semi-conduc-tor IEEE-Xplore}
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
@@ -24,16 +28,20 @@
 \maketitle
 
 \author{Muhammad Umar Hassan, Muhammad Sabieh Anwar and Ali Raza}
-%\includepdf{UETFormattedTitlePage.pdf}
-\input{02 - Abstract.tex}
-\begin{IEEEkeywords}
-Class, IEEEtran, \LaTeX, paper, style, template, typesetting.
-\end{IEEEkeywords}
-\input{03 - Introduction.tex}
-\input{04 - ModellingOfRotatingBezierSplines.tex}
-\input{05 - Performance.tex}        % Twisting Bezier Splines
-\input{06 - Conclusion.tex}
-\input{07 - Bibliography.tex}
+% uncomment to enable review format
+\begin{paracol}{2}
+    \switchcolumn[0]
+    \input{02 - Abstract.tex}
+    \begin{IEEEkeywords}
+    Class, IEEEtran, \LaTeX, paper, style, template, typesetting.
+    \end{IEEEkeywords}
+    \input{03 - Introduction.tex}
+    \input{04 - ModellingOfRotatingBezierSplines.tex}
+    \input{05 - Performance.tex}        % Twisting Bezier Splines
+    \input{06 - Conclusion.tex}
+    \input{07 - Bibliography.tex}
+% uncomment to enable review format
+\end{paracol}
 \end{document}
 
 

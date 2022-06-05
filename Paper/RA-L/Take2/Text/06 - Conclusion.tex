@@ -1,19 +1,7 @@
 \section{Conclusion}
 \label{Chapter:Conclusion}
 {
-    We have seen that rotating bezier splines can trace most of the important islamic calligraphy scripts 
-    The twisting Bezier spline curves very closely mimic the ink mark of broad edge tools thus creating very accurate calligraphy scripts as seen in Figure \ref{Image:spline_prev}. With most of broad edge scripts, on an average, they give more than 95\% coverage of the reference image an less than 5\% overdraw. This has now been verified by comparing them with original calligraphy specimens as well as after simulating the output of a robotic manipulator.
+    The accuracy analysis presented in this article demonstrates how rotating bezier splines closely mimic the ink mark of broad edge writing tools thus creating accurate calligraphy scripts. They can be traced on photos of existing calligraphy scripts while also involving the artists to better preserve the artistic spirit. Their resemblance with normal bezier splines makes the learning curve lean for the people who are not accustomed with engineering software and tools. Once traced, they can directly generate machine data for robotic reconstruction and be reproduce the original script on flat and uneven surfaces. Tracing accuracy, ease of use and the ability to generate machine data makes them a strong candidate, not just for Islamic calligraphy but also other broad-edge scripts, to bridge the gap between machines and artists to reproduce and innovate in this field.
 
-    \begin{figure}[!t]
-        \centering
-        \includegraphics[width=2.5in]{../Images/rotating bezier splines preview.pdf}
-      \caption{A preview of the calligraphy produced using the rotating bezier splines.
-      } \label{Image:spline_prev}
-    \end{figure}
-
-    With tools created as a by-product of this research, an artist can not only trace existing calligraphy scripts, but also create and modify new ones with a very lean learning curve. The ease of use of the tools created for the tast assures that the focus of the artist is more on the art itself than the caveats of the software solution.
-
-    Where the accuracy of the splines has been characterised and ease of use has been demonstrated, there still are a lot of unexplored areas that require more research. As discussed in section \ref{ExplorationPoints1}, one can pack the tool inclination and normal pressure information into the rotating splines. One can also choose to implement other kinds of manipulators and actuators to test the performance of the splines in the simulator. Last but not the least, since the simulator can emulate a pseudo robot, it can also be modified to be used as a live controller for a real robotic manipulator.
-
-    While this thesis puts together the results of some crucial tests to establish the usefulness of rotating splines, the final verdict will still be given by the community that takes the work forward in more scenarios and conditions.
+    Furthermore, rotating bezier splines can be involved in optical character recognition of Islamic scripts. Since they can be regarded as mathematical curves of the actual ink-marks, a modified curve-fitting technique can be developed to find the perfect curve to match a particular calligraphy script. At the least, the open-source proof-of-the-concept editor presented in this research can be mixed with such a curve fitting tool to help fine tune the manual tracing process.
 } 
