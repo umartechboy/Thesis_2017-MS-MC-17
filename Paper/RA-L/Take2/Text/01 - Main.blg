@@ -18,37 +18,37 @@ Warning--edition ordinal word "Illustrated edition" may be too high (or improper
 Done.
 You've used 26 entries,
             3975 wiz_defined-function locations,
-            934 strings with 10734 characters,
-and the built_in function-call counts, 10495 in all, are:
-= -- 749
+            928 strings with 10528 characters,
+and the built_in function-call counts, 10467 in all, are:
+= -- 745
 > -- 142
 < -- 7
 + -- 72
 - -- 31
-* -- 463
-:= -- 1664
-add.period$ -- 50
+* -- 456
+:= -- 1649
+add.period$ -- 52
 call.type$ -- 26
-change.case$ -- 22
+change.case$ -- 24
 chr.to.int$ -- 6
 cite$ -- 27
-duplicate$ -- 941
-empty$ -- 1113
+duplicate$ -- 943
+empty$ -- 1115
 format.name$ -- 37
-if$ -- 2340
+if$ -- 2338
 int.to.chr$ -- 0
 int.to.str$ -- 26
 missing$ -- 194
-newline$ -- 136
+newline$ -- 132
 num.names$ -- 16
-pop$ -- 641
+pop$ -- 642
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 4
-skip$ -- 822
+skip$ -- 823
 stack$ -- 0
-substring$ -- 112
-swap$ -- 551
+substring$ -- 114
+swap$ -- 548
 text.length$ -- 5
 text.prefix$ -- 0
 top$ -- 5
@@ -56,5 +56,5 @@ type$ -- 0
 warning$ -- 1
 while$ -- 20
 width$ -- 28
-write$ -- 243
+write$ -- 238
 (There was 1 warning)
