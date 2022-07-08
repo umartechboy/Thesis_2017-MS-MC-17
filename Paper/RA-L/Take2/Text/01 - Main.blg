@@ -1,0 +1,60 @@
+This is BibTeX, Version 0.99d
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: 01 - Main.aux
+Reallocating 'name_of_file' (item size: 1) to 9 items.
+The style file: IEEEtran.bst
+Reallocating 'name_of_file' (item size: 1) to 8 items.
+Reallocating 'singl_function' (item size: 4) to 100 items.
+Reallocating 'singl_function' (item size: 4) to 100 items.
+Reallocating 'singl_function' (item size: 4) to 100 items.
+Reallocating 'wiz_functions' (item size: 4) to 6000 items.
+Reallocating 'singl_function' (item size: 4) to 100 items.
+Database file #1: bibmain.bib
+-- IEEEtran.bst version 1.11 (2003/04/02) by Michael Shell.
+-- http://www.ctan.org/tex-archive/macros/latex/contrib/supported/IEEEtran/
+-- See the "IEEEtran_bst_HOWTO.pdf" manual for usage information.
+Warning--edition ordinal word "Illustrated edition" may be too high (or improper) for conversion in bib30
+
+Done.
+You've used 26 entries,
+            3975 wiz_defined-function locations,
+            934 strings with 10734 characters,
+and the built_in function-call counts, 10495 in all, are:
+= -- 749
+> -- 142
+< -- 7
++ -- 72
+- -- 31
+* -- 463
+:= -- 1664
+add.period$ -- 50
+call.type$ -- 26
+change.case$ -- 22
+chr.to.int$ -- 6
+cite$ -- 27
+duplicate$ -- 941
+empty$ -- 1113
+format.name$ -- 37
+if$ -- 2340
+int.to.chr$ -- 0
+int.to.str$ -- 26
+missing$ -- 194
+newline$ -- 136
+num.names$ -- 16
+pop$ -- 641
+preamble$ -- 1
+purify$ -- 0
+quote$ -- 4
+skip$ -- 822
+stack$ -- 0
+substring$ -- 112
+swap$ -- 551
+text.length$ -- 5
+text.prefix$ -- 0
+top$ -- 5
+type$ -- 0
+warning$ -- 1
+while$ -- 20
+width$ -- 28
+write$ -- 243
+(There was 1 warning)
