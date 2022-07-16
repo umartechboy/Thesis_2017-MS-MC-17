@@ -1,0 +1,4 @@
+Automated reconstruction of Islamic architectural calligraphy can save thousands of nobel and historic scripts all over the world from going extinct. The task involves research in many areas whereas this research focuses in digitization of existing and new calligraphy work and machine data generation that can be used with an industrial robot. To accomplish this, we present an innovation in the conventional bezier splines by giving them a "twist" element. 
+
+Almost no work has been done in this domain that focuses on the intricacies and problems of Islamic calligraphy which is why this
+research can enable a lot of other researchers and potentially artists to contribute to the noble cause of saving calligraphy art. In this essence, all the codes and software produced in this conjunction have been kept open-source and available on Github.
