@@ -10,7 +10,6 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.Xml;
 
 namespace RotatingBezierSplineEditor
@@ -627,7 +626,7 @@ namespace RotatingBezierSplineEditor
 
 
 
-            int xaHei = (tickFont.Height * 15 / 10);
+            float xaHei = (tickFont.Height * 15 / 10);
             bool isMinLine = false;
 
             var xSigFiguresAfterD = 0;

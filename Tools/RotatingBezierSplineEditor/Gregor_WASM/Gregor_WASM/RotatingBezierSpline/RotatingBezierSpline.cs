@@ -1,4 +1,5 @@
 ﻿using Gregor_WASM;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -7,7 +8,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.Xml;
 using static RotatingBezierSplineEditor.BezierBoard;
 
@@ -1219,11 +1219,11 @@ namespace RotatingBezierSplineEditor
     }
     public class ImageItem : BezierBoardItem
     {
-        public Image SourceImage { get; private set; }
+        public SKImage SourceImage { get; private set; }
         CenterPoint center;
         CurvatureHandlePoint size;
         ImageItem(bool mouseEvents = false):base(mouseEvents) { }
-        public ImageItem(BezierBoard board, Image img, float x, float y, bool mouseEvents):base(mouseEvents)
+        public ImageItem(BezierBoard board, SKImage img, float x, float y, bool mouseEvents):base(mouseEvents)
         {
             Board = board;
             this.SourceImage = img;
@@ -1267,7 +1267,8 @@ namespace RotatingBezierSplineEditor
 
 
                 // Draw the image mapped to the parallelogram.
-                g.DrawImage(SourceImage, destinationPoints);
+                //TBD
+                //g.DrawImage(SourceImage, destinationPoints);
                 //g.DrawImage(img, size.X, size.Y, 2 * (float)Math.Abs(size.X - center.X), 2 * (float)Math.Abs(size.Y - center.Y));
                 size.Draw(g, offsetG, scale, inkDrawMode, anchorDrawMode, this, ParentControl);
                 center.Draw(g, offsetG, scale, inkDrawMode, anchorDrawMode, this, ParentControl);
@@ -1295,17 +1296,17 @@ namespace RotatingBezierSplineEditor
             center.Save(spline, "center");
             size.Save(spline, "size");
         }
-        static Image stringToImage(string str)
+        static SKImage stringToImage(string str)
         {
-            return Image.FromStream(new MemoryStream(str.Split(new char[] { ' ', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).Select(s => byte.Parse(s, System.Globalization.NumberStyles.HexNumber)).ToArray()));
+            return SKImage.FromEncodedData(new MemoryStream(str.Split(new char[] { ' ', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).Select(s => byte.Parse(s, System.Globalization.NumberStyles.HexNumber)).ToArray()));
         }
-        static string imageToString(Image img)
+        static string imageToString(SKImage img)
         {
             //var imagedata = Path.GetFileNameWithoutExtension(Path.GetTempFileName()) + ".jpg";
             //img.Save(imagedata, System.Drawing.Imaging.ImageFormat.Jpeg);
             //return imagedata;
             MemoryStream ms = new MemoryStream();
-            img.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+            img.Encode(SKEncodedImageFormat.Png, 100).SaveTo(ms);
             var bytes = ms.ToArray();
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < bytes.Length; i++)
@@ -1324,8 +1325,9 @@ namespace RotatingBezierSplineEditor
 
         internal static ImageItem FromFile(BezierBoard board, string fileName)
         {
-            var img = Image.FromFile(fileName);
-            img.RotateFlip(RotateFlipType.RotateNoneFlipY);
+            var img = SKImage.FromEncodedData(File.ReadAllBytes(fileName));
+            // TBD
+            //img.RotateFlip(RotateFlipType.RotateNoneFlipY);
             return new ImageItem(board, img, 0, 0,true);
         }
 
@@ -1339,7 +1341,7 @@ namespace RotatingBezierSplineEditor
             //catch { return null; }
         }
 
-        internal static ImageItem FromImage(Image bitmap, BezierBoard board)
+        internal static ImageItem FromImage(SKImage bitmap, BezierBoard board)
         {
             try
             {

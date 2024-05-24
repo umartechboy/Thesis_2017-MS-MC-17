@@ -1218,7 +1218,7 @@ namespace RotatingBezierSplineEditor
     }
     public class ImageItem : BezierBoardItem
     {
-        public Image SourceImage { get; private set; }
+        public SKImage SourceImage { get; private set; }
         CenterPoint center;
         CurvatureHandlePoint size;
         ImageItem(bool mouseEvents = false):base(mouseEvents) { }

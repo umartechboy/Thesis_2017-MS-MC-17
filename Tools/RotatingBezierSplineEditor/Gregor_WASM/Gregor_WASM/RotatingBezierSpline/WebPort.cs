@@ -83,16 +83,6 @@ namespace Gregor_WASM
                     IsAntialias = true,
                 });
         }
-        public void FillRectangle(SolidBrush b, float x, float y, float width, float height, float radius = 0)
-        {
-            canvas.DrawRoundRect(x, y, width, height, radius, radius,
-                new SKPaint()
-                {
-                    Color = ColorToSKColor(b.Color),
-                    IsAntialias = true,
-                });
-        }
-
         public void DrawEllipse(Pen p, float x, float y, float width, float height)
         {
             DrawEllipse(p.Color, p.Width, x, y, width, height);
@@ -132,6 +122,10 @@ namespace Gregor_WASM
                 });
         }
 
+        //public void DrawImage(SKImage s, Font font)
+        //{
+        //    return MeasureString(s, font.FontFamily, font.Height);
+        //}
         public SizeF MeasureString(string s, Font font)
         {
             return MeasureString(s, font.FontFamily, font.Height);
@@ -181,6 +175,10 @@ namespace Gregor_WASM
         public void DrawPolygon(Pen p, PointF[] poly)
         {
             DrawPolygon(p.Color, p.Width, poly);
+        }
+        public void DrawLines(Color c, float width, PointF[] points)
+        {
+            DrawLines(new Pen(c, width), points);
         }
         public void DrawLines(Pen p, PointF[] points)
         {
@@ -311,6 +309,7 @@ namespace Gregor_WASM
 		VSplit = 3,
 		No = 4,
 		Hand = 5,
+		SizeAll = 6,
 	}
 	public class Cursor
     {
