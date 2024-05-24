@@ -50,7 +50,38 @@ namespace RotatingBezierSplineEditor
         public AnchorDrawMode AnchorDrawMode { get { return _AnchorDrawMode; } set { _AnchorDrawMode = value; Invalidate(); } }
         List<BezierBoardItem> Objects = new List<BezierBoardItem>();
 
-        MouseButtons MouseButtonsThatWentDown = MouseButtons.None;
+		public event MouseEventHandler MouseEnter;
+		public event MouseEventHandler MouseMove;
+		public event MouseEventHandler MouseDown;
+		public event MouseEventHandler MouseUp;
+		public event MouseEventHandler MouseLeave;
+		public event MouseEventHandler MouseClick;
+
+		public void NotifyMouseEnter(MouseEventArgs e)
+		{
+			MouseEnter?.Invoke(this, e);
+		}
+		public void NotifyMouseMove(MouseEventArgs e)
+		{
+			MouseMove?.Invoke(this, e);
+		}
+		public void NotifyMouseDown(MouseEventArgs e)
+		{
+			MouseDown?.Invoke(this, e);
+		}
+		public void NotifyMouseUp(MouseEventArgs e)
+		{
+			MouseUp?.Invoke(this, e);
+		}
+		public void NotifyMouseLeave(MouseEventArgs e)
+		{
+			MouseLeave?.Invoke(this, e);
+		}
+		public void NotifyMouseClick(MouseEventArgs e)
+		{
+			MouseClick?.Invoke(this, e);
+		}
+		MouseButtons MouseButtonsThatWentDown = MouseButtons.None;
         Point MouseLocationAtDown;
 		public BezierBoard(Action invalidate)
         {
@@ -70,7 +101,7 @@ namespace RotatingBezierSplineEditor
 
         public static float Fill { get; internal set; } = 1;
 
-        private void BezierBoard_SizeChanged(object sender, EventArgs e)
+        public void BezierBoard_SizeChanged(object sender, EventArgs e)
         {
             PlotBounds = new RectangleF(0, 0, Width - YAxisWidth, Height - XAxisHeight);
             YAxisBounds = new RectangleF(Width - YAxisWidth, 0, YAxisWidth, Height - XAxisHeight);
@@ -519,7 +550,7 @@ namespace RotatingBezierSplineEditor
                 }
             }
         }
-        protected void OnPaint(SKPaintGLSurfaceEventArgs e)
+        public void OnPaint(SKPaintGLSurfaceEventArgs e)
         {
             var g = Gregor_WASM.Graphics.FromCanvas(e.Surface.Canvas);
             DrawAxisAndGrid_Horizontal(g);

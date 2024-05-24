@@ -1,7 +1,86 @@
 ﻿@page "/"
+@using SkiaSharp
+@using SkiaSharp.Views.Blazor
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
-
+<div style="width: 100%; height: 100%; cursor:@Cursor;"
+	 @onmousemove:stopPropagation="true"
+	 @onmousedown:preventDefault="true"
+	 @onmouseup:preventDefault="true"
+	 @onmouseenter:preventDefault="true"
+	 @onmouseleave:preventDefault="true"
+	 @onclick:preventDefault="true">
+	<SKGLView @ref=skView
+			  style="width: 100%; height: 100%;"
+			  OnPaintSurface="async (e) => await OnPaint(e)"
+			  IgnorePixelScaling="true"
+			  @onmousemove="OnMouseMove"
+			  @onmousedown="OnMouseDown"
+			  @onmouseup="OnMouseUp"
+			  @onmouseenter="OnMouseEnter"
+			  @onmouseleave="OnMouseLeave"
+			  @onclick="OnClick"></SKGLView>
+</div>
 Welcome to your new app.
+@code {
+	protected string Cursor = "auto";
+	SKGLView skView;
+	RotatingBezierSplineEditor.BezierBoard bBoard;
+	protected override async Task OnInitializedAsync()
+	{
+		bBoard = new RotatingBezierSplineEditor.BezierBoard(() => skView.Invalidate());
+	}
+	async Task OnPaint(SKPaintGLSurfaceEventArgs e)
+	{
+		bBoard.Width = e.Info.Width;
+		bBoard.Height = e.Info.Height;
+		bBoard.BezierBoard_SizeChanged(null, null);
+		e.Surface.Canvas.ResetMatrix();
+		var r = new Random();
+		var c = new SKColor((byte)r.Next(0, 256), (byte)r.Next(0, 256), (byte)r.Next(0, 256), (byte)r.Next(0, 256));
+		c = c.WithAlpha((byte)r.Next(0, 256));
+		e.Surface.Canvas.Clear(c);
+		try
+		{
+			bBoard.OnPaint(e);
+		}
+		catch (Exception ex)
+		{
+				
+		}
+	}
+
+	SKPoint lastMove;
+
+	public void OnMouseMove(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+	{
+		lastMove = new SKPoint((float)e.OffsetX, (float)e.OffsetY);
+		bBoard.NotifyMouseMove(new Gregor_WASM.MouseEventArgs(e));
+	}
+	public void OnMouseDown(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+	{
+		bBoard.NotifyMouseDown(new Gregor_WASM.MouseEventArgs(e));
+	}
+	public void OnMouseUp(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+	{
+		bBoard.NotifyMouseUp(new Gregor_WASM.MouseEventArgs(e));
+	}
+	public void OnMouseEnter(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+	{
+		bBoard.NotifyMouseEnter(new Gregor_WASM.MouseEventArgs(e));
+	}
+	public void OnMouseLeave(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+	{
+		bBoard.NotifyMouseLeave(new Gregor_WASM.MouseEventArgs(e));
+	}
+	public void OnClick(EventArgs e)
+	{
+		bBoard.NotifyMouseClick(new Gregor_WASM.MouseEventArgs()
+			{
+				Location = new System.Drawing.Point((int)Math.Round(lastMove.X), (int)Math.Round(lastMove.Y)),
+				Clicks = 1,
+				Button = MouseButtons.Left
+			});
+	}
+}
