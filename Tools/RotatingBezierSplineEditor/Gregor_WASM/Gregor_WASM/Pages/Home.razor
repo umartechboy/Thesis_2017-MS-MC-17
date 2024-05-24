@@ -31,16 +31,24 @@ Welcome to your new app.
 	{
 		bBoard = new RotatingBezierSplineEditor.BezierBoard(() => skView.Invalidate());
 	}
+	public static Dictionary<Cursors, string> CursorsMap = new Dictionary<Cursors, string>
+	{
+		{ Cursors.Default, "auto" },
+		{ Cursors.IBeam, "text" },
+		{ Cursors.NoMoveHoriz, "grab" },
+		{ Cursors.VSplit, "col-resize" },
+		{ Cursors.No, "none" },
+		{ Cursors.Hand, "grab" },
+		{ Cursors.SizeAll, "move" },
+	};
 	async Task OnPaint(SKPaintGLSurfaceEventArgs e)
 	{
 		bBoard.Width = e.Info.Width;
 		bBoard.Height = e.Info.Height;
+		Cursor = CursorsMap[bBoard.Cursor];
 		bBoard.BezierBoard_SizeChanged(null, null);
 		e.Surface.Canvas.ResetMatrix();
-		var r = new Random();
-		var c = new SKColor((byte)r.Next(0, 256), (byte)r.Next(0, 256), (byte)r.Next(0, 256), (byte)r.Next(0, 256));
-		c = c.WithAlpha((byte)r.Next(0, 256));
-		e.Surface.Canvas.Clear(c);
+		e.Surface.Canvas.Clear(SKColors.White);
 		try
 		{
 			bBoard.OnPaint(e);
