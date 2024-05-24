@@ -1,0 +1,88 @@
+﻿@using SkiaSharp
+
+<div style="width: @Width; height: @Height;"
+     @onmousemove:stopPropagation="true"
+     @onmousedown:preventDefault="true"
+     @onmouseup:preventDefault="true"
+     @onmouseenter:preventDefault="true"
+     @onmouseleave:preventDefault="true"
+     @onclick:preventDefault="true">
+    <SKGLView @ref=skView
+              style="width: 100%; height: 100vh;"
+              OnPaintSurface="async (e) => await OnPaint(e)"
+              IgnorePixelScaling="true"
+              @onmousemove="OnMouseMove"
+              @onmousedown="OnMouseDown"
+              @onmouseup="OnMouseUp"
+              @onmouseenter="OnMouseEnter"
+              @onmouseleave="OnMouseLeave"
+              @onclick="OnClick"></SKGLView>
+</div>
+@code {
+    [Parameter]
+    public string Width { get; set; } = "100%";
+    [Parameter]
+    public string Height { get; set; } = "100%";
+
+
+    SKGLView skView;
+    bool containsMouseCursor = false;
+    bool _active = false;
+    bool _dist = true;
+    public async Task SetDistinctSelection (bool value) { _dist = value; await SetActive(GetActive()); }
+    public bool GetDistinctSelection() { return _dist; }
+    [Parameter]
+    public EventCallback<bool> MakeSiblingsActive { get; set; }
+    [Parameter]
+    public EventCallback OnActivated { get; set; }
+    public async Task SetActive(bool value)
+    {
+        if (GetDistinctSelection())
+        {
+            await MakeSiblingsActive.InvokeAsync(false);
+        }
+        if (value != _active)
+        {
+            // change the value first
+            _active = value;
+            // raise the events
+            await OnActivated.InvokeAsync();
+        }
+    }
+    public bool GetActive()
+    {
+        return _active;
+    }
+    SKImage icon;
+    SKImage dull;
+    int size;
+    /// <summary>
+    /// This is alternate to BackgroundImage creates a dull looking copy of the image as well.
+    /// </summary>
+    /// <param name="Image">Image to be used base icon</param>
+    /// <param name="size">size of the rendered icon</param>
+    public SKImage SetImage(SKImage Image, int size, SKImage dull = null)
+    {
+        this.size = size;
+        icon = Image;
+        // make new memory space for the dull image
+        if (dull == null)
+        {
+            var bmp = SKBitmap.Decode(Image.Encode());
+            // this method can be made fast by using Unsafe access. Create BitmapData using the specs of this bmp, "UnlockBits" on the bitmap using the new bitmap data. Read Scan0 of bmpData using Marshal.Copy, alter it, put back the data by locking the bits.
+            for (int y = 0; y < bmp.Height; y++)
+            {
+                for (int x = 0; x < bmp.Width; x++)
+                {
+                    var c = bmp.GetPixel(x, y);
+                    byte g = (byte)((c.Red + c.Green + c.Blue) / 3);
+                    // get a gray level
+                    bmp.SetPixel(x, y, new SKColor(g, g, g, (byte)(c.Alpha == 0 /*Do it only on non transparent pixels*/? 0 : 60)));
+                }
+            }
+            dull = SKImage.FromBitmap(bmp);
+        }
+        this.dull = dull;
+        return dull;
+    }
+}
