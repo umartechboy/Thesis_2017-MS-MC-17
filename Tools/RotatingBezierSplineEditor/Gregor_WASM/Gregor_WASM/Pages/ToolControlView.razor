@@ -2,7 +2,7 @@
 @using SkiaSharp
 @using SkiaSharp.Views.Blazor
 
-<div style="width: @Width; height: @Height;"
+<div style="width: @Width; height: @Height; cursor: pointer;"
      @onmousemove:stopPropagation="true"
      @onmousedown:preventDefault="true"
      @onmouseup:preventDefault="true"
@@ -107,7 +107,13 @@
         rect.Inflate(-3, -3);
         if (containsMouseCursor)
             rect.Inflate(3, 3);
-        e.Surface.Canvas.DrawImage(Active ? icon : dull, new SKRect(tRect.Left, tRect.Top, tRect.Right, tRect.Bottom));
+        using (SKPaint paint = new SKPaint
+            {
+                IsAntialias = true
+            })
+        {
+            e.Surface.Canvas.DrawImage(Active ? icon : dull, new SKRect(tRect.Left, tRect.Top, tRect.Right, tRect.Bottom), paint);
+        }
     }
     // Emulate control UI
 
@@ -125,12 +131,18 @@
     }
     public void OnMouseEnter(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
     {
+        containsMouseCursor = true; skView.Invalidate();
     }
     public void OnMouseLeave(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
     {
+        containsMouseCursor = false; skView.Invalidate();
     }
-    public void OnClick(EventArgs e)
+    public async Task OnClick(EventArgs e)
     {
+        if (DistinctSelection)
+            await SetActive(true);
+        else await SetActive(!Active);
+        skView.Invalidate();
     }
 
     // Anchor EditToolControl only

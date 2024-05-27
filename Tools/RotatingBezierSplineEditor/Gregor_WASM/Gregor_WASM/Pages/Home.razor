@@ -9,13 +9,13 @@
 <MudGrid Style="height: 100vh;">
 	<MudItem md="1">
         <MudItem md="12">
-            <ToolControlView @ref="centerP" OnActivated="centerP_OnActivated"></ToolControlView>
-            <ToolControlView @ref="curvatureHandlesP" OnActivated="curvatureHandlesP_OnActivated"></ToolControlView>
-            <ToolControlView @ref="rotationHandleP" OnActivated="rotationHandleP_OnActivated"></ToolControlView>
+            <ToolControlView Height="70px" @ref="centerP" OnActivated="centerP_OnActivated"></ToolControlView>
+            <ToolControlView Height="70px" @ref="curvatureHandlesP" OnActivated="curvatureHandlesP_OnActivated"></ToolControlView>
+            <ToolControlView Height="70px" @ref="rotationHandleP" OnActivated="rotationHandleP_OnActivated"></ToolControlView>
             <MudSpacer/>
-            <ToolControlView @ref="bothSplinesP" OnActivated="bothSplinesP_OnActivated"></ToolControlView>
-            <ToolControlView @ref="linearSplineOnly" OnActivated="linearSplineOnly_OnActivated"></ToolControlView>
-            <ToolControlView @ref="rotatingSplineOnlyP" OnActivated="rotatingSplineOnlyP_OnActivated"></ToolControlView>
+            <ToolControlView Height="70px" @ref="bothSplinesP" OnActivated="bothSplinesP_OnActivated"></ToolControlView>
+            <ToolControlView Height="70px" @ref="linearSplineOnly" OnActivated="linearSplineOnly_OnActivated"></ToolControlView>
+            <ToolControlView Height="70px" @ref="rotatingSplineOnlyP" OnActivated="rotatingSplineOnlyP_OnActivated"></ToolControlView>
         </MudItem>
 	</MudItem>
 	<MudItem md="8" Class="px-0 py-0">
@@ -41,62 +41,68 @@
     BezierBoardView bBoardView;
     BezierBoard bezierBoard1 { get => bBoardView.bBoard; }
     List<BezierBoardItemMenuItem> documentLayoutFP_Controls = new List<BezierBoardItemMenuItem>();
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var tc = new ToolControlView();
+            visibleIcon = SKImage.FromEncodedData(FileManager.GetBytes("Resources\\visible.png"));
+            activeIcon = SKImage.FromEncodedData(FileManager.GetBytes("Resources\\active.png"));
+            visibleIconDull = tc.SetImage(visibleIcon, 23);
+            activeIconDull = tc.SetImage(activeIcon, 23); ;
+            // set images
+            centerP.SetImage(SKImage.FromEncodedData(FileManager.GetBytes("Resources\\Center.png")), 65);
+            curvatureHandlesP.SetImage(SKImage.FromEncodedData(FileManager.GetBytes("Resources\\CurvatureHandles.png")), 65);
+            rotationHandleP.SetImage(SKImage.FromEncodedData(FileManager.GetBytes("Resources\\RotationHandles.png")), 56);
+            await centerP.SetDistinctSelection(false);
+            await curvatureHandlesP.SetDistinctSelection(false);
+            await rotationHandleP.SetDistinctSelection(false);
+
+            // set targets
+            centerP.TargetPart = AnchorDrawMode.Centers;
+            curvatureHandlesP.TargetPart = AnchorDrawMode.CurvatureHandles;
+            rotationHandleP.TargetPart = AnchorDrawMode.RotaionHandles;
+
+            await curvatureHandlesP.SetActive(true);
+
+
+            bothSplinesP.SetImage(SKImage.FromEncodedData(FileManager.GetBytes("Resources\\bothSplines.png")), 45);
+            rotatingSplineOnlyP.SetImage(SKImage.FromEncodedData(FileManager.GetBytes("Resources\\rotatingSplineOnly.png")), 45);
+            linearSplineOnly.SetImage(SKImage.FromEncodedData(FileManager.GetBytes("Resources\\splineOnly.png")), 45);
+
+
+
+            bezierBoard1.OnBezierBoardItemAdded += BezierBoard1_OnSplineAdded;
+            bezierBoard1.OnBezierBoardItemRemoved += BezierBoard1_OnSplineRemoved;
+            bezierBoard1.OnRequestToShowAll += async (s, e) => await Con_OnRequestToShowAll(s, e);
+            bezierBoard1.OnRequestToUnlockAll += async (s, e) => await Con_OnRequestToUnlockAll(s, e);
+            bezierBoard1.OnRequestShowOnly += async (s, e) => await Con_OnRequestShowOnly(s, e);
+            bezierBoard1.OnRequestToUnlockOnly += async (s, e) => await Con_OnRequestToUnlockOnly(s, e);
+            //// add dummy data
+            //var sp = new RotatingBezierSpline();
+            //sp.AddAnchor(new RotatingBezierSplineAnchor(new PointF(34.5F, -2.75F)));
+            //sp.AddAnchor(new RotatingBezierSplineAnchor(new PointF(3.6F, -101)));
+            //sp.AddAnchor(new RotatingBezierSplineAnchor(new PointF(110, -28)));
+            //sp.AddAnchor(new RotatingBezierSplineAnchor(new PointF(24.5F, -209)));
+            //sp.AddAnchor(new RotatingBezierSplineAnchor(new PointF(203, -311)));
+            //sp.AddAnchor(new RotatingBezierSplineAnchor(new PointF(242, -194)));
+            //sp.FlatTipWidth = 40;
+            //bezierBoard1.AddItem(sp);
+            //bezierBoard1.AddItem(new ImageItem(Properties.Resources.Ain_for_sample_trace, 0, 0));
+
+            //sp = new RotatingBezierSpline();
+            //var a0 = new RotatingBezierSplineAnchor(new PointF(400, 300), new PointF(350, 350), 50.0D, 0.0F);
+            //var a1 = new RotatingBezierSplineAnchor(new PointF(600, 100), new PointF(450, 50), 50.0D, 0.0F);
+            //var a2 = new RotatingBezierSplineAnchor(new PointF(600, 300), new PointF(400, 350), 50.0D, 0.0F);
+            //sp.FlatTipWidth = 40;
+            //sp.AddAnchor(a0);
+            //sp.AddAnchor(a1);
+            //sp.AddAnchor(a2);
+            ////bezierBoard1.AddItem(sp);
+        }
+    }
     protected override async Task OnInitializedAsync()
     {
-        var tc = new ToolControlView();
-        visibleIcon = SKImage.FromEncodedData(FileManager.GetBytes("Resources\\visible.png"));
-        activeIcon = SKImage.FromEncodedData(FileManager.GetBytes("Resources\\active.png"));
-        visibleIconDull = tc.SetImage(visibleIcon, 23);
-        activeIconDull = tc.SetImage(activeIcon, 23); ;
-        // set images
-        centerP.SetImage(SKImage.FromEncodedData(FileManager.GetBytes("Resources\\Center.png")), 65);
-        curvatureHandlesP.SetImage(SKImage.FromEncodedData(FileManager.GetBytes("Resources\\CurvatureHandles.png")), 65);
-        rotationHandleP.SetImage(SKImage.FromEncodedData(FileManager.GetBytes("Resources\\RotationHandles.png")), 56);
-        await centerP.SetDistinctSelection(false);
-        await curvatureHandlesP.SetDistinctSelection(false);
-        await rotationHandleP.SetDistinctSelection(false);
-
-        // set targets
-        centerP.TargetPart = AnchorDrawMode.Centers;
-        curvatureHandlesP.TargetPart = AnchorDrawMode.CurvatureHandles;
-        rotationHandleP.TargetPart = AnchorDrawMode.RotaionHandles;
-
-        await curvatureHandlesP.SetActive(true);
-
-
-        bothSplinesP.SetImage(SKImage.FromEncodedData(FileManager.GetBytes("Resources\\bothSplines.png")), 45);
-        rotatingSplineOnlyP.SetImage(SKImage.FromEncodedData(FileManager.GetBytes("Resources\\rotatingSplineOnly.png")), 45);
-        linearSplineOnly.SetImage(SKImage.FromEncodedData(FileManager.GetBytes("Resources\\splineOnly.png")), 45);
-
-
-
-        bezierBoard1.OnBezierBoardItemAdded += BezierBoard1_OnSplineAdded;
-        bezierBoard1.OnBezierBoardItemRemoved += BezierBoard1_OnSplineRemoved;
-        bezierBoard1.OnRequestToShowAll += async (s, e) => await Con_OnRequestToShowAll(s, e);
-        bezierBoard1.OnRequestToUnlockAll += async (s, e) => await Con_OnRequestToUnlockAll(s, e);
-        bezierBoard1.OnRequestShowOnly += async (s, e) => await Con_OnRequestShowOnly(s, e);
-        bezierBoard1.OnRequestToUnlockOnly += async (s, e) => await Con_OnRequestToUnlockOnly(s, e);
-        //// add dummy data
-        //var sp = new RotatingBezierSpline();
-        //sp.AddAnchor(new RotatingBezierSplineAnchor(new PointF(34.5F, -2.75F)));
-        //sp.AddAnchor(new RotatingBezierSplineAnchor(new PointF(3.6F, -101)));
-        //sp.AddAnchor(new RotatingBezierSplineAnchor(new PointF(110, -28)));
-        //sp.AddAnchor(new RotatingBezierSplineAnchor(new PointF(24.5F, -209)));
-        //sp.AddAnchor(new RotatingBezierSplineAnchor(new PointF(203, -311)));
-        //sp.AddAnchor(new RotatingBezierSplineAnchor(new PointF(242, -194)));
-        //sp.FlatTipWidth = 40;
-        //bezierBoard1.AddItem(sp);
-        //bezierBoard1.AddItem(new ImageItem(Properties.Resources.Ain_for_sample_trace, 0, 0));
-
-        //sp = new RotatingBezierSpline();
-        //var a0 = new RotatingBezierSplineAnchor(new PointF(400, 300), new PointF(350, 350), 50.0D, 0.0F);
-        //var a1 = new RotatingBezierSplineAnchor(new PointF(600, 100), new PointF(450, 50), 50.0D, 0.0F);
-        //var a2 = new RotatingBezierSplineAnchor(new PointF(600, 300), new PointF(400, 350), 50.0D, 0.0F);
-        //sp.FlatTipWidth = 40;
-        //sp.AddAnchor(a0);
-        //sp.AddAnchor(a1);
-        //sp.AddAnchor(a2);
-        ////bezierBoard1.AddItem(sp);
     }
 
     void setEditingModeMenuItems()

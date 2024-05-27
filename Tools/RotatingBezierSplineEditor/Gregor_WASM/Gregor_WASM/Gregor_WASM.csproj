@@ -8,6 +8,34 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Properties\Resources\active.PNG" />
+    <None Remove="Properties\Resources\bothSplines.png" />
+    <None Remove="Properties\Resources\Center.png" />
+    <None Remove="Properties\Resources\Center1.png" />
+    <None Remove="Properties\Resources\Center2.png" />
+    <None Remove="Properties\Resources\CurvatureHandles.png" />
+    <None Remove="Properties\Resources\rotatingSplineOnly.png" />
+    <None Remove="Properties\Resources\RotationHandles.png" />
+    <None Remove="Properties\Resources\rotation_icon.ico" />
+    <None Remove="Properties\Resources\splineOnly.png" />
+    <None Remove="Properties\Resources\visible.PNG" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources\active.PNG" />
+    <EmbeddedResource Include="Properties\Resources\bothSplines.png" />
+    <EmbeddedResource Include="Properties\Resources\Center.png" />
+    <EmbeddedResource Include="Properties\Resources\Center1.png" />
+    <EmbeddedResource Include="Properties\Resources\Center2.png" />
+    <EmbeddedResource Include="Properties\Resources\CurvatureHandles.png" />
+    <EmbeddedResource Include="Properties\Resources\rotatingSplineOnly.png" />
+    <EmbeddedResource Include="Properties\Resources\RotationHandles.png" />
+    <EmbeddedResource Include="Properties\Resources\rotation_icon.ico" />
+    <EmbeddedResource Include="Properties\Resources\splineOnly.png" />
+    <EmbeddedResource Include="Properties\Resources\visible.PNG" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.0" PrivateAssets="all" />
     <PackageReference Include="MudBlazor" Version="7.0.0-preview.3" />
