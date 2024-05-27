@@ -7,7 +7,7 @@
 <PageTitle>Home</PageTitle>
 
 <MudGrid Style="height: 100vh;">
-	<MudItem md="1">
+    <MudItem md="1" Class="px-0 py-0">
         <MudItem md="12">
             <ToolControlView Height="70px" @ref="centerP" OnActivated="centerP_OnActivated"></ToolControlView>
             <ToolControlView Height="70px" @ref="curvatureHandlesP" OnActivated="curvatureHandlesP_OnActivated"></ToolControlView>
@@ -22,6 +22,10 @@
 		<BezierBoardView @ref="bBoardView"></BezierBoardView>
 	</MudItem>
     <MudItem md="3">
+        <MudAppBar Color="Color.Transparent" Fixed="false" Elevation="0">
+            <MudSpacer/>
+            <MudIconButton Icon="@Icons.Material.Outlined.MenuOpen" Color="Color.Inherit" OnClick="() => menuOpen = true" />
+        </MudAppBar>
         @foreach (var menuItem in documentLayoutFP_Controls)
         {
             <BezierBoardItemMenuItem Base="@menuItem"></BezierBoardItemMenuItem>
@@ -29,7 +33,77 @@
     </MudItem>
 </MudGrid>
 
+
+@* Context Menu *@
+<MudItem md="12">
+    <MudDrawer @bind-Open="@menuOpen" Anchor="@Anchor.End" Elevation="1" Variant="@DrawerVariant.Temporary">
+        <MudNavMenu>
+            <MudText Typo="Typo.h6" Class="px-4">Gregor Web</MudText>
+            <MudText Typo="Typo.body2" Class="px-4 mud-text-secondary">Main Menu</MudText>
+            <MudDivider Class="my-2" />
+            <MudNavGroup Title="File" Expanded="false">
+                <MudNavLink Icon="@Icons.Material.Filled.FileOpen">Open</MudNavLink>
+                <MudNavLink Icon="@Icons.Material.Filled.Save">Save</MudNavLink>
+                <MudNavLink Icon="@Icons.Material.Filled.SaveAs">Save as</MudNavLink>
+                <MudNavGroup Icon="@Icons.Material.Filled.SaveAlt" Title="Import" Expanded="true">
+                    <MudNavLink Icon="@Icons.Material.Filled.ScatterPlot">Spline</MudNavLink>
+                    <MudNavLink Icon="@Icons.Material.Filled.Image">Image</MudNavLink>
+                </MudNavGroup>
+                <MudNavLink Icon="@Icons.Material.Filled.ImportExport">Export</MudNavLink>
+                <MudNavLink Icon="@Icons.Material.Filled.ClearAll">Clear all</MudNavLink>
+                <MudNavLink Icon="@Icons.Material.Filled.Timer"><MudCheckBox T="bool">Auto save</MudCheckBox></MudNavLink>
+            </MudNavGroup>
+            <MudNavLink Href="/about">About</MudNavLink>
+            <MudDivider Class="my-2" />
+            <MudNavGroup Title="View" Expanded="false">
+                <MudNavLink Icon="@Icons.Material.Filled.ScatterPlot" Disabled="true">Spline Display</MudNavLink>
+                <MudNavLink><MudCheckBox T="bool">Combined Mode</MudCheckBox></MudNavLink>
+                <MudNavLink><MudCheckBox T="bool">Ink Only</MudCheckBox></MudNavLink>
+                <MudNavLink><MudCheckBox T="bool">Spline Only</MudCheckBox></MudNavLink>
+                <MudDivider Class="my-2" />
+                <MudNavLink Disabled="true">Editor</MudNavLink>
+                <MudNavLink><MudCheckBox T="bool">Grid</MudCheckBox></MudNavLink>
+                <MudNavLink><MudCheckBox T="bool">Scale</MudCheckBox></MudNavLink>
+                <MudNavLink><MudCheckBox T="bool">X-Y Axiz</MudCheckBox></MudNavLink>
+                <MudDivider Class="my-2" />
+                <MudNavLink Disabled="true">Worksapce</MudNavLink>
+                <MudNavLink><MudCheckBox Value="@backgroundImagesToolStripMenuItem" T="bool">Background Images</MudCheckBox></MudNavLink>
+                <MudNavLink><MudCheckBox T="bool">Add Acnchor With Left Click</MudCheckBox></MudNavLink>
+                <MudDivider Class="my-2" />
+                <MudNavLink><MudSlider T="int">See Through</MudSlider></MudNavLink>
+                <MudNavLink><MudCheckBox T="bool">Document Index</MudCheckBox></MudNavLink>
+                <MudNavGroup Icon="@Icons.Material.Filled.SaveAlt" Title="Flat Tip Render Mode" Expanded="false">
+                    <MudNavLink><MudCheckBox T="bool">Polygons</MudCheckBox></MudNavLink>
+                    <MudNavLink><MudCheckBox T="bool">Rectangles</MudCheckBox></MudNavLink>
+                </MudNavGroup>
+            </MudNavGroup>
+            <MudDivider Class="my-2" />
+            <MudNavGroup Title="Edit" Expanded="false">
+                <MudNavLink Icon="@Icons.Material.Filled.ScatterPlot" Disabled="true">Handles</MudNavLink>
+                <MudNavLink><MudCheckBox T="bool">Center Points</MudCheckBox></MudNavLink>
+                <MudNavLink><MudCheckBox T="bool">Curvature Handles</MudCheckBox></MudNavLink>
+                <MudNavLink><MudCheckBox T="bool">Rotation Handles</MudCheckBox></MudNavLink>
+                <MudDivider Class="my-2" />
+                <MudNavLink Disabled="true">Preferences</MudNavLink>
+                <MudNavLink><MudCheckBox T="bool">Add Anchor with left click</MudCheckBox></MudNavLink>
+                <MudNavLink><MudCheckBox T="bool">Splines can be dragged</MudCheckBox></MudNavLink>
+            </MudNavGroup>
+            <MudDivider Class="my-2" />
+            <MudNavGroup Title="Tools" Expanded="false">
+                <MudNavLink Disabled="true">Analyze Trace Accuracy</MudNavLink>
+                <MudNavLink>Reset Rotation Handles</MudNavLink>
+            </MudNavGroup>
+            <MudNavGroup Title="Help" Expanded="false">
+                <MudNavLink>How To</MudNavLink>
+                <MudNavLink>About</MudNavLink>
+            </MudNavGroup>
+        </MudNavMenu>
+    </MudDrawer>
+</MudItem>
+
 @code {
+    bool menuOpen = false;
+    bool backgroundImagesToolStripMenuItem;
     SKImage visibleIconDull, activeIconDull;
     SKImage visibleIcon, activeIcon;
     private ToolControlView centerP;
@@ -253,6 +327,100 @@
     {
         foreach (var cmi in documentLayoutFP_Controls.OfType<CurveMenuItem>())
             await cmi.SplineVisible.SetActive(true);
+    }
+
+
+    private async Task splineOnlyToolStripMenuItem_Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+    {
+        await linearSplineOnly.SetActive(true);
+    }
+
+    private void backgroundImagesToolStripMenuItem_Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+    {
+        backgroundImagesToolStripMenuItem = !backgroundImagesToolStripMenuItem;
+        if (backgroundImagesToolStripMenuItem)
+            bezierBoard1.InkDrawMode |= InkDrawMode.Images;
+        else
+            bezierBoard1.InkDrawMode &= ~InkDrawMode.Images;
+        bezierBoard1.Invalidate();
+        StateHasChanged();
+    }
+    private async Task inkOnlyToolStripMenuItem_Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+    {
+        await rotatingSplineOnlyP.SetActive(true);
+    }
+
+    private void combinedModeToolStripMenuItem_Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+    {
+        bothSplinesP.Active = true;
+    }
+
+    private void centerPointsToolStripMenuItem_Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+    {
+        centerP.Active = !centerP.Active;
+        centerPointsToolStripMenuItem.Checked = centerP.Active;
+    }
+
+    private void curvatureHandlesToolStripMenuItem_Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+    {
+        curvatureHandlesP.Active = !curvatureHandlesP.Active;
+        curvatureHandlesToolStripMenuItem.Checked = curvatureHandlesP.Active;
+    }
+
+    private void rotationHandlesToolStripMenuItem_Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+    {
+        rotationHandleP.Active = !rotationHandleP.Active;
+        rotationHandlesToolStripMenuItem.Checked = rotationHandleP.Active;
+    }
+
+    private void gridToolStripMenuItem_Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+    {
+        bezierBoard1.GridEnabled = !bezierBoard1.GridEnabled;
+        gridToolStripMenuItem.Checked = bezierBoard1.GridEnabled;
+        // also disable the axis selection. There is no point having it if the whole grid is disabled.
+        xYAxisToolStripMenuItem.Enabled = gridToolStripMenuItem.Checked;
+        xYAxisToolStripMenuItem.Checked = bezierBoard1.XYLinesEnabled;
+    }
+
+    private void scaleToolStripMenuItem_Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+    {
+        bezierBoard1.ScaleEnabled = !bezierBoard1.ScaleEnabled;
+        scaleToolStripMenuItem.Checked = bezierBoard1.ScaleEnabled;
+    }
+
+    private void xYAxisToolStripMenuItem_Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+    {
+        bezierBoard1.XYLinesEnabled = !bezierBoard1.XYLinesEnabled;
+        xYAxisToolStripMenuItem.Checked = bezierBoard1.XYLinesEnabled;
+    }
+
+    private void aboutToolStripMenuItem_Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+    {
+        Process.Start("explorer", "https://github.com/umartechboy/Thesis_2017-MS-MC-17");
+    }
+
+    private void aboutToolStripMenuItem1_Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+    {
+        MessageBox.Show(
+@"Gregor v2.0
+Gregor is a minimalist editor and machine data generator for rotating beizier splines.
+To read more about rotating bezier splines, press F1 or view the program help page.
+
+Editing:
+Click and drag left mouse button on empty space to add spline anchors
+Right click right mouse button to start a new spline
+Drag with left mouse the anchors to modify a spline
+Click a spline to change Pen Width
+Drag and move objects with left mouse button
+
+Viewing:
+Use Ctrl + V to switch to pan mode.
+Drag with Left mouse button to pan
+Drag with Right mouse button to zoom
+
+File Handling:
+Uou can save, open and import rotating bezier splines using the File menu
+", "Gregor");
     }
 
 }
