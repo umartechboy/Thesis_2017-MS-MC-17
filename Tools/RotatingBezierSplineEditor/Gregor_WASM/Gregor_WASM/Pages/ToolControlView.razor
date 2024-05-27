@@ -1,4 +1,6 @@
-﻿@using SkiaSharp
+﻿@using RotatingBezierSplineEditor
+@using SkiaSharp
+@using SkiaSharp.Views.Blazor
 
 <div style="width: @Width; height: @Height;"
      @onmousemove:stopPropagation="true"
@@ -29,15 +31,28 @@
     bool containsMouseCursor = false;
     bool _active = false;
     bool _dist = true;
-    public async Task SetDistinctSelection (bool value) { _dist = value; await SetActive(GetActive()); }
-    public bool GetDistinctSelection() { return _dist; }
+    public async Task SetDistinctSelection(bool value) { _dist = value; await SetActive(Active); }
+    public bool DistinctSelection { get => _dist; }
     [Parameter]
     public EventCallback<bool> MakeSiblingsActive { get; set; }
     [Parameter]
     public EventCallback OnActivated { get; set; }
+    public bool Active { get => _active; }
+
+    bool panelEnable = true;
+    // Emulate Panel.Enable
+    public bool Enabled
+    {
+        get { return panelEnable; }
+        set
+        {
+            panelEnable = value;
+            skView.Invalidate();
+        }
+    }
     public async Task SetActive(bool value)
     {
-        if (GetDistinctSelection())
+        if (DistinctSelection)
         {
             await MakeSiblingsActive.InvokeAsync(false);
         }
@@ -48,10 +63,6 @@
             // raise the events
             await OnActivated.InvokeAsync();
         }
-    }
-    public bool GetActive()
-    {
-        return _active;
     }
     SKImage icon;
     SKImage dull;
@@ -85,4 +96,43 @@
         this.dull = dull;
         return dull;
     }
+    protected async Task OnPaint(SKPaintGLSurfaceEventArgs e)
+    {
+        if (icon == null) // this is needed for the UI Editor which is not familiar with our objects and will call this function regardless of the values to show in the editor.
+            return;
+        var Width = e.Info.Width;
+        var Height = e.Info.Width;
+        var rect = new System.Drawing.RectangleF(0, 0, size, (size * icon.Height) / icon.Width);
+        var tRect = new System.Drawing.RectangleF(Width / 2 - rect.Width / 2, Height / 2 - rect.Height / 2, rect.Width, rect.Height);
+        rect.Inflate(-3, -3);
+        if (containsMouseCursor)
+            rect.Inflate(3, 3);
+        e.Surface.Canvas.DrawImage(Active ? icon : dull, new SKRect(tRect.Left, tRect.Top, tRect.Right, tRect.Bottom));
+    }
+    // Emulate control UI
+
+    SKPoint lastMove;
+
+    public void OnMouseMove(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+    {
+        lastMove = new SKPoint((float)e.OffsetX, (float)e.OffsetY);
+    }
+    public void OnMouseDown(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+    {
+    }
+    public void OnMouseUp(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+    {
+    }
+    public void OnMouseEnter(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+    {
+    }
+    public void OnMouseLeave(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+    {
+    }
+    public void OnClick(EventArgs e)
+    {
+    }
+
+    // Anchor EditToolControl only
+    public AnchorDrawMode TargetPart {get;set;}
 }

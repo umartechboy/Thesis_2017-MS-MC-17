@@ -362,7 +362,7 @@ namespace RotatingBezierSplineEditor
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.panel2.AutoScroll = true;
-            this.panel2.BackgroundImage = global::RotatingBezierSplineEditor.Properties.Resources.transparentBack;
+            //this.panel2.BackgroundImage = global::RotatingBezierSplineEditor.Properties.Resources.transparentBack;
             this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panel2.Controls.Add(this.previewPB);
             this.panel2.Location = new System.Drawing.Point(1, 1);

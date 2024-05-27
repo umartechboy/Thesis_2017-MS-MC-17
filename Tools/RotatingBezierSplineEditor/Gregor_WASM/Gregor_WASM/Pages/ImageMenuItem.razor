@@ -1,0 +1,154 @@
+﻿@using Gregor_WASM.Services
+@using RotatingBezierSplineEditor
+@using SkiaSharp
+@using SkiaSharp.Views.Blazor
+@using System.Drawing
+@inherits BezierBoardItemMenuItem
+<MudGrid @onmouseenter="@CurveMenuItem_MouseEnter" @onmouseleave="@CurveMenuItem_MouseLeave">
+    @* Preview *@
+    <MudItem md="3" @onmouseenter="@prevP_MouseEnter" @onmouseleave="@prevP_MouseLeave">
+        <img style="height: 100%; aspect-ratio: 1/1; " src="@prevPSource" />
+    </MudItem>
+    @* Name and flags*@
+    <MudItem md=8>
+        <MudItem md="12">
+            <MudInputString Value="@SplineLabel_Text" ValueChanged="@textBox1_TextChanged"></MudInputString>
+        </MudItem>
+        @* SplineEnabled*@
+        <MudItem md="3">
+            <ToolControlView @ref="@SplineEnabled" OnActivated="@activeTC_OnActivated"></ToolControlView>
+        </MudItem>
+        @* SplineVisible *@
+        <MudItem md="3">
+            <ToolControlView @ref="@SplineVisible" OnActivated="@visibleTC_OnActivated"></ToolControlView>
+        </MudItem>
+        @* No Edit for this item *@
+        @* delP *@
+        <MudItem md="3">
+            <img @onclick="@delP_MouseClick" />
+        </MudItem>
+    </MudItem>
+    @* Up Down*@
+    <MudItem md="1">
+        <MudItem md=12>
+            <MudIconButton Icon="@Icons.Material.Filled.ArrowUpward" OnClick="@button1_Click"></MudIconButton>
+            <MudIconButton Icon="@Icons.Material.Filled.ArrowDownward" OnClick="@button2_Click"></MudIconButton>
+        </MudItem>
+    </MudItem>
+</MudGrid>
+
+@code {
+    // These params are here only to emulate the Forms contrstructor in @foreach
+    public SKImage VisibleIcon { get; set; }
+    public SKImage ActiveIcon { get; set; }
+    public SKImage VisibleIconDull { get; set; }
+    public SKImage ActiveIconDull { get; set; }
+    public int Size { get; set; }
+
+
+    public new ImageMenuItem Base { get { return (ImageMenuItem)base.Base; } }
+    ToolControlView SplineVisible, SplineEnabled;
+    string prevPSource = "";
+    string SplineLabel_Text { get; set; } = "";
+    public new ImageItem Item { get { return (ImageItem)base.Item; } set => base.Base.Item = value; }
+    public event EventHandler OnRequestToHiglight;
+    public event EventHandler OnRequestToUndoHighlight;
+    bool appearanceP_Disabled = true;
+    bool appearnceP_Enabled { get => !appearanceP_Disabled; set => appearanceP_Disabled = !value; }
+
+    public void Init(ImageItem imageItem)
+    {
+        base.Init(imageItem);
+    }
+    public void Init(ImageItem imageItem, SKImage visibleIcon, SKImage activeIcon, SKImage visibleIconDull, SKImage activeIconDull, int sz)
+    {
+        base.Init(imageItem);
+        SplineVisible.SetImage(visibleIcon, sz, visibleIconDull);
+        SplineEnabled.SetImage(activeIcon, sz, activeIconDull);
+        prevPSource = ImageServices.SKImageToString(imageItem.SourceImage);
+    }
+    private void visibleTC_OnActivated()
+    {
+        Item.Visible = SplineVisible.Active;
+    }
+
+    private void activeTC_OnActivated()
+    {
+        Item.Locked = !SplineEnabled.Active;
+    }
+
+    private void appearnceP_MouseClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+    {
+    }
+
+    private void delP_MouseClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+    {
+        Item.SelfRemoveRequest();
+    }
+
+    private void prevP_MouseEnter(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+    {
+        Item.MouseState = MouseState.Hover;
+        Item.Board.Invalidate();
+    }
+
+    private void CurveMenuItem_MouseEnter(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+    {
+        Item.MouseState = MouseState.Hover;
+        Item.Board.Invalidate();
+
+    }
+
+    private void prevP_MouseLeave(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+    {
+        Item.MouseState = MouseState.None;
+        Item.Board.Invalidate();
+
+    }
+
+    private void CurveMenuItem_MouseLeave(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+    {
+        Item.MouseState = MouseState.None;
+        Item.Board.Invalidate();
+
+    }
+
+    private void prevP_MouseClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+    {
+
+    }
+
+    private void showAllToolStripMenuItem_Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+    {
+        NotifyRequestToShowAll();
+    }
+
+    private void unlockAllToolStripMenuItem_Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+    {
+        NotifyRequestToUnlockAll();
+    }
+
+    private void showOnlyToolStripMenuItem_Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+    {
+        NotifyRequestShowOnly();
+    }
+
+    private void lockAllButThisToolStripMenuItem_Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+    {
+        NotifyRequestToUnlockOnly();
+    }
+
+    private void textBox1_TextChanged()
+    {
+    }
+
+    private void button1_Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+    {
+        NotifyMoveUpRequest();
+    }
+
+    private void button2_Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+    {
+        NotifyMoveDownRequest();
+    }
+}

@@ -1,4 +1,6 @@
 ﻿@page "/"
+@using Gregor_WASM.Services
+@using RotatingBezierSplineEditor
 @using SkiaSharp
 @using SkiaSharp.Views.Blazor
 
@@ -6,12 +8,245 @@
 
 <MudGrid Style="height: 100vh;">
 	<MudItem md="1">
-
+        <MudItem md="12">
+            <ToolControlView @ref="centerP" OnActivated="centerP_OnActivated"></ToolControlView>
+            <ToolControlView @ref="curvatureHandlesP" OnActivated="curvatureHandlesP_OnActivated"></ToolControlView>
+            <ToolControlView @ref="rotationHandleP" OnActivated="rotationHandleP_OnActivated"></ToolControlView>
+            <MudSpacer/>
+            <ToolControlView @ref="bothSplinesP" OnActivated="bothSplinesP_OnActivated"></ToolControlView>
+            <ToolControlView @ref="linearSplineOnly" OnActivated="linearSplineOnly_OnActivated"></ToolControlView>
+            <ToolControlView @ref="rotatingSplineOnlyP" OnActivated="rotatingSplineOnlyP_OnActivated"></ToolControlView>
+        </MudItem>
 	</MudItem>
-	<MudItem md="11">
-		<BezierBoardView></BezierBoardView>
+	<MudItem md="8" Class="px-0 py-0">
+		<BezierBoardView @ref="bBoardView"></BezierBoardView>
 	</MudItem>
+    <MudItem md="3">
+        @foreach (var menuItem in documentLayoutFP_Controls)
+        {
+            <BezierBoardItemMenuItem Base="@menuItem"></BezierBoardItemMenuItem>
+        }
+    </MudItem>
 </MudGrid>
 
 @code {
+    SKImage visibleIconDull, activeIconDull;
+    SKImage visibleIcon, activeIcon;
+    private ToolControlView centerP;
+    private ToolControlView curvatureHandlesP;
+    private ToolControlView rotationHandleP;
+    private ToolControlView bothSplinesP;
+    private ToolControlView linearSplineOnly;
+    private ToolControlView rotatingSplineOnlyP;
+    BezierBoardView bBoardView;
+    BezierBoard bezierBoard1 { get => bBoardView.bBoard; }
+    List<BezierBoardItemMenuItem> documentLayoutFP_Controls = new List<BezierBoardItemMenuItem>();
+    protected override async Task OnInitializedAsync()
+    {
+        var tc = new ToolControlView();
+        visibleIcon = SKImage.FromEncodedData(FileManager.GetBytes("Resources\\visible.png"));
+        activeIcon = SKImage.FromEncodedData(FileManager.GetBytes("Resources\\active.png"));
+        visibleIconDull = tc.SetImage(visibleIcon, 23);
+        activeIconDull = tc.SetImage(activeIcon, 23); ;
+        // set images
+        centerP.SetImage(SKImage.FromEncodedData(FileManager.GetBytes("Resources\\Center.png")), 65);
+        curvatureHandlesP.SetImage(SKImage.FromEncodedData(FileManager.GetBytes("Resources\\CurvatureHandles.png")), 65);
+        rotationHandleP.SetImage(SKImage.FromEncodedData(FileManager.GetBytes("Resources\\RotationHandles.png")), 56);
+        await centerP.SetDistinctSelection(false);
+        await curvatureHandlesP.SetDistinctSelection(false);
+        await rotationHandleP.SetDistinctSelection(false);
+
+        // set targets
+        centerP.TargetPart = AnchorDrawMode.Centers;
+        curvatureHandlesP.TargetPart = AnchorDrawMode.CurvatureHandles;
+        rotationHandleP.TargetPart = AnchorDrawMode.RotaionHandles;
+
+        await curvatureHandlesP.SetActive(true);
+
+
+        bothSplinesP.SetImage(SKImage.FromEncodedData(FileManager.GetBytes("Resources\\bothSplines.png")), 45);
+        rotatingSplineOnlyP.SetImage(SKImage.FromEncodedData(FileManager.GetBytes("Resources\\rotatingSplineOnly.png")), 45);
+        linearSplineOnly.SetImage(SKImage.FromEncodedData(FileManager.GetBytes("Resources\\splineOnly.png")), 45);
+
+
+
+        bezierBoard1.OnBezierBoardItemAdded += BezierBoard1_OnSplineAdded;
+        bezierBoard1.OnBezierBoardItemRemoved += BezierBoard1_OnSplineRemoved;
+        bezierBoard1.OnRequestToShowAll += async (s, e) => await Con_OnRequestToShowAll(s, e);
+        bezierBoard1.OnRequestToUnlockAll += async (s, e) => await Con_OnRequestToUnlockAll(s, e);
+        bezierBoard1.OnRequestShowOnly += async (s, e) => await Con_OnRequestShowOnly(s, e);
+        bezierBoard1.OnRequestToUnlockOnly += async (s, e) => await Con_OnRequestToUnlockOnly(s, e);
+        //// add dummy data
+        //var sp = new RotatingBezierSpline();
+        //sp.AddAnchor(new RotatingBezierSplineAnchor(new PointF(34.5F, -2.75F)));
+        //sp.AddAnchor(new RotatingBezierSplineAnchor(new PointF(3.6F, -101)));
+        //sp.AddAnchor(new RotatingBezierSplineAnchor(new PointF(110, -28)));
+        //sp.AddAnchor(new RotatingBezierSplineAnchor(new PointF(24.5F, -209)));
+        //sp.AddAnchor(new RotatingBezierSplineAnchor(new PointF(203, -311)));
+        //sp.AddAnchor(new RotatingBezierSplineAnchor(new PointF(242, -194)));
+        //sp.FlatTipWidth = 40;
+        //bezierBoard1.AddItem(sp);
+        //bezierBoard1.AddItem(new ImageItem(Properties.Resources.Ain_for_sample_trace, 0, 0));
+
+        //sp = new RotatingBezierSpline();
+        //var a0 = new RotatingBezierSplineAnchor(new PointF(400, 300), new PointF(350, 350), 50.0D, 0.0F);
+        //var a1 = new RotatingBezierSplineAnchor(new PointF(600, 100), new PointF(450, 50), 50.0D, 0.0F);
+        //var a2 = new RotatingBezierSplineAnchor(new PointF(600, 300), new PointF(400, 350), 50.0D, 0.0F);
+        //sp.FlatTipWidth = 40;
+        //sp.AddAnchor(a0);
+        //sp.AddAnchor(a1);
+        //sp.AddAnchor(a2);
+        ////bezierBoard1.AddItem(sp);
+    }
+
+    void setEditingModeMenuItems()
+    {
+        // rotationHandlesToolStripMenuItem.Checked = rotationHandleP.Active;
+        // curvatureHandlesToolStripMenuItem.Checked = curvatureHandlesP.Active;
+        // centerPointsToolStripMenuItem.Checked = centerP.Active;
+    }
+    void centerP_OnActivated()
+    {
+        if (centerP.Active)
+            bezierBoard1.AnchorDrawMode |= AnchorDrawMode.Centers;
+        else
+            bezierBoard1.AnchorDrawMode &= ~AnchorDrawMode.Centers;
+        setEditingModeMenuItems();
+    }
+    void curvatureHandlesP_OnActivated()
+    {
+        if (curvatureHandlesP.Active)
+            bezierBoard1.AnchorDrawMode |= AnchorDrawMode.CurvatureHandles;
+        else
+            bezierBoard1.AnchorDrawMode &= ~AnchorDrawMode.CurvatureHandles;
+        setEditingModeMenuItems();
+    }
+    void rotationHandleP_OnActivated()
+    {
+        if (rotationHandleP.Active)
+            bezierBoard1.AnchorDrawMode |= AnchorDrawMode.RotaionHandles;
+        else
+            bezierBoard1.AnchorDrawMode &= ~AnchorDrawMode.RotaionHandles;
+        setEditingModeMenuItems();
+    }
+    void setDisplayStyleMenuItems()
+    {
+        // splineOnlyToolStripMenuItem.Checked = linearSplineOnly.Active;
+        // combinedModeToolStripMenuItem.Checked = bothSplinesP.Active;
+        // inkOnlyToolStripMenuItem.Checked = rotatingSplineOnlyP.Active;
+    }
+    void bothSplinesP_OnActivated() 
+    {
+        setDisplayStyleMenuItems();
+        bezierBoard1.InkDrawMode = InkDrawMode.Ink | InkDrawMode.Spline | (bezierBoard1.InkDrawMode & InkDrawMode.Images);
+    }
+    void rotatingSplineOnlyP_OnActivated() 
+    {
+        setDisplayStyleMenuItems();
+        bezierBoard1.InkDrawMode = InkDrawMode.Ink | (bezierBoard1.InkDrawMode & InkDrawMode.Images);
+    }
+    void linearSplineOnly_OnActivated() 
+    {
+        setDisplayStyleMenuItems(); 
+        bezierBoard1.InkDrawMode = InkDrawMode.Spline | (bezierBoard1.InkDrawMode & InkDrawMode.Images);
+    }
+
+
+
+    private void BezierBoard1_OnSplineRemoved(object sender, BezierBoard.BezierBoardItemEventArgs e)
+    {
+        documentLayoutFP_Controls.Remove(documentLayoutFP_Controls.OfType<BezierBoardItemMenuItem>().ToList().Find(ci => ci.Item == e.Item));
+    }
+
+    private void BezierBoard1_OnSplineAdded(object sender, BezierBoard.BezierBoardItemEventArgs e)
+    {
+        BezierBoardItemMenuItem con = null;
+        if (e.Item is RotatingBezierSpline)
+            con = new CurveMenuItem
+                {
+                    Item = (RotatingBezierSpline)e.Item,
+                    VisibleIcon = visibleIcon,
+                    ActiveIcon = activeIcon,
+                    VisibleIconDull = visibleIconDull,
+                    ActiveIconDull = activeIconDull,
+                    Size = 23
+                };
+        else if (e.Item is ImageItem)
+            con = new ImageMenuItem
+                {
+                    Item = (ImageItem)e.Item,
+                    VisibleIcon = visibleIcon,
+                    ActiveIcon = activeIcon,
+                    VisibleIconDull = visibleIconDull,
+                    ActiveIconDull = activeIconDull,
+                    Size = 23
+                };
+        con.OnRequestToShowAll += async(s,e) => await Con_OnRequestToShowAll(s, e);
+        con.OnRequestToUnlockAll += async(s,e) => await Con_OnRequestToUnlockAll(s, e);
+        con.OnRequestShowOnly += async(s,e) => await Con_OnRequestShowOnly(s, e);
+        con.OnRequestToUnlockOnly += async(s,e) => await Con_OnRequestToUnlockOnly(s, e);
+
+        void MoveItem(List<BezierBoardItemMenuItem> list, BezierBoardItemMenuItem item, int newIndex)
+        {
+            var oldIndex = list.IndexOf(item);
+            if (oldIndex < 0 || oldIndex >= list.Count || newIndex < 0 || newIndex >= list.Count)
+                return;
+
+            list.RemoveAt(oldIndex);
+
+            // If the item is moved to a position after the old index, adjust the new index
+            if (newIndex > oldIndex)
+                newIndex--;
+            if (newIndex < 0)
+                newIndex = 0;
+
+            list.Insert(newIndex, item);
+        }
+
+        con.OnMoveDownRequest += (s, e2) =>
+        {
+            MoveItem(documentLayoutFP_Controls, con, documentLayoutFP_Controls.IndexOf(con) + 1);
+            for (int i = 0; i < documentLayoutFP_Controls.Count; i++)
+                ((BezierBoardItemMenuItem)documentLayoutFP_Controls[i]).Item.Index = i;
+        };
+        con.OnMoveUpRequest += (s, e2) =>
+        {
+            MoveItem(documentLayoutFP_Controls, con, documentLayoutFP_Controls.IndexOf(con) - 1);
+            for (int i = 0; i < documentLayoutFP_Controls.Count; i++)
+                ((BezierBoardItemMenuItem)documentLayoutFP_Controls[i]).Item.Index = i;
+        };
+        documentLayoutFP_Controls.Add(con);
+    }
+
+    private async Task Con_OnRequestToUnlockOnly(object sender, EventArgs e)
+    {
+        foreach (var cmi in documentLayoutFP_Controls.OfType<CurveMenuItem>())
+        {
+            if (cmi != sender && cmi.Item != sender)
+                await cmi.SplineEnabled.SetActive(false);
+
+        }
+    }
+
+    private async Task Con_OnRequestToUnlockAll(object sender, EventArgs e)
+    {
+        foreach (var cmi in documentLayoutFP_Controls.OfType<CurveMenuItem>())
+            await cmi.SplineEnabled.SetActive(true);
+    }
+
+
+    private async Task Con_OnRequestShowOnly(object sender, EventArgs e)
+    {
+        foreach (var cmi in documentLayoutFP_Controls.OfType<CurveMenuItem>())
+        {
+            if (cmi != sender && cmi.Item != sender)
+                await cmi.SplineVisible.SetActive(false);
+        }
+    }
+    private async Task Con_OnRequestToShowAll(object sender, EventArgs e)
+    {
+        foreach (var cmi in documentLayoutFP_Controls.OfType<CurveMenuItem>())
+            await cmi.SplineVisible.SetActive(true);
+    }
+
 }

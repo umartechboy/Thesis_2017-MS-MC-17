@@ -1,0 +1,52 @@
+﻿@using RotatingBezierSplineEditor
+@using SkiaSharp
+
+@code {
+    [Parameter]
+    public BezierBoardItemMenuItem Base { get; set; }
+
+    // These params are here only to emulate the Forms contrstructor in @foreach
+    public BezierBoardItem Item { get; set; }
+    public bool ReadOnly { get; set; }
+
+
+    public event EventHandler OnRequestToShowAll;
+    public event EventHandler OnRequestToUnlockAll;
+    public event EventHandler OnRequestShowOnly;
+    public event EventHandler OnRequestToUnlockOnly;
+    public event EventHandler OnMoveUpRequest;
+    public event EventHandler OnMoveDownRequest;
+    public void Init(BezierBoardItem item)
+    {
+        this.Item = item;
+    }
+    public void NotifyRequestToShowAll()
+    {
+        OnRequestToShowAll?.Invoke(this, new EventArgs());
+    }
+    public void NotifyRequestToUnlockAll()
+    {
+        OnRequestToUnlockAll?.Invoke(this, new EventArgs());
+    }
+    public void NotifyRequestShowOnly()
+    {
+        OnRequestShowOnly?.Invoke(this, new EventArgs());
+    }
+    public void NotifyRequestToUnlockOnly()
+    {
+        OnRequestToUnlockOnly?.Invoke(this, new EventArgs());
+    }
+    public void NotifyMoveUpRequest()
+    {
+        OnMoveUpRequest?.Invoke(this, new EventArgs());
+    }
+    public void NotifyMoveDownRequest()
+    {
+        OnMoveDownRequest?.Invoke(this, new EventArgs());
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Populate Base
+    }
+}

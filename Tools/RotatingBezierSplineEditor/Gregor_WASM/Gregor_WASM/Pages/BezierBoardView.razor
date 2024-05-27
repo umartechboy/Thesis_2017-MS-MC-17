@@ -9,6 +9,7 @@
 	 @onmouseleave:preventDefault="true"
 	 @onclick:preventDefault="true">
 	<SKGLView @ref=skView
+			  style="width: 100%; height: 100vh;"
 			  OnPaintSurface="async (e) => await OnPaint(e)"
 			  IgnorePixelScaling="true"
 			  @onmousemove="OnMouseMove"
@@ -25,7 +26,7 @@
 	public string Height { get; set; } = "100%";
 	protected string Cursor = "auto";
 	SKGLView skView;
-	RotatingBezierSplineEditor.BezierBoard bBoard;
+	public RotatingBezierSplineEditor.BezierBoard bBoard { get; private set; }
 	protected override async Task OnInitializedAsync()
 	{
 		bBoard = new RotatingBezierSplineEditor.BezierBoard(() => skView.Invalidate());
