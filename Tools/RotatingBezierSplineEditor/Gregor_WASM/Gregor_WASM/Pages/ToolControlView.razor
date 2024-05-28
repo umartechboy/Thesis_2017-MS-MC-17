@@ -1,4 +1,5 @@
-﻿@using RotatingBezierSplineEditor
+﻿@using Gregor_WASM.Services
+@using RotatingBezierSplineEditor
 @using SkiaSharp
 @using SkiaSharp.Views.Blazor
 
@@ -9,16 +10,12 @@
      @onmouseenter:preventDefault="true"
      @onmouseleave:preventDefault="true"
      @onclick:preventDefault="true">
-    <SKGLView @ref=skView
-              style="width: 100%; height: 100vh;"
-              OnPaintSurface="async (e) => await OnPaint(e)"
-              IgnorePixelScaling="true"
-              @onmousemove="OnMouseMove"
-              @onmousedown="OnMouseDown"
-              @onmouseup="OnMouseUp"
-              @onmouseenter="OnMouseEnter"
-              @onmouseleave="OnMouseLeave"
-              @onclick="OnClick"></SKGLView>
+    <img style="width: 100%; height: 100%; object-fit: contain;"
+         @onmousemove="OnMouseMove"
+         @onmouseenter="OnMouseEnter"
+         @onmouseleave="OnMouseLeave"
+         @onclick="OnClick" 
+         src="@imgSrc"/>
 </div>
 @code {
     [Parameter]
@@ -26,8 +23,7 @@
     [Parameter]
     public string Height { get; set; } = "100%";
 
-
-    SKGLView skView;
+    string imgSrc = "";
     bool containsMouseCursor = false;
     bool _active = false;
     bool _dist = true;
@@ -47,7 +43,7 @@
         set
         {
             panelEnable = value;
-            skView.Invalidate();
+            Invalidate();
         }
     }
     public async Task SetActive(bool value)
@@ -62,21 +58,18 @@
             _active = value;
             // raise the events
             await OnActivated.InvokeAsync();
-            skView.Invalidate();
+            Invalidate();
             StateHasChanged();
         }
     }
     SKImage icon;
     SKImage dull;
-    int size;
     /// <summary>
     /// This is alternate to BackgroundImage creates a dull looking copy of the image as well.
     /// </summary>
     /// <param name="Image">Image to be used base icon</param>
-    /// <param name="size">size of the rendered icon</param>
-    public SKImage SetImage(SKImage Image, int size, SKImage dull = null)
+    public SKImage SetImage(SKImage Image, SKImage dull = null)
     {
-        this.size = size;
         icon = Image;
         // make new memory space for the dull image
         if (dull == null)
@@ -96,26 +89,14 @@
             dull = SKImage.FromBitmap(bmp);
         }
         this.dull = dull;
+        Invalidate();
         return dull;
     }
-    protected async Task OnPaint(SKPaintGLSurfaceEventArgs e)
+    protected void Invalidate()
     {
         if (icon == null) // this is needed for the UI Editor which is not familiar with our objects and will call this function regardless of the values to show in the editor.
             return;
-        var Width = e.Info.Width;
-        var Height = e.Info.Width;
-        var rect = new System.Drawing.RectangleF(0, 0, size, (size * icon.Height) / icon.Width);
-        var tRect = new System.Drawing.RectangleF(Width / 2 - rect.Width / 2, Height / 2 - rect.Height / 2, rect.Width, rect.Height);
-        rect.Inflate(-3, -3);
-        if (containsMouseCursor)
-            rect.Inflate(3, 3);
-        using (SKPaint paint = new SKPaint
-            {
-                IsAntialias = true
-            })
-        {
-            e.Surface.Canvas.DrawImage(Active ? icon : dull, new SKRect(tRect.Left, tRect.Top, tRect.Right, tRect.Bottom), paint);
-        }
+        imgSrc = ImageServices.SKImageToString(Active ? icon : dull);
     }
     // Emulate control UI
 
@@ -125,26 +106,23 @@
     {
         lastMove = new SKPoint((float)e.OffsetX, (float)e.OffsetY);
     }
-    public void OnMouseDown(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
-    {
-    }
-    public void OnMouseUp(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
-    {
-    }
     public void OnMouseEnter(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
     {
-        containsMouseCursor = true; skView.Invalidate();
+        containsMouseCursor = true; Invalidate();
+        StateHasChanged();
     }
     public void OnMouseLeave(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
     {
-        containsMouseCursor = false; skView.Invalidate();
+        containsMouseCursor = false; Invalidate();
+        StateHasChanged();
     }
     public async Task OnClick(EventArgs e)
     {
         if (DistinctSelection)
             await SetActive(true);
         else await SetActive(!Active);
-        skView.Invalidate();
+        Invalidate();
+        StateHasChanged();
     }
 
     // Anchor EditToolControl only

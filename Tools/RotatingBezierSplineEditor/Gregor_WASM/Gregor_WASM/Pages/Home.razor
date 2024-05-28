@@ -12,13 +12,13 @@
 <MudGrid Style="height: 100vh;">
     <MudItem md="1" Class="px-0 py-0">
         <MudItem md="12">
-            <ToolControlView Height="70px" @ref="centerP" OnActivated="centerP_OnActivated"></ToolControlView>
-            <ToolControlView Height="70px" @ref="curvatureHandlesP" OnActivated="curvatureHandlesP_OnActivated"></ToolControlView>
-            <ToolControlView Height="70px" @ref="rotationHandleP" OnActivated="rotationHandleP_OnActivated"></ToolControlView>
+            <ToolControlView Width="100%" Height="70px" @ref="centerP" OnActivated="centerP_OnActivated"></ToolControlView>
+            <ToolControlView Width="100%" Height="70px" @ref="curvatureHandlesP" OnActivated="curvatureHandlesP_OnActivated"></ToolControlView>
+            <ToolControlView Width="100%" Height="70px" @ref="rotationHandleP" OnActivated="rotationHandleP_OnActivated"></ToolControlView>
             <MudSpacer/>
-            <ToolControlView Height="70px" @ref="bothSplinesP" OnActivated="bothSplinesP_OnActivated"></ToolControlView>
-            <ToolControlView Height="70px" @ref="linearSplineOnly" OnActivated="linearSplineOnly_OnActivated"></ToolControlView>
-            <ToolControlView Height="70px" @ref="rotatingSplineOnlyP" OnActivated="rotatingSplineOnlyP_OnActivated"></ToolControlView>
+            <ToolControlView Width="100%" Height="70px" @ref="bothSplinesP" OnActivated="bothSplinesP_OnActivated"></ToolControlView>
+            <ToolControlView Width="100%" Height="70px" @ref="linearSplineOnly" OnActivated="linearSplineOnly_OnActivated"></ToolControlView>
+            <ToolControlView Width="100%" Height="70px" @ref="rotatingSplineOnlyP" OnActivated="rotatingSplineOnlyP_OnActivated"></ToolControlView>
         </MudItem>
 	</MudItem>
 	<MudItem md="8" Class="px-0 py-0">
@@ -31,7 +31,14 @@
         </MudAppBar>
         @foreach (var menuItem in documentLayoutFP_Controls)
         {
-            <BezierBoardItemMenuItem Base="@menuItem"></BezierBoardItemMenuItem>
+            @if (menuItem is CurveMenuItem)
+            {
+                <CurveMenuItem Base="@menuItem"></CurveMenuItem>
+            }
+            else
+            {
+                <ImageMenuItem Base="@menuItem"></ImageMenuItem>
+            }
         }
     </MudItem>
 </MudGrid>
@@ -189,12 +196,12 @@
             var tc = new ToolControlView();
             visibleIcon = SKImage.FromEncodedData(FileManager.GetBytes("Resources\\visible.png"));
             activeIcon = SKImage.FromEncodedData(FileManager.GetBytes("Resources\\active.png"));
-            visibleIconDull = tc.SetImage(visibleIcon, 23);
-            activeIconDull = tc.SetImage(activeIcon, 23); ;
+            visibleIconDull = tc.SetImage(visibleIcon);
+            activeIconDull = tc.SetImage(activeIcon);
             // set images
-            centerP.SetImage(SKImage.FromEncodedData(FileManager.GetBytes("Resources\\Center.png")), 65);
-            curvatureHandlesP.SetImage(SKImage.FromEncodedData(FileManager.GetBytes("Resources\\CurvatureHandles.png")), 65);
-            rotationHandleP.SetImage(SKImage.FromEncodedData(FileManager.GetBytes("Resources\\RotationHandles.png")), 56);
+            centerP.SetImage(SKImage.FromEncodedData(FileManager.GetBytes("Resources\\Center.png")));
+            curvatureHandlesP.SetImage(SKImage.FromEncodedData(FileManager.GetBytes("Resources\\CurvatureHandles.png")));
+            rotationHandleP.SetImage(SKImage.FromEncodedData(FileManager.GetBytes("Resources\\RotationHandles.png")));
             await centerP.SetDistinctSelection(false);
             await curvatureHandlesP.SetDistinctSelection(false);
             await rotationHandleP.SetDistinctSelection(false);
@@ -207,9 +214,9 @@
             await curvatureHandlesP.SetActive(true);
 
 
-            bothSplinesP.SetImage(SKImage.FromEncodedData(FileManager.GetBytes("Resources\\bothSplines.png")), 45);
-            rotatingSplineOnlyP.SetImage(SKImage.FromEncodedData(FileManager.GetBytes("Resources\\rotatingSplineOnly.png")), 45);
-            linearSplineOnly.SetImage(SKImage.FromEncodedData(FileManager.GetBytes("Resources\\splineOnly.png")), 45);
+            bothSplinesP.SetImage(SKImage.FromEncodedData(FileManager.GetBytes("Resources\\bothSplines.png")));
+            rotatingSplineOnlyP.SetImage(SKImage.FromEncodedData(FileManager.GetBytes("Resources\\rotatingSplineOnly.png")));
+            linearSplineOnly.SetImage(SKImage.FromEncodedData(FileManager.GetBytes("Resources\\splineOnly.png")));
 
 
 
@@ -309,6 +316,7 @@
     {
         BezierBoardItemMenuItem con = null;
         if (e.Item is RotatingBezierSpline)
+        {  
             con = new CurveMenuItem
                 {
                     Item = (RotatingBezierSpline)e.Item,
@@ -316,8 +324,8 @@
                     ActiveIcon = activeIcon,
                     VisibleIconDull = visibleIconDull,
                     ActiveIconDull = activeIconDull,
-                    Size = 23
                 };
+        }
         else if (e.Item is ImageItem)
             con = new ImageMenuItem
                 {
@@ -326,7 +334,6 @@
                     ActiveIcon = activeIcon,
                     VisibleIconDull = visibleIconDull,
                     ActiveIconDull = activeIconDull,
-                    Size = 23
                 };
         con.OnRequestToShowAll += async(s,e) => await Con_OnRequestToShowAll(s, e);
         con.OnRequestToUnlockAll += async(s,e) => await Con_OnRequestToUnlockAll(s, e);
@@ -363,6 +370,7 @@
                 ((BezierBoardItemMenuItem)documentLayoutFP_Controls[i]).Item.Index = i;
         };
         documentLayoutFP_Controls.Add(con);
+        StateHasChanged();
     }
 
     private async Task Con_OnRequestToUnlockOnly(object sender, EventArgs e)

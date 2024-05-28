@@ -43,7 +43,6 @@
     public SKImage ActiveIcon { get; set; }
     public SKImage VisibleIconDull { get; set; }
     public SKImage ActiveIconDull { get; set; }
-    public int Size { get; set; }
 
 
     public new ImageMenuItem Base { get { return (ImageMenuItem)base.Base; } }
@@ -60,11 +59,11 @@
     {
         base.Init(imageItem);
     }
-    public void Init(ImageItem imageItem, SKImage visibleIcon, SKImage activeIcon, SKImage visibleIconDull, SKImage activeIconDull, int sz)
+    public void Init(ImageItem imageItem, SKImage visibleIcon, SKImage activeIcon, SKImage visibleIconDull, SKImage activeIconDull)
     {
         base.Init(imageItem);
-        SplineVisible.SetImage(visibleIcon, sz, visibleIconDull);
-        SplineEnabled.SetImage(activeIcon, sz, activeIconDull);
+        SplineVisible.SetImage(visibleIcon, visibleIconDull);
+        SplineEnabled.SetImage(activeIcon, activeIconDull);
         prevPSource = ImageServices.SKImageToString(imageItem.SourceImage);
     }
     private void visibleTC_OnActivated()

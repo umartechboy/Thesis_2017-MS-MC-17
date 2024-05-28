@@ -6,11 +6,15 @@ namespace Gregor_WASM.Services
     {
         public static string SKImageToString(SKImage sKImage)
         {
-            return "data:image/png;base64,@" + Convert.ToBase64String(sKImage.Encode(SKEncodedImageFormat.Png, 100).ToArray());
+            if (sKImage == null)
+                return "";
+            return "data:image/png;base64," + Convert.ToBase64String(sKImage.Encode(SKEncodedImageFormat.Png, 100).ToArray());
         }
         public static string SKImageToString(SKBitmap sKImage)
         {
-            return "data:image/png;base64,@" + Convert.ToBase64String(sKImage.Encode(SKEncodedImageFormat.Png, 100).ToArray());
+            if (sKImage == null)
+                return "";
+            return "data:image/png;base64," + Convert.ToBase64String(sKImage.Encode(SKEncodedImageFormat.Png, 100).ToArray());
         }
     }
 }
