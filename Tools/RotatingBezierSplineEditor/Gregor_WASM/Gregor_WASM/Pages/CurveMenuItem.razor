@@ -5,15 +5,15 @@
 @using SkiaSharp.Views.Blazor
 
 @inherits BezierBoardItemMenuItem
-<MudGrid @onmouseenter="@CurveMenuItem_MouseEnter" @onmouseleave="@CurveMenuItem_MouseLeave">
+<MudGrid @onmouseenter="@CurveMenuItem_MouseEnter" @onmouseleave="@CurveMenuItem_MouseLeave" Class="px-0 py-0">
     @* Preview *@
     <MudItem md="3" @onmouseenter="@prevP_MouseEnter" @onmouseleave="@prevP_MouseLeave">
         <img style="height: 100%; width: 100%; object-fit: contain;" src="@prevPSource" />
     </MudItem>
     @* Name and flags*@
     <MudItem md=7> 
-        <MudGrid>
-            <MudItem md="12">
+        <MudGrid Class="px-0 py-0">
+            <MudItem md="12" Class="px-0 py-0">
                 <MudInputString Value="@SplineLabel_Text" ValueChanged="@textBox1_TextChanged"></MudInputString>
             </MudItem>
             @* SplineEnabled*@
@@ -31,18 +31,25 @@
             @* appearnceP*@
             <MudItem md="3">
                 <MudIconButton Disabled="@appearanceP_Disabled" Icon="@Icons.Material.Filled.AutoFixHigh" OnClick="appearnceP_MouseClick"></MudIconButton>
-            </MudItem>
-            @* delP *@
-            <MudItem md="3">
-                <MudIconButton Icon="@Icons.Material.Outlined.DeleteForever"
-                               OnClick="@delP_MouseClick">
-                </MudIconButton>
-            </MudItem>
+			</MudItem>
+			@* delP *@
+			<MudItem md="3">
+				<MudIconButton Icon="@Icons.Material.Outlined.DeleteForever"
+							   OnClick="@delP_MouseClick">
+				</MudIconButton>
+			</MudItem>
+			@* appearnceP*@
+			<MudItem md="3">
+                <MudColorPicker Value="strokeColor" ValueChanged="strokeColorChanged" PickerVariant="PickerVariant.Dialog" />
+			</MudItem>
+			<MudItem md="9">
+                <MudSlider T="float" Value="@strokeWidth" ValueChanged="strokeWidthChanged">Pen Width</MudSlider>
+			</MudItem>
         </MudGrid>
     </MudItem>
     @* Up Down*@
     <MudItem md="2">
-        <MudGrid>
+        <MudGrid Class="px-0 py-0">
             <MudItem md=12>
                 <MudIconButton Icon="@Icons.Material.Filled.ArrowUpward" OnClick="@button1_Click"></MudIconButton>
             </MudItem>
@@ -52,27 +59,6 @@
         </MudGrid>
     </MudItem>
 </MudGrid>
-@* Spline Editing *@
-
-<MudDialog Visible="@editDialogOpen" Options="new (){FullWidth = true}">
-    <TitleContent>
-        <MudText Typo="Typo.h6">
-            <MudIcon Icon="@Icons.Material.Filled.Edit" Class="mr-3" />Edit Spline
-        </MudText>
-    </TitleContent>
-    <DialogContent>
-        <MudSlider T="float" Value="@strokeWidth" ValueChanged="strokeWidthChanged">Pen Width</MudSlider>
-        <MudItem>
-            <MudText Typo="Typo.body1">Color</MudText>
-            <MudSpacer/>
-            <MudColorPicker Value="strokeColor" ValueChanged="strokeColorChanged"  Label="Color" ColorPickerView="ColorPickerView.Spectrum" />
-
-        </MudItem>
-    </DialogContent>
-    <DialogActions>
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => editDialogOpen = false" Class="px-10">Close</MudButton>
-    </DialogActions>
-</MudDialog>
 @code {
     float strokeWidth = 0;
     MudColor strokeColor;
@@ -87,7 +73,6 @@
     public event EventHandler OnRequestToUndoHighlight;
     bool appearanceP_Disabled = false;
     bool appearnceP_Enabled { get => !appearanceP_Disabled; set => appearanceP_Disabled = !value; }
-    bool editDialogOpen = false;
 
     public void Init(BezierBoardItem item = null, bool readOnly = false)
     {
@@ -128,11 +113,7 @@
             if (item is RotatingBezierSpline)
             {
                 SplineLabel_Text = ((RotatingBezierSpline)item).Label;
-                Item.OnRequestToEditAppearance += (s, e) =>
-                {
-                    editDialogOpen = true;
-                    StateHasChanged();
-                };
+
             }
             if (readOnly)
             {
@@ -219,7 +200,6 @@
 
     private void appearnceP_MouseClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
     {
-        editDialogOpen = true;
         StateHasChanged();
     }
 
@@ -316,6 +296,7 @@
     }
     void strokeColorChanged(MudColor col)
     {
+        strokeColor = col;
         Item.NormalColor = System.Drawing.Color.FromArgb(col.A, col.R, col.G, col.B);
         Item.NotifyAppearanceChanged();
         StateHasChanged();
