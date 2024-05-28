@@ -201,8 +201,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="AppIcon.ico" />
-    <None Include="Resources\pen.PNG" />
-    <None Include="Resources\delete.PNG" />
+    <None Include="Resources\pen.PNG">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\delete.PNG">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="bin\transparentBack.png" />
     <Content Include="گ %282%29.ico" />
   </ItemGroup>

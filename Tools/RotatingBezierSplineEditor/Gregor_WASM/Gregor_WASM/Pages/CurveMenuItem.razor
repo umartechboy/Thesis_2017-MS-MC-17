@@ -310,6 +310,7 @@
     void strokeWidthChanged(float width)
     {
         Item.FlatTipWidth = width;
+        strokeWidth = width;
         Item.NotifyAppearanceChanged();
         StateHasChanged();
     }
