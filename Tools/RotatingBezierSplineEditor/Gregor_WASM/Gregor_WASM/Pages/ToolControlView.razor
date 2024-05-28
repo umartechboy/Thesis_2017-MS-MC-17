@@ -62,6 +62,8 @@
             _active = value;
             // raise the events
             await OnActivated.InvokeAsync();
+            skView.Invalidate();
+            StateHasChanged();
         }
     }
     SKImage icon;

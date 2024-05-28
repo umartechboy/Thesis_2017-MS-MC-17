@@ -191,7 +191,7 @@ namespace RotatingBezierSplineEditor
         PointF VatMouseDown; // for scaling
         Point lastMouseG;
         float ppuAtMouseDown = 1;
-        public bool clickIsForAdding = false;
+        public bool clickIsForAdding = true;
         private void BezierBoard_MouseDown(object sender, MouseEventArgs e2)
         {
             MouseButtonsThatWentDown = e2.Button;

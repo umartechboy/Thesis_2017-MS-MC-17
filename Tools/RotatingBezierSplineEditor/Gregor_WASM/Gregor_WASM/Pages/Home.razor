@@ -3,6 +3,9 @@
 @using RotatingBezierSplineEditor
 @using SkiaSharp
 @using SkiaSharp.Views.Blazor
+@using MudBlazor.Utilities
+
+@inject IDialogService DialogService
 
 <PageTitle>Home</PageTitle>
 
@@ -43,14 +46,24 @@
             <MudDivider Class="my-2" />
             <MudNavGroup Title="File" Expanded="false">
                 <MudNavLink Icon="@Icons.Material.Filled.FileOpen">Open</MudNavLink>
-                <MudNavLink Icon="@Icons.Material.Filled.Save">Save</MudNavLink>
-                <MudNavLink Icon="@Icons.Material.Filled.SaveAs">Save as</MudNavLink>
+                <MudLink>
+                    <MudFileUpload T="IBrowserFile" Accept=".rbs, .xml" FilesChanged="saveAsFileSelected" MaximumFileCount="100">
+                        <ButtonTemplate>
+                            <MudButton HtmlTag="label"
+                                       Variant="Variant.Filled"
+                                       Color="Color.Transparent"
+                                       StartIcon="@Icons.Material.Filled.SaveAs">
+                                Save
+                            </MudButton>
+                        </ButtonTemplate>
+                    </MudFileUpload>
+                </MudLink>
                 <MudNavGroup Icon="@Icons.Material.Filled.SaveAlt" Title="Import" Expanded="true">
                     <MudNavLink Icon="@Icons.Material.Filled.ScatterPlot">Spline</MudNavLink>
                     <MudNavLink Icon="@Icons.Material.Filled.Image">Image</MudNavLink>
                 </MudNavGroup>
                 <MudNavLink Icon="@Icons.Material.Filled.ImportExport">Export</MudNavLink>
-                <MudNavLink Icon="@Icons.Material.Filled.ClearAll">Clear all</MudNavLink>
+                <MudNavLink Icon="@Icons.Material.Filled.ClearAll" OnClick="clearAllToolStripMenuItem_Click">Clear all</MudNavLink>
                 <MudNavLink Icon="@Icons.Material.Filled.Timer"><MudCheckBox T="bool">Auto save</MudCheckBox></MudNavLink>
             </MudNavGroup>
             <MudDivider Class="my-2" />
@@ -67,13 +80,13 @@
                 <MudDivider Class="my-2" />
                 <MudNavLink Disabled="true">Worksapce</MudNavLink>
                 <MudNavLink><MudCheckBox @bind-value="@backgroundImagesToolStripMenuItem" @onclick="backgroundImagesToolStripMenuItem_Click" T="bool">Background Images</MudCheckBox></MudNavLink>
-                <MudNavLink><MudCheckBox T="bool">Add Acnchor With Left Click</MudCheckBox></MudNavLink>
+                <MudNavLink><MudCheckBox @onclick="addAnchorWithLeftClickToolStripMenuItem_Click" @bind-Value="addAnchorWithLeftClickToolStripMenuItem_Checked" T="bool">Add Acnchor With Left Click</MudCheckBox></MudNavLink>
                 <MudDivider Class="my-2" />
-                <MudNavLink><MudSlider T="int">See Through</MudSlider></MudNavLink>
+                <MudNavLink><MudSlider ValueChanged="seeThroughValueChanged" Min="0" Max="100" T="int">See Through</MudSlider></MudNavLink>
                 <MudNavLink><MudCheckBox T="bool">Document Index</MudCheckBox></MudNavLink>
                 <MudNavGroup Icon="@Icons.Material.Filled.SaveAlt" Title="Flat Tip Render Mode" Expanded="false">
-                    <MudNavLink><MudCheckBox T="bool">Polygons</MudCheckBox></MudNavLink>
-                    <MudNavLink><MudCheckBox T="bool">Rectangles</MudCheckBox></MudNavLink>
+                    <MudNavLink><MudCheckBox @bind-value="@polygonToolStripMenuItem_Checked" @onclick="polygonToolStripMenuItem_Click" T="bool">Polygons</MudCheckBox></MudNavLink>
+                    <MudNavLink><MudCheckBox @bind-value="@rectanglesToolStripMenuItem_Checked" @onclick="rectanglesToolStripMenuItem_Click" T="bool">Rectangles</MudCheckBox></MudNavLink>
                 </MudNavGroup>
             </MudNavGroup>
             <MudDivider Class="my-2" />
@@ -84,8 +97,8 @@
                 <MudNavLink><MudCheckBox @bind-value="@rotationHandlesToolStripMenuItem_Checked" @onclick="rotationHandlesToolStripMenuItem_Click" T="bool">Rotation Handles</MudCheckBox></MudNavLink>
                 <MudDivider Class="my-2" />
                 <MudNavLink Disabled="true">Preferences</MudNavLink>
-                <MudNavLink><MudCheckBox Disabled="true" T="bool">Add Anchor with left click</MudCheckBox></MudNavLink>
-                <MudNavLink><MudCheckBox Disabled="true" T="bool">Splines can be dragged</MudCheckBox></MudNavLink>
+                <MudNavLink><MudCheckBox @bind-Value="addAnchorWithLeftClickToolStripMenuItem_Checked" @onclick="addAnchorWithLeftClickToolStripMenuItem_Click" T="bool">Add Anchor with left click</MudCheckBox></MudNavLink>
+                <MudNavLink><MudCheckBox @bind-Value="@splinesCanBeDraggedToolStripMenuItem_Checked" @onclick="splinesCanBeDraggedToolStripMenuItem_Click" T="bool">Splines can be dragged</MudCheckBox></MudNavLink>
             </MudNavGroup>
             <MudDivider Class="my-2" />
             <MudNavGroup Title="Tools" Expanded="false">
@@ -137,6 +150,7 @@
         <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => aboutDialogOpen = false" Class="px-10">Close</MudButton>
     </DialogActions>
 </MudDialog>
+
 @code {
     bool menuOpen = false;
     bool aboutDialogOpen = false;
@@ -149,12 +163,16 @@
     bool centerPointsToolStripMenuItem_Checked = true;
     bool curvatureHandlesToolStripMenuItem_Checked = true;
     bool rotationHandlesToolStripMenuItem_Checked;
+    bool polygonToolStripMenuItem_Checked = false;
+    bool rectanglesToolStripMenuItem_Checked = true;
+    bool splinesCanBeDraggedToolStripMenuItem_Checked = true;
 
     bool xYAxisToolStripMenuItem_Enabled = true;
     bool xYAxisToolStripMenuItem_Disabled { get => !xYAxisToolStripMenuItem_Enabled; set => xYAxisToolStripMenuItem_Enabled = !value; }
     bool xYAxisToolStripMenuItem_Checked = true;
     bool gridToolStripMenuItem_Checked = true;
     bool scaleToolStripMenuItem_Checked = true;
+    bool addAnchorWithLeftClickToolStripMenuItem_Checked = true;
     private ToolControlView centerP;
     private ToolControlView curvatureHandlesP;
     private ToolControlView rotationHandleP;
@@ -451,4 +469,276 @@
         aboutDialogOpen = true;
     }
 
+    private void saveAsFileSelected(IBrowserFile file)
+    {
+        var sfd_Filter = "Rotating Bezier Spline Files (*.rbs)|*.rbs|XML documents (*.xml)|*.xml";
+        // if (File.Exists(sfd.FileName))
+        //     bezierBoard1.SaveObjects(sfd.FileName);
+        // else if (sfd.ShowDialog() == DialogResult.OK)
+        //     bezierBoard1.SaveObjects(sfd.FileName);
+    }
+
+    public string FileToLoad { get; internal set; }
+
+    private void openToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+        // if (ofd.ShowDialog() == DialogResult.OK)
+        // {
+        //     sfd.FileName = ofd.FileName;
+        //     Text = "Gregor -- " + Path.GetFileNameWithoutExtension(sfd.FileName);
+        //     documentLayoutFP.Controls.Clear();
+        //     bezierBoard1.ClearObjects();
+        //     bezierBoard1.ImportObjects(ofd.FileName);
+        // }
+    }
+
+    private void importToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+
+    }
+
+    private void splinesToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+        // ofd.Filter = "Rotating Bezier Spline Files (*.rbs)|*.rbs|XML documents (*.xml)|*.xml";
+        // if (ofd.ShowDialog() == DialogResult.OK)
+        // {
+        //     //documentLayoutFP.Controls.Clear();
+        //     //bezierBoard1.ClearObjects();
+        //     bezierBoard1.ImportObjects(ofd.FileName);
+        // }
+    }
+
+    private void imageToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+        // ofd.Filter = "Image files (*.jpg, *.bmp, *.png)|*.png;*.jpg;*.bmp|All files (*.*)|*.*";
+        // if (ofd.ShowDialog() == DialogResult.OK)
+        // {
+        //     var item = bezierBoard1.AddItem(ImageItem.FromFile(bezierBoard1, ofd.FileName));
+        //     bezierBoard1.ForceBeginDragItem(item);
+        // }
+    }
+    private void fromCipboardToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+        var item = bezierBoard1.AddItem(ImageItem.FromClipBoard(bezierBoard1));
+        bezierBoard1.ForceBeginDragItem(item);
+    }
+
+    private void addAnchorWithLeftClickToolStripMenuItem_Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+    {
+        bezierBoard1.clickIsForAdding = addAnchorWithLeftClickToolStripMenuItem_Checked = !addAnchorWithLeftClickToolStripMenuItem_Checked;
+        // addAnchorWithLeftClickToolStripMenuItem1_Checked = addAnchorWithLeftClickToolStripMenuItem_Checked;
+        bezierBoard1.DefaultCursor = addAnchorWithLeftClickToolStripMenuItem_Checked ? Cursors.Default : Cursors.SizeAll;
+        bezierBoard1.Cursor = bezierBoard1.DefaultCursor;
+    }
+
+    private void clearAllToolStripMenuItem_Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+    {
+        documentLayoutFP_Controls.Clear();
+        bezierBoard1.ClearObjects();
+        StateHasChanged();
+    }
+
+    // public static RotatingBezierSpline[] Import()
+    // {
+    //     var form = new MainForm();
+    //     form.StartPosition = FormStartPosition.CenterParent;
+    //     form.ShowDialog();
+    //     return form.bezierBoard1.GetSplineObjects();
+    // }
+
+    private void seeThroughValueChanged(int value)
+    {
+        BezierBoard.Fill = value / 100.0F;
+        bezierBoard1.Invalidate();
+    }
+
+    private void previewRefreshTimerT_Tick(object sender, EventArgs e)
+    {
+        foreach (var ci in documentLayoutFP_Controls.OfType<CurveMenuItem>())
+        {
+            if (ci.NeedsToRedrawPreview)
+            {
+                ci.RecomputePreview();
+                ci.NeedsToRedrawPreview = false;
+            }
+        }
+    }
+
+    private void autoSaveToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+        //autoSaverT.Enabled = autoSaveToolStripMenuItem.Checked;
+    }
+
+    // void ProcessRenderRequest(ExportRequest Request)
+    // {
+    //     var splines = bezierBoard1.GetSplineObjects().ToList();
+    //     var images = bezierBoard1.GetImageObjects().ToList();
+    //     if (splines.Count == 0)
+    //         return;
+    //     var minX = splines.Min(spline => spline.BoundingRectangle().Left);
+    //     var maxX = splines.Max(spline => spline.BoundingRectangle().Right);
+    //     var minY = splines.Min(spline => spline.BoundingRectangle().Top);
+    //     var maxY = splines.Max(spline => spline.BoundingRectangle().Bottom);
+    //     float scale = Request.DPI / 1000.0F;
+    //     var rect = new RectangleF(minX, minY, maxX - minX, maxY - minY);
+    //     var bmp = new Bitmap((int)(rect.Width * scale), (int)(rect.Height * scale));
+    //     var g = Graphics.FromImage(bmp);
+    //     g.ScaleTransform(1, -1);
+    //     g.TranslateTransform(0, -bmp.Height);
+    //     g.TranslateTransform(-rect.X * scale, -rect.Y * scale);
+    //     g.ScaleTransform(scale, scale);
+    //     var scBkp = BezierBoard.ForceSingleColorSplines;
+    //     var colBkp = BezierBoard.ForcedInkColor;
+    //     BezierBoard.ForcedInkColor = Request.ForceColor;
+    //     BezierBoard.ForceSingleColorSplines = Request.ForceSingleColor;
+    //     if (Request.RenderAllImages)
+    //     {
+    //         foreach (var image in images)
+    //             image.Draw(g, new PointF(), 1, InkDrawMode.Images, Request.AnchorMode, null, null);
+    //     }
+    //     if (Request.AlternateImageToRender != null)
+    //     {
+    //         Request.AlternateImageToRender.Draw(g, new PointF(), 1, InkDrawMode.Images, Request.AnchorMode, null, null);
+    //     }
+    //     if (!Request.DontRenderSplines)
+    //     {
+    //         foreach (var Spline in splines)
+    //         {
+    //             var bkp = BezierBoard.FlatTipRenderAlgorithm;
+    //             BezierBoard.FlatTipRenderAlgorithm = Request.RenderAlgorithm;
+    //             float widBkp = Spline.FlatTipWidth;
+    //             if (Spline.FlatTipWidth < 2)
+    //                 Spline.FlatTipWidth = 2;
+    //             Spline.Draw(g, new PointF(), 1, Request.DrawMode, Request.AnchorMode, null, null);
+    //             Spline.FlatTipWidth = widBkp;
+    //             BezierBoard.FlatTipRenderAlgorithm = bkp;
+    //         }
+    //     }
+    //     Request.RenderOutput = bmp;
+    //     BezierBoard.ForcedInkColor = colBkp;
+    //     BezierBoard.ForceSingleColorSplines = scBkp;
+    // }
+    // private void exportToolStripMenuItem_Click(object sender, EventArgs e)
+    // {
+    //     var em = new ExportMenu();
+    //     em.OnExportRequest += (s, e2) =>
+    //     {
+    //         ProcessRenderRequest(e2.Request);
+    //     };
+    //     em.ShowDialog();
+    // }
+
+    private void polygonToolStripMenuItem_Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+    {
+        BezierBoard.FlatTipRenderAlgorithm = FlatTipRenderAlgorithm.Polygon;
+        polygonToolStripMenuItem_Checked = true;
+        rectanglesToolStripMenuItem_Checked = false;
+        bezierBoard1.Invalidate();
+    }
+
+    private void rectanglesToolStripMenuItem_Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+    {
+        BezierBoard.FlatTipRenderAlgorithm = FlatTipRenderAlgorithm.Rectangle;
+        polygonToolStripMenuItem_Checked = false;
+        rectanglesToolStripMenuItem_Checked = true;
+        bezierBoard1.Invalidate();
+    }
+
+    // private void analyzeTraceAccuracyToolStripMenuItem_Click(object sender, EventArgs e)
+    // {
+    //     var taf = new TraceAnalyzer(bezierBoard1);
+    //     foreach (var imgI in documentLayoutFP.Controls.OfType<ImageMenuItem>())
+    //         taf.AddReferenceImage(imgI.Item);
+    //     taf.OnExportRequest += (s, e2) => { ProcessRenderRequest(e2.Request); };
+    //     taf.ShowDialog();
+    // }
+
+    private void splinesCanBeDraggedToolStripMenuItem_Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+    {
+        BezierBoard.SplinesCanBeSelected = splinesCanBeDraggedToolStripMenuItem_Checked = !splinesCanBeDraggedToolStripMenuItem_Checked;
+    }
+
+    private void resetRotationHandleLengthsToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+        foreach (var s in bezierBoard1.GetSplineObjects())
+        {
+            foreach (var a in s.Anchors)
+                a.ResetRotationHandleLength();
+        }
+    }
+
+    // private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+    // {
+    //     if (bezierBoard1.MayHaveUnsavedChanges)
+    //     {
+    //         if (MessageBox.Show("There are unsaved chnages in the worksheet. Do you want to go back and save them first?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+    //             e.Cancel = true;
+    //     }
+    // }
+
+    // private void exportAndAnalyzeTraceAccuracyToolStripMenuItem_Click(object sender, EventArgs e)
+    // {
+    //     var em = new ExportMenu();
+    //     em.OnExportRequest += (s, e2) =>
+    //     {
+    //         ProcessRenderRequest(e2.Request);
+    //     };
+    //     em.ShowDialog();
+    // }
+
+    // private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
+    // {
+    //     sfd.Filter = "Rotating Bezier Spline Files (*.rbs)|*.rbs|XML documents (*.xml)|*.xml";
+    //     if (sfd.ShowDialog() == DialogResult.OK)
+    //     {
+    //         bezierBoard1.SaveObjects(sfd.FileName);
+    //     }
+    // }
+
+    private void MainForm_Load(object sender, EventArgs e)
+    {
+        if (File.Exists(FileToLoad))
+        {
+
+        }
+    }
+
+    // private void autoFileOpener_Tick(object sender, EventArgs e)
+    // {
+    //     autoFileOpener.Enabled = false;
+    //     if (File.Exists(FileToLoad))
+    //     {
+    //         sfd.FileName = FileToLoad;
+    //         ofd.FileName = FileToLoad;
+    //         Text = "Gregor -- " + Path.GetFileNameWithoutExtension(sfd.FileName);
+    //         documentLayoutFP.Controls.Clear();
+    //         bezierBoard1.ClearObjects();
+    //         bezierBoard1.ImportObjects(ofd.FileName);
+    //     }
+    // }
+
+    // private void autoSaverT_Tick(object sender, EventArgs e)
+    // {
+    //     if (!bezierBoard1.MayHaveUnsavedChanges)
+    //         return;
+    //     bezierBoard1.MayHaveUnsavedChanges = false;
+    //     var fNameSeed = "Untitled.rbs";
+    //     if (File.Exists(sfd.FileName))
+    //         fNameSeed = sfd.FileName;
+
+    //     var fname = Path.GetFileNameWithoutExtension(fNameSeed) + " " + DateTime.Now.ToString("MM-dd hh.mm.ss");
+    //     var dir = Path.Combine(Path.GetDirectoryName(fNameSeed), Path.GetFileNameWithoutExtension(fNameSeed) + "_Autosave");
+    //     if (!Directory.Exists(dir))
+    //         Directory.CreateDirectory(dir);
+    //     fname = Path.Combine(dir, fname + Path.GetExtension(fNameSeed));
+    //     bezierBoard1.SaveObjects(fname);
+    // }
+
+    // private void autoSaveDurationChange_Click(object sender, EventArgs e)
+    // {
+    //     var dur = int.Parse(((ToolStripMenuItem)sender).Text.Split(new char[] { ' ' })[0]);
+    //     if (((ToolStripMenuItem)sender).Text.Split(new char[] { ' ' })[1].ToLower().StartsWith("m"))
+    //         dur *= 60;
+    //     autoSaverT.Interval = dur * 1000;
+    // }
 }

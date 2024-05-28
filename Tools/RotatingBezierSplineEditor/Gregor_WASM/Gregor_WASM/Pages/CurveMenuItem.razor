@@ -53,11 +53,12 @@
     public ToolControlView SplineEnabled { get; set; }
     string prevPSource = "";
     string SplineLabel_Text { get; set; } = "";
-    public new RotatingBezierSpline Item { get { return (RotatingBezierSpline)base.Item; } set => base.Base.Item = value; }
+    public new RotatingBezierSpline Item { get { return (RotatingBezierSpline)base.Item; } set => base.Item = value; }
     public event EventHandler OnRequestToHiglight;
     public event EventHandler OnRequestToUndoHighlight;
     bool appearanceP_Disabled = true;
     bool appearnceP_Enabled { get => !appearanceP_Disabled; set => appearanceP_Disabled = !value; }
+
 
     public void Init(BezierBoardItem item = null, bool readOnly = false)
     {
