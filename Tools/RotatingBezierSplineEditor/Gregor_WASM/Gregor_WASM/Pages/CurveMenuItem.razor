@@ -1,93 +1,114 @@
 ﻿@using Gregor_WASM.Services
+@using MudBlazor.Utilities
 @using RotatingBezierSplineEditor
 @using SkiaSharp
 @using SkiaSharp.Views.Blazor
-@using System.Drawing
+
 @inherits BezierBoardItemMenuItem
 <MudGrid @onmouseenter="@CurveMenuItem_MouseEnter" @onmouseleave="@CurveMenuItem_MouseLeave">
     @* Preview *@
     <MudItem md="3" @onmouseenter="@prevP_MouseEnter" @onmouseleave="@prevP_MouseLeave">
-        <img style="height: 100%; aspect-ratio: 1/1; " src="@prevPSource" />
+        <img style="height: 100%; width: 100%; object-fit: contain;" src="@prevPSource" />
     </MudItem>
     @* Name and flags*@
-    <MudItem md=8> 
-        <MudItem md="12">
-            <MudInputString Value="@SplineLabel_Text" ValueChanged="@textBox1_TextChanged"></MudInputString>
-        </MudItem>
-        @* SplineEnabled*@
-        <MudItem md="3">
-            <ToolControlView @ref="@SplineEnabled" OnActivated="@activeTC_OnActivated"></ToolControlView>
-        </MudItem>
-        @* SplineVisible *@
-        <MudItem md="3">
-            <ToolControlView @ref="@SplineVisible" OnActivated="@visibleTC_OnActivated"></ToolControlView>
-        </MudItem>
-        @* appearnceP*@
-        <MudItem md="3">
-            <MudIconButton Disabled="@appearanceP_Disabled" Icon="@Icons.Material.Filled.AutoFixHigh" OnClick="appearnceP_MouseClick"></MudIconButton>
-        </MudItem>
-        @* delP *@
-        <MudItem md="3">
-            <img @onclick="@delP_MouseClick" />
-        </MudItem>
+    <MudItem md=7> 
+        <MudGrid>
+            <MudItem md="12">
+                <MudInputString Value="@SplineLabel_Text" ValueChanged="@textBox1_TextChanged"></MudInputString>
+            </MudItem>
+            @* SplineEnabled*@
+            <MudItem md="3">
+                <MudIconButton Icon="@(SplineEnabled?Icons.Material.Filled.Mouse:Icons.Material.Outlined.Mouse)"
+                    OnClick="@activeTC_OnActivated">
+                </MudIconButton>
+            </MudItem>
+		    @* SplineVisible *@
+		    <MudItem md="3">
+                <MudIconButton Icon="@(SplineVisible?Icons.Material.Filled.RemoveRedEye:Icons.Material.Outlined.RemoveRedEye)"
+                               OnClick="@visibleTC_OnActivated">
+			    </MudIconButton>
+		    </MudItem>
+            @* appearnceP*@
+            <MudItem md="3">
+                <MudIconButton Disabled="@appearanceP_Disabled" Icon="@Icons.Material.Filled.AutoFixHigh" OnClick="appearnceP_MouseClick"></MudIconButton>
+            </MudItem>
+            @* delP *@
+            <MudItem md="3">
+                <MudIconButton Icon="@Icons.Material.Outlined.DeleteForever"
+                               OnClick="@delP_MouseClick">
+                </MudIconButton>
+            </MudItem>
+        </MudGrid>
     </MudItem>
     @* Up Down*@
-    <MudItem md="1">
-        <MudItem md=12>
-            <MudIconButton Icon="@Icons.Material.Filled.ArrowUpward" OnClick="@button1_Click"></MudIconButton>
-            <MudIconButton Icon="@Icons.Material.Filled.ArrowDownward" OnClick="@button2_Click"></MudIconButton>
-        </MudItem>
+    <MudItem md="2">
+        <MudGrid>
+            <MudItem md=12>
+                <MudIconButton Icon="@Icons.Material.Filled.ArrowUpward" OnClick="@button1_Click"></MudIconButton>
+            </MudItem>
+            <MudItem md=12>
+                <MudIconButton Icon="@Icons.Material.Filled.ArrowDownward" OnClick="@button2_Click"></MudIconButton>
+            </MudItem>
+        </MudGrid>
     </MudItem>
 </MudGrid>
+@* Spline Editing *@
+
+<MudDialog Visible="@editDialogOpen" Options="new (){FullWidth = true}">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Edit" Class="mr-3" />Edit Spline
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudSlider T="float" Value="@strokeWidth" ValueChanged="strokeWidthChanged">Pen Width</MudSlider>
+        <MudItem>
+            <MudText Typo="Typo.body1">Color</MudText>
+            <MudSpacer/>
+            <MudColorPicker Value="strokeColor" ValueChanged="strokeColorChanged"  Label="Color" ColorPickerView="ColorPickerView.Spectrum" />
+
+        </MudItem>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => editDialogOpen = false" Class="px-10">Close</MudButton>
+    </DialogActions>
+</MudDialog>
 @code {
-
-    // These params are here only to emulate the Forms contrstructor in @foreach
-    public SKImage VisibleIcon { get; set; }
-    public SKImage ActiveIcon { get; set; }
-    public SKImage VisibleIconDull { get; set; }
-    public SKImage ActiveIconDull { get; set; }
-
+    float strokeWidth = 0;
+    MudColor strokeColor;
     public new CurveMenuItem Base { get { return (CurveMenuItem)base.Base; } }
-    public ToolControlView SplineVisible { get; set; } 
-    public ToolControlView SplineEnabled { get; set; }
+    public new CurveMenuItem Created { get { return (CurveMenuItem)base.Created; } }
+    public bool SplineEnabled { get; set; } = true;
+    public bool SplineVisible { get; set; } = true; 
     string prevPSource = "";
     string SplineLabel_Text { get; set; } = "";
     public new RotatingBezierSpline Item { get { return (RotatingBezierSpline)base.Item; } set => base.Item = value; }
     public event EventHandler OnRequestToHiglight;
     public event EventHandler OnRequestToUndoHighlight;
-    bool appearanceP_Disabled = true;
+    bool appearanceP_Disabled = false;
     bool appearnceP_Enabled { get => !appearanceP_Disabled; set => appearanceP_Disabled = !value; }
-
+    bool editDialogOpen = false;
 
     public void Init(BezierBoardItem item = null, bool readOnly = false)
     {
         base.Init(item);
         var st = DateTime.Now;
-        //InitializeComponent();
         if (item is RotatingBezierSpline)
         {
             SplineLabel_Text = ((RotatingBezierSpline)item).Label;
+            strokeColor = new MudColor(Item.NormalColor.R, Item.NormalColor.G, Item.NormalColor.B, Item.NormalColor.A);
+            strokeWidth = Item.FlatTipWidth;
         }
         if (readOnly)
         {
             appearnceP_Enabled = false;
-            SplineEnabled.Enabled = false;
+            SplineEnabled = false;
         }
-        var s1 = DateTime.Now - st;
-        try
-        {
-            //delTC.SetImage(Image.FromFile("Resources\\delete.png"), 23);
-            //appearanceTC.SetImage(Image.FromFile("Resources\\appearance.png"), 23);
-        }
-        catch { }
-        var s2 = DateTime.Now - st;
     }
 
     public void Init(RotatingBezierSpline spline, SKImage visibleIcon, SKImage activeIcon, SKImage visibleIconDull, SKImage activeIconDull)
     {
         base.Init(spline);
-        SplineVisible.SetImage(visibleIcon, visibleIconDull);
-        SplineEnabled.SetImage(activeIcon, activeIconDull);
         this.SplineLabel_Text = spline.Label;
         spline.OnAnchorAdded += Spline_OnAnchorAdded;
         spline.WidthChangeRequest += Spline_WidthChangeRequest;
@@ -103,15 +124,20 @@
             var st = DateTime.Now;
             var item = Base.Item;
             var readOnly = Base.ReadOnly;
-            Init(item, Base.VisibleIcon, Base.ActiveIcon, Base.VisibleIconDull, Base.ActiveIconDull);
+            Init(item);
             if (item is RotatingBezierSpline)
             {
                 SplineLabel_Text = ((RotatingBezierSpline)item).Label;
+                Item.OnRequestToEditAppearance += (s, e) =>
+                {
+                    editDialogOpen = true;
+                    StateHasChanged();
+                };
             }
             if (readOnly)
             {
                 appearnceP_Enabled = false;
-                SplineEnabled.Enabled = false;
+                SplineEnabled = false;
             }
             var s1 = DateTime.Now - st;
             try
@@ -123,13 +149,12 @@
             var s2 = DateTime.Now - st;
 
             var spline = ((RotatingBezierSpline)Base.Item);
-            SplineVisible.SetImage(Base.VisibleIcon, Base.VisibleIconDull);
-            SplineEnabled.SetImage(Base.ActiveIcon, Base.ActiveIconDull);
             this.SplineLabel_Text = spline.Label;
             spline.OnAnchorAdded += Spline_OnAnchorAdded;
             spline.WidthChangeRequest += Spline_WidthChangeRequest;
 
             Spline_OnAnchorAdded(spline, new EventArgs());
+            StateHasChanged();
         }
     }
 
@@ -143,7 +168,7 @@
 
     private void Spline_OnAnchorAdded(object sender, EventArgs e)
     {
-        NeedsToRedrawPreview = true;
+        NeedsToRedrawPreview = true; 
         foreach (var a in Item.Anchors)
         {
             a.OnShapeChanged -= A_OnShapeChanged;
@@ -170,26 +195,32 @@
             float widBkp = Item.FlatTipWidth;
             if (Item.FlatTipWidth < 2)
                 Item.FlatTipWidth = 2;
-            Item.Draw(g, new PointF(), 1, InkDrawMode.Ink, AnchorDrawMode.None, null, null);
+            Item.Draw(g, new System.Drawing.PointF(), 1, InkDrawMode.Ink, AnchorDrawMode.None, null, null);
             Item.FlatTipWidth = widBkp;
             prevPSource = ImageServices.SKImageToString(bmp);
+            StateHasChanged();
         }
         catch { }
     }
 
     private void visibleTC_OnActivated()
     {
-        Item.Visible = SplineVisible.Active;
+        SplineVisible = !SplineVisible;
+        Item.Visible = SplineVisible;
+        StateHasChanged();
     }
 
     private void activeTC_OnActivated()
     {
-        Item.Locked = !SplineEnabled.Active;
+        SplineEnabled = !SplineEnabled;
+        Item.Locked = !SplineEnabled;
+        StateHasChanged();
     }
 
     private void appearnceP_MouseClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
     {
-        Item.ChangeAppearance();
+        editDialogOpen = true;
+        StateHasChanged();
     }
 
     private void delP_MouseClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
@@ -251,8 +282,9 @@
         NotifyRequestToUnlockOnly();
     }
 
-    private void textBox1_TextChanged()
+    private void textBox1_TextChanged(string value)
     {
+        SplineLabel_Text = value;
         Item.Label = SplineLabel_Text;
     }
 
@@ -264,5 +296,27 @@
     private void button2_Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
     {
         NotifyMoveDownRequest();
+    }
+    public void SetSplineVisible(bool value)
+    {
+        SplineVisible = value;
+        StateHasChanged();
+    }
+    public void SetSplineEnabled(bool value)
+    {
+        SplineEnabled = value;
+        StateHasChanged();
+    }
+    void strokeWidthChanged(float width)
+    {
+        Item.FlatTipWidth = width;
+        Item.NotifyAppearanceChanged();
+        StateHasChanged();
+    }
+    void strokeColorChanged(MudColor col)
+    {
+        Item.NormalColor = System.Drawing.Color.FromArgb(col.A, col.R, col.G, col.B);
+        Item.NotifyAppearanceChanged();
+        StateHasChanged();
     }
 }

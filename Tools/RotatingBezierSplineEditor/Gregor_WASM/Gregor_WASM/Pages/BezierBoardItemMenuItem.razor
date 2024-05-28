@@ -4,6 +4,7 @@
 @code {
     [Parameter]
     public BezierBoardItemMenuItem Base { get; set; }
+    public BezierBoardItemMenuItem Created { get; set; }
 
     // These params are here only to emulate the Forms contrstructor in @foreach
     public BezierBoardItem Item { get; set; }
@@ -19,6 +20,7 @@
     public void Init(BezierBoardItem item)
     {
         this.Item = item;
+        Base.Created = this;
     }
     public void NotifyRequestToShowAll()
     {

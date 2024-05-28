@@ -943,6 +943,7 @@ namespace RotatingBezierSplineEditor
         public string Label { get; set; } = "";
         public event EventHandler WidthChangeRequest;
         public event EventHandler OnShowCurveMenuRequest;
+        public event EventHandler OnRequestToEditAppearance;
         public RotatingBezierSpline(BezierBoard board, bool mouseEvents) :base(mouseEvents)
         {
             Board = board;
@@ -958,13 +959,18 @@ namespace RotatingBezierSplineEditor
                 if (Locked || !Visible) return;
                 if (e.Button == MouseButtons.Left)
                 {
-                    ChangeAppearance();
+                    OnRequestToEditAppearance?.Invoke(this, e);
                 }
                 else
                 {
-                    OnShowCurveMenuRequest(this, new EventArgs());
+                    OnShowCurveMenuRequest?.Invoke(this, new EventArgs());
                 }
             };
+        }
+        internal void NotifyAppearanceChanged()
+        {
+            WidthChangeRequest?.Invoke(this, new EventArgs());
+            Board.Invalidate(); 
         }
         public RectangleF BoundingRectangle()
         {
@@ -986,7 +992,7 @@ namespace RotatingBezierSplineEditor
             return Anchors.Select(a => (BezierBoardItem)a).ToList();
         }
         public List<RotatingBezierSplineAnchor> Anchors { get; private set; } = new List<RotatingBezierSplineAnchor>();
-        Color NormalColor = Color.DarkGray;
+        public Color NormalColor { get; set; } = Color.DarkGray;
         public float FlatTipWidth { get; set; } = 0;
         List<BezierCurveCellWithRotation> lastCurveCellCache;
         InkDrawMode inkDrawModeCache;
@@ -1169,37 +1175,6 @@ namespace RotatingBezierSplineEditor
                 c.Save(spline);
         }
 
-        internal void ChangeAppearance()
-        {
-            throw new NotImplementedException();
-            //SplineAppearanceEditor apf = new SplineAppearanceEditor();
-            //apf.widthTB.Value = (int)FlatTipWidth;
-            //apf.colorP.BackColor = NormalColor;
-            //apf.colorP.Click += (s2, e2) =>
-            //{
-            //    var cd = new ColorDialog();
-            //    cd.Color = apf.colorP.BackColor;
-            //    if (cd.ShowDialog() == DialogResult.OK)
-            //    {
-            //        apf.colorP.BackColor = cd.Color;
-            //        NormalColor = cd.Color;
-            //        WidthChangeRequest?.Invoke(this, new EventArgs());
-            //        Board.Invalidate(); Application.DoEvents();
-            //    }
-            //};
-            //apf.widthTB.ValueChanged += (s2, e2) =>
-            //{
-            //    FlatTipWidth = apf.widthTB.Value;
-            //    WidthChangeRequest?.Invoke(this, new EventArgs());
-            //    foreach (var a in Anchors)
-            //    {
-            //        a.R1.HandleLength = FlatTipWidth / 2;
-            //        a.ResetRotationHandleLength();
-            //    }
-            //    Board.Invalidate(); Application.DoEvents();
-            //};
-            //apf.ShowDialog();
-        }
         public override string ToString()
         {
             return Index.ToString() + ": " + Label;

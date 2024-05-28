@@ -251,6 +251,21 @@
     }
     protected override async Task OnInitializedAsync()
     {
+        new Task(async () =>
+        {
+            while(true){
+                await Task.Delay(1000);
+
+                foreach (var ci in documentLayoutFP_Controls.OfType<CurveMenuItem>())
+                {
+                    if (ci.Created.NeedsToRedrawPreview)
+                    {
+                        ci.Created.RecomputePreview();
+                        ci.Created.NeedsToRedrawPreview = false;
+                    }
+                }
+            }
+        }).Start();
     }
 
     void setEditingModeMenuItems()
@@ -320,20 +335,13 @@
             con = new CurveMenuItem
                 {
                     Item = (RotatingBezierSpline)e.Item,
-                    VisibleIcon = visibleIcon,
-                    ActiveIcon = activeIcon,
-                    VisibleIconDull = visibleIconDull,
-                    ActiveIconDull = activeIconDull,
                 };
+                ((RotatingBezierSpline)e.Item).Label = "Spline " + (documentLayoutFP_Controls.Count + 1);
         }
         else if (e.Item is ImageItem)
             con = new ImageMenuItem
                 {
                     Item = (ImageItem)e.Item,
-                    VisibleIcon = visibleIcon,
-                    ActiveIcon = activeIcon,
-                    VisibleIconDull = visibleIconDull,
-                    ActiveIconDull = activeIconDull,
                 };
         con.OnRequestToShowAll += async(s,e) => await Con_OnRequestToShowAll(s, e);
         con.OnRequestToUnlockAll += async(s,e) => await Con_OnRequestToUnlockAll(s, e);
@@ -378,7 +386,7 @@
         foreach (var cmi in documentLayoutFP_Controls.OfType<CurveMenuItem>())
         {
             if (cmi != sender && cmi.Item != sender)
-                await cmi.SplineEnabled.SetActive(false);
+                cmi.Created.SetSplineEnabled(false);
 
         }
     }
@@ -386,7 +394,7 @@
     private async Task Con_OnRequestToUnlockAll(object sender, EventArgs e)
     {
         foreach (var cmi in documentLayoutFP_Controls.OfType<CurveMenuItem>())
-            await cmi.SplineEnabled.SetActive(true);
+            cmi.Created.SetSplineEnabled(true);
     }
 
 
@@ -395,13 +403,13 @@
         foreach (var cmi in documentLayoutFP_Controls.OfType<CurveMenuItem>())
         {
             if (cmi != sender && cmi.Item != sender)
-                await cmi.SplineVisible.SetActive(false);
+                cmi.Created.SetSplineVisible(false);
         }
     }
     private async Task Con_OnRequestToShowAll(object sender, EventArgs e)
     {
         foreach (var cmi in documentLayoutFP_Controls.OfType<CurveMenuItem>())
-            await cmi.SplineVisible.SetActive(true);
+            cmi.Created.SetSplineVisible(true);
     }
 
     private void backgroundImagesToolStripMenuItem_Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
@@ -564,10 +572,10 @@
     {
         foreach (var ci in documentLayoutFP_Controls.OfType<CurveMenuItem>())
         {
-            if (ci.NeedsToRedrawPreview)
+            if (ci.Created.NeedsToRedrawPreview)
             {
-                ci.RecomputePreview();
-                ci.NeedsToRedrawPreview = false;
+                ci.Created.RecomputePreview();
+                ci.Created.NeedsToRedrawPreview = false;
             }
         }
     }

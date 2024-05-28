@@ -10,43 +10,54 @@
         <img style="height: 100%; aspect-ratio: 1/1; " src="@prevPSource" />
     </MudItem>
     @* Name and flags*@
-    <MudItem md=8>
-        <MudItem md="12">
-            <MudInputString Value="@SplineLabel_Text" ValueChanged="@textBox1_TextChanged"></MudInputString>
-        </MudItem>
-        @* SplineEnabled*@
-        <MudItem md="3">
-            <ToolControlView @ref="@SplineEnabled" OnActivated="@activeTC_OnActivated"></ToolControlView>
-        </MudItem>
-        @* SplineVisible *@
-        <MudItem md="3">
-            <ToolControlView @ref="@SplineVisible" OnActivated="@visibleTC_OnActivated"></ToolControlView>
-        </MudItem>
-        @* No Edit for this item *@
-        @* delP *@
-        <MudItem md="3">
-            <img @onclick="@delP_MouseClick" />
-        </MudItem>
+    <MudItem md=7>
+        <MudGrid>
+            <MudItem md="12">
+                <MudInputString Value="@SplineLabel_Text" ValueChanged="@textBox1_TextChanged"></MudInputString>
+            </MudItem>
+            @* SplineEnabled*@
+            <MudItem md="3">
+                <MudIconButton Icon="@(SplineEnabled?Icons.Material.Filled.Mouse:Icons.Material.Outlined.Mouse)"
+                               OnClick="@activeTC_OnActivated">
+                </MudIconButton>
+            </MudItem>
+            @* SplineVisible *@
+            <MudItem md="3">
+                <MudIconButton Icon="@(SplineVisible?Icons.Material.Filled.RemoveRedEye:Icons.Material.Outlined.RemoveRedEye)"
+                               OnClick="@visibleTC_OnActivated">
+                </MudIconButton>
+            </MudItem>
+            @* appearnceP*@
+            <MudItem md="3">
+                @* No Edit for this item*@
+                @* <MudIconButton Disabled="@appearanceP_Disabled" Icon="@Icons.Material.Filled.AutoFixHigh" OnClick="appearnceP_MouseClick"></MudIconButton> *@
+            </MudItem>
+            @* delP *@
+            <MudItem md="3">
+                <MudIconButton Icon="@Icons.Material.Outlined.DeleteForever"
+                               OnClick="@delP_MouseClick">
+                </MudIconButton>
+            </MudItem>
+        </MudGrid>
     </MudItem>
     @* Up Down*@
-    <MudItem md="1">
-        <MudItem md=12>
-            <MudIconButton Icon="@Icons.Material.Filled.ArrowUpward" OnClick="@button1_Click"></MudIconButton>
-            <MudIconButton Icon="@Icons.Material.Filled.ArrowDownward" OnClick="@button2_Click"></MudIconButton>
-        </MudItem>
+    <MudItem md="2">
+        <MudGrid>
+            <MudItem md=12>
+                <MudIconButton Icon="@Icons.Material.Filled.ArrowUpward" OnClick="@button1_Click"></MudIconButton>n>
+            </MudItem>
+            <MudItem md=12>
+                <MudIconButton Icon="@Icons.Material.Filled.ArrowDownward" OnClick="@button2_Click"></MudIconButton>
+            </MudItem>
+        </MudGrid>
     </MudItem>
 </MudGrid>
 
 @code {
-    // These params are here only to emulate the Forms contrstructor in @foreach
-    public SKImage VisibleIcon { get; set; }
-    public SKImage ActiveIcon { get; set; }
-    public SKImage VisibleIconDull { get; set; }
-    public SKImage ActiveIconDull { get; set; }
-
 
     public new ImageMenuItem Base { get { return (ImageMenuItem)base.Base; } }
-    ToolControlView SplineVisible, SplineEnabled;
+    public new CurveMenuItem Created { get { return (CurveMenuItem)base.Created; } }
+    bool SplineVisible, SplineEnabled;
     string prevPSource = "";
     string SplineLabel_Text { get; set; } = "";
     public new ImageItem Item { get { return (ImageItem)base.Item; } set => base.Base.Item = value; }
@@ -62,18 +73,20 @@
     public void Init(ImageItem imageItem, SKImage visibleIcon, SKImage activeIcon, SKImage visibleIconDull, SKImage activeIconDull)
     {
         base.Init(imageItem);
-        SplineVisible.SetImage(visibleIcon, visibleIconDull);
-        SplineEnabled.SetImage(activeIcon, activeIconDull);
         prevPSource = ImageServices.SKImageToString(imageItem.SourceImage);
     }
     private void visibleTC_OnActivated()
     {
-        Item.Visible = SplineVisible.Active;
+        SplineVisible = !SplineVisible;
+        Item.Visible = SplineVisible;
+        StateHasChanged();
     }
 
     private void activeTC_OnActivated()
     {
-        Item.Locked = !SplineEnabled.Active;
+        SplineEnabled = !SplineEnabled;
+        Item.Locked = !SplineEnabled;
+        StateHasChanged();
     }
 
     private void appearnceP_MouseClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
@@ -149,5 +162,16 @@
     private void button2_Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
     {
         NotifyMoveDownRequest();
+    }
+
+    public void SetSplineVisible(bool value)
+    {
+        SplineVisible = value;
+        StateHasChanged();
+    }
+    public void SetSplineEnabled(bool value)
+    {
+        SplineEnabled = value;
+        StateHasChanged();
     }
 }
