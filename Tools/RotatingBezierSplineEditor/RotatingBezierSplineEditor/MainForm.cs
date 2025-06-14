@@ -412,6 +412,7 @@ Uou can save, open and import rotating bezier splines using the File menu
             var rect = new RectangleF(minX, minY, maxX - minX, maxY - minY);
             var bmp = new Bitmap((int)(rect.Width * scale), (int)(rect.Height * scale));
             var g = Graphics.FromImage(bmp);
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             g.ScaleTransform(1, -1);
             g.TranslateTransform(0, -bmp.Height);
             g.TranslateTransform(-rect.X * scale, -rect.Y * scale);
